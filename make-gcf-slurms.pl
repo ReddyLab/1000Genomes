@@ -14,7 +14,7 @@ foreach my $file (@files) {
   chomp $file;
   if($file=~/([^\/]+).vcf.gz/) {
     my $id=$1;
-    my $outfile="gcf/$id.gcf";
+    my $outfile="gcf/$id.gcf.gz";
     my $cmd="$PROGRAM -c -v -f $REGIONS $file $outfile";
     $writer->addCommand($cmd);
   }
