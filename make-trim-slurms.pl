@@ -16,6 +16,7 @@ system("mkdir -p $OUT_DIR");
 system("mkdir -p $UNPAIRED_DIR");
 my $slurm=new SlurmWriter;
 $slurm->nice();
+$slurm->mem(4000);
 my @fastq=`ls $FASTQ_DIR/*.fastq.gz`;
 foreach my $infile (@fastq) {
   next unless($infile=~/([^\/]+)_1.fastq.gz/);
@@ -26,7 +27,7 @@ foreach my $infile (@fastq) {
   my $outfile2="$OUT_DIR/${id}_2.fastq.gz";
   my $unpaired1="$UNPAIRED_DIR/${id}_1_unpaired.fastq.gz";
   my $unpaired2="$UNPAIRED_DIR/${id}_2_unpaired.fastq.gz";
-  my $cmd="java -jar /data/reddylab/software/Trimmomatic-0.33/Trimmomatic-0.33/trimmomatic-0.33.jar PE -phred33 -threads 8 $infile1 $infile2 $outfile1 $unpaired1 $outfile2 $unpaired2 ILLUMINACLIP:$ADAPTERS:2:30:15:1:true HEADCROP:1 LEADING:30 SLIDINGWINDOW:7:20 MINLEN:30";
+  my $cmd="java -jar /data/reddylab/software/Trimmomatic-0.33/Trimmomatic-0.33/trimmomatic-0.33.jar PE -phred33 -threads 1 $infile1 $infile2 $outfile1 $unpaired1 $outfile2 $unpaired2 ILLUMINACLIP:$ADAPTERS:2:30:15:1:true HEADCROP:1 LEADING:30 SLIDINGWINDOW:7:20 MINLEN:30";
   $slurm->addCommand($cmd);
 }
 
