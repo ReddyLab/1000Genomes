@@ -2,12 +2,14 @@
 use strict;
 use SlurmWriter;
 
+#my $QUEUE="lowmem"
+my $QUEUE="lowmem";
 my $SCRATCH="/data/reddylab/bmajoros/scratch";
 my $VCF="/data/common/1000_genomes/VCF/20130502/by-population";
 my $PROGRAM="/home/bmajoros/gz/vcf-to-gcf";
 my $ANALYSIS="/data/reddylab/Reference_Data/1000Genomes/analysis";
 my $REGIONS="/home/bmajoros/ensembl/coding-and-noncoding-genes.bed";
-my $NUM_JOBS=10;
+my $NUM_JOBS=100;
 
 my $writer=new SlurmWriter;
 my @files=`ls $VCF/*.vcf.gz`;
@@ -19,12 +21,15 @@ foreach my $file (@files) {
     my $outfile="gcf/$id.gcf.gz";
     my $tempfile="$SCRATCH/$fileNum.binary";
     ++$fileNum;
-    my $cmd="$PROGRAM -m $tempfile -c -v -f $REGIONS $file $outfile ; rm $tempfile";
+    #my $cmd="$PROGRAM -m $tempfile -c -v -f $REGIONS $file $outfile ; rm $tempfile";
+    my $cmd="$PROGRAM -m $tempfile -c -v $file $outfile ; rm $tempfile";
+    #my $cmd="$PROGRAM -c -v $file $outfile";
     $writer->addCommand($cmd);
   }
 }
 
-#$writer->mem(1500);
-$writer->writeScripts(10,"slurms-gcf","gcf","lowmem",$ANALYSIS);
+#$writer->mem(10000);
+#$writer->nice();
+$writer->writeScripts($NUM_JOBS,"slurms-gcf","gcf",$QUEUE,$ANALYSIS);
 
 
