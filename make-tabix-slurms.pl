@@ -15,13 +15,12 @@ foreach my $file (@files) {
   if($file=~/([^\/]+).vcf.gz/) {
     my $id=$1;
     my $outfile="tabix/$id.vcf.gz";
-    my $cmd="tabix -h $file -R $REGIONS | bgzip > $outfile";
+    my $cmd="tabix -h $file -R $REGIONS | vcf-sort | bgzip > $outfile";
     $writer->addCommand($cmd);
   }
 }
 
 #$writer->mem(1500);
-$writer->nice();
 $writer->writeScripts($NUM_JOBS,"slurms-tabix","tabix","lowmem",$ANALYSIS);
 
 
