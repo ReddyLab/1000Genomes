@@ -13,7 +13,7 @@ foreach my $file (@files) {
   my $cmd="cd $BASEDIR ; cat ";
   foreach my $subdir (@dirs) {$cmd.="$subdir/$file "}
   $cmd.="> $OUTDIR/$file";
-  System();
+  System($cmd);
 }
 
 sub System {
