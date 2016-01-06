@@ -10,7 +10,7 @@ open(OUT,">$outfile") || die $outfile;
 open(IN,$infile) || die $infile;
 while(<IN>) {
   if(/^>(\S+)(.*)/) {
-    print OUT ">$1\_$hap$2";
+    print OUT ">$1\_$hap$2\n";
   }
   else { print OUT }
 }
