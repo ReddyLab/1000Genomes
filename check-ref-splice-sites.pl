@@ -2,6 +2,7 @@
 use strict;
 use GffTranscriptReader;
 use FastaReader;
+use Translation;
 
 my $REF="/home/bmajoros/1000G/assembly/combined/ref/1.fasta";
 my $GFF="/home/bmajoros/1000G/assembly/local-genes.gff";
@@ -34,7 +35,22 @@ while(1) {
     for(my $i=0 ; $i<$numExons ; ++$i) {
       my $exon=$exons->[$i];
       my $begin=$exon->getBegin(); my $end=$exon->getEnd();
-      
+      if($i>0) {
+	my $signal=substr($seq,$begin-2,2);
+	if($strand eq "-") {
+	  $signal=Translation::reverseComplement(\$signal);
+	  print "donor\t$signal\n";
+	}
+	else { print "acceptor\t$signal\n" }
+      }
+      if($i+1<$numExons) {
+	my $signal=substr($seq,$end,2);
+	if($strand eq "-") {
+	  $signal=Translation::reverseComplement(\$signal);
+	  print "acceptor\t$signal\n";
+	}
+	else { print "donor\t$signal\n" }
+      }
     }
   }
 }
