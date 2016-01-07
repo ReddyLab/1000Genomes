@@ -25,8 +25,8 @@ my $fastaWriter=new FastaWriter;
 my $refGenome="$refDir/1.fasta";
 my $refFasta="$genomeDir/ref.fasta";
 my $altFasta="$genomeDir/alt.fasta";
-my $refGffFile="$genomeDir/ref.gff";
-my $altGffFile="$genomeDir/alt.gff";
+my $refGff="$genomeDir/ref.gff";
+my $altGff="$genomeDir/alt.gff";
 my $combinedGFF="$genomeDir/mapped.gff";
 unlink($combinedGFF) if -e $combinedGFF;
 my $tempGff="$genomeDir/temp.gff";
@@ -70,26 +70,27 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
     System("$ALIGNER -q -c $cigarFile $SUBST_MATRIX $GAP_OPEN $GAP_EXTEND $refFasta $altFasta DNA $BANDWIDTH");
 
     # Get the gene annotation and map each isoform separately
-    my $gene=$geneHash{$geneID); die unless $gene;
+    my $gene=$geneHash{$geneID}; die unless $gene;
     my $numTrans=$gene->getNumTranscripts();
     for(my $i=0 ; $i<$numTrans ; ++$i) {
       my $transcript=$gene->getIthTranscript($i);
       my $gff=$transcript->toGff();
-      writeGFF($gff,$refGffFile);
+      writeGFF($gff,$refGff);
 
       # Run the mapper to map the annotation across the alignment
       my $substrate="$geneID\_$haplotype";
-      System("$MAPPER -s $substrate $refGffFile $cigarFile $altGff");
+      System("$MAPPER -s $substrate $refGff $cigarFile $altGff");
 
       # Add the mapped transcript to the output file
       System("cat $altGff >> $combinedGFF");
+
+      die "ok";
     }
   }
   $refReader->close();
   $genomeReader->close();
-  die "ok";
 }
-unlink($altGffFile); unlink($refGffFile); unlink($cigarFile);
+unlink($altGff); unlink($refGff); unlink($cigarFile);
 unlink($altFasta); unlink($refFasta); unlink($tempGff);
 
 #===============================================================
@@ -113,7 +114,7 @@ sub writeGFF
 sub System
 {
   my ($cmd)=@_;
-  #print "$cmd\n";
+  print "$cmd\n";
   system($cmd);
 }
 
