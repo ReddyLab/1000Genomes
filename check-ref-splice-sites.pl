@@ -31,6 +31,7 @@ while(1) {
     my $strand=$transcript->{strand};
     my $chr=$transcript->{substrate};
     my $exons=$transcript->{exons};
+    @$exons=sort {$a->getBegin() <=> $b->getBegin()} @$exons;
     my $numExons=@$exons;
     for(my $i=0 ; $i<$numExons ; ++$i) {
       my $exon=$exons->[$i];
