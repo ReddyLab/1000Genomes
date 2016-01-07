@@ -6,24 +6,33 @@ use FastaReader;
 use FastaWriter;
 
 # Globals
-my $MAPPER="/home/bmajoros/map-annotations";
-my $ALIGNER="/home/bmajoros/cia/BOOM/banded-smith-waterman";
-my $MATRIX="/home/bmajoros/alignment/matrices/NUC.4.4";
+my $GAP_OPEN=5;
+my $GAP_EXTEND=1;
+my $BANDWIDTH=50;
+my $HOME="/home/bmajoros";
+my $MAPPER="$HOME/cia/map-annotations";
+my $ALIGNER="$HOME/cia/BOOM/banded-smith-waterman";
+my $SUBST_MATRIX="$HOME/alignment/matrices/NUC.4.4";
 
 # Parse command line
 my $name=ProgramName::get();
 die "$name <local-genes.gff> <ref-genome-dir> <personal-genome-dir>\n"
   unless @ARGV==3;
-my ($localGenes,$refFasta,$genomeDir)=@ARGV;
+my ($localGenes,$refDir,$genomeDir)=@ARGV;
 
 # Initialization
 my $fastaWriter=new FastaWriter;
+my $refGenome="$refDir/1.fasta";
 my $refFasta="$genomeDir/ref.fasta";
 my $altFasta="$genomeDir/alt.fasta";
 my $refGffFile="$genomeDir/ref.gff";
 my $altGffFile="$genomeDir/alt.gff";
 my $combinedGFF="$genomeDir/mapped.gff";
+unlink($combinedGFF) if -e $combinedGFF;
 my $tempGff="$genomeDir/temp.gff";
+$genomeDir=~/combined\/([^\/]+)$/ || die $genomeDir;
+my $ID=$1;
+my $cigarFile="$genomeDir/alignment.cigar";
 
 # Load GFF and hash by gene ID
 my %geneHash;
@@ -33,22 +42,18 @@ my $numGenes=@$genes;
 for(my $i=0 ; $i<$numGenes ; ++$i) {
   my $gene=$genes->[$i];
   my $geneID=$gene->getId();
-  $geneHash{$geneID);
+  $geneHash{$geneID}=$gene;
 }
 
 # Process each haplotype of this individual
-$genomeDir=~/combined\/([\/]+)/ || die $genomeDir;
-my $ID=$1;
 for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
-  my $outfile="$genomeDir/$haplotype.gff";
-  unlink($outfile) if -e $outfile;
-  my $refReader=new FastaReader($refFasta);
+  my $refReader=new FastaReader($refGenome);
   my $personalGenomeFile="$genomeDir/$haplotype.fasta";
   my $genomeReader=new FastaReader($personalGenomeFile);
   while(1) {
-    my ($personalDef,$personalSeq)=$genomeReader->nextSequence();
-    last unless defined $personalDef;
-    $personalDef=~/^>(\S+)_\d\s/ || die $personalDef;
+    my ($altDef,$altSeq)=$genomeReader->nextSequence();
+    last unless defined $altDef;
+    $altDef=~/^>(\S+)_\d\s/ || die $altDef;
     my $geneID=$1;
     my ($refDef,$refSeq);
     while(1) {
@@ -59,13 +64,12 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
       last if $refGeneID eq $geneID;
     }
 
-    # Align ref to personal gene to get CIGAR string for the mapper
-    my $cigarFile="$genomeDir/$ID.cigar";
-    writeFasta(">alt",$personalSeq,$altFasta);
+    # Align ref to alt gene to get CIGAR string for the mapper
     writeFasta(">ref",$refSeq,$refFasta);
-    System("$ALIGNER -q -c $cigarFile $MATRIX 10 1 $refFasta $altFasta DNA 50");
+    writeFasta(">alt",$altSeq,$altFasta);
+    System("$ALIGNER -q -c $cigarFile $SUBST_MATRIX $GAP_OPEN $GAP_EXTEND $refFasta $altFasta DNA $BANDWIDTH");
 
-    # Get the gene and map each isoform separately
+    # Get the gene annotation and map each isoform separately
     my $gene=$geneHash{$geneID); die unless $gene;
     my $numTrans=$gene->getNumTranscripts();
     for(my $i=0 ; $i<$numTrans ; ++$i) {
@@ -74,21 +78,19 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
       writeGFF($gff,$refGffFile);
 
       # Run the mapper to map the annotation across the alignment
-      System("$MAPPER $refGffFile $cigarFile $altGff");
-
-      # Change the substrate in the GFF to match the haplotype FASTA
-      fixSubstrate($altGff,"$geneID\_$haplotype");
+      my $substrate="$geneID\_$haplotype";
+      System("$MAPPER -s $substrate $refGffFile $cigarFile $altGff");
 
       # Add the mapped transcript to the output file
-      System("cat $altGff >> $outfile");
+      System("cat $altGff >> $combinedGFF");
     }
-
   }
   $refReader->close();
   $genomeReader->close();
+  die "ok";
 }
+unlink($altGffFile); unlink($refGffFile); unlink($cigarFile);
 unlink($altFasta); unlink($refFasta); unlink($tempGff);
-System("cat $genomeDir/1.gff $genomeDir/2.gff > $combinedGFF");
 
 #===============================================================
 sub writeFasta
@@ -99,30 +101,11 @@ sub writeFasta
 
 
 
-sub fixSubstrate
-{
-  my ($filename,$substrate)=@_;
-  open(OUT,">$tempGff") || die $tempGff;
-  open(IN,$filename) || die $filename;
-  while(<IN>) {
-    chomp;
-    my @fields=split;
-    next unless @fields>=8;
-    $fields[0]=$substrate;
-    my $line=join("\t",@fields);
-    print OUT "$line\n";
-  }
-  close(IN);
-  close(OUT);
-}
-
-
-
 sub writeGFF
 {
   my ($gff,$file)=@_;
   open(OUT,">$file") || die $file;
-  print OUT "$gff\n";
+  print OUT "$gff";
   close(OUT);
 }
 
