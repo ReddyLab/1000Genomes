@@ -22,6 +22,8 @@ my $refFasta="$genomeDir/ref.fasta";
 my $altFasta="$genomeDir/alt.fasta";
 my $refGffFile="$genomeDir/ref.gff";
 my $altGffFile="$genomeDir/alt.gff";
+my $combinedGFF="$genomeDir/mapped.gff";
+my $tempGff="$genomeDir/temp.gff";
 
 # Load GFF and hash by gene ID
 my %geneHash;
@@ -38,6 +40,8 @@ for(my $i=0 ; $i<$numGenes ; ++$i) {
 $genomeDir=~/combined\/([\/]+)/ || die $genomeDir;
 my $ID=$1;
 for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
+  my $outfile="$genomeDir/$haplotype.gff";
+  unlink($outfile) if -e $outfile;
   my $refReader=new FastaReader($refFasta);
   my $personalGenomeFile="$genomeDir/$haplotype.fasta";
   my $genomeReader=new FastaReader($personalGenomeFile);
@@ -72,20 +76,44 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
       # Run the mapper to map the annotation across the alignment
       System("$MAPPER $refGffFile $cigarFile $altGff");
 
+      # Change the substrate in the GFF to match the haplotype FASTA
+      fixSubstrate($altGff,"$geneID\_$haplotype");
+
+      # Add the mapped transcript to the output file
+      System("cat $altGff >> $outfile");
     }
 
   }
   $refReader->close();
   $genomeReader->close();
 }
-unlink($altFasta); unlink($refFasta);
-
+unlink($altFasta); unlink($refFasta); unlink($tempGff);
+System("cat $genomeDir/1.gff $genomeDir/2.gff > $combinedGFF");
 
 #===============================================================
 sub writeFasta
 {
   my ($def,$seq,$filename)=@_;
   $fastaWriter->writeFasta($def,$seq,$filename);
+}
+
+
+
+sub fixSubstrate
+{
+  my ($filename,$substrate)=@_;
+  open(OUT,">$tempGff") || die $tempGff;
+  open(IN,$filename) || die $filename;
+  while(<IN>) {
+    chomp;
+    my @fields=split;
+    next unless @fields>=8;
+    $fields[0]=$substrate;
+    my $line=join("\t",@fields);
+    print OUT "$line\n";
+  }
+  close(IN);
+  close(OUT);
 }
 
 
