@@ -20,6 +20,10 @@ foreach my $file (@files) {
   foreach my $subdir (@dirs) {$cmd.="$subdir/$ID-2.fasta "}
   $cmd.="> $outdir/2.fasta";
   System($cmd);
+  if($ID ne "ref") {
+    System("cd $outdir ; /home/bmajoros/1000G/src/add-haplotype-to-defline.pl 1.fasta 1 tmp.fasta ; mv tmp.fasta 1.fasta");
+    System("cd $outdir ; /home/bmajoros/1000G/src/add-haplotype-to-defline.pl 2.fasta 2 tmp.fasta ; mv tmp.fasta 2.fasta");
+  }
 }
 
 sub System {

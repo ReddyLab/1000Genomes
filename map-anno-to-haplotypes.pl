@@ -6,7 +6,7 @@ use FastaReader;
 use FastaWriter;
 
 # Globals
-my $GAP_OPEN=5;
+my $GAP_OPEN=10;
 my $GAP_EXTEND=1;
 my $BANDWIDTH=50;
 my $HOME="/home/bmajoros";
@@ -83,8 +83,6 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
 
       # Add the mapped transcript to the output file
       System("cat $altGff >> $combinedGFF");
-
-      die "ok";
     }
   }
   $refReader->close();
