@@ -11,8 +11,8 @@ my $GAP_EXTEND=1;
 my $BANDWIDTH=50;
 my $HOME="/home/bmajoros";
 my $MAPPER="$HOME/cia/map-annotations";
-my $ALIGNER="$HOME/cia/BOOM/banded-smith-waterman";
-my $SUBST_MATRIX="$HOME/alignment/matrices/NUC.4.4";
+#my $ALIGNER="$HOME/cia/BOOM/banded-smith-waterman";
+#my $SUBST_MATRIX="$HOME/alignment/matrices/NUC.4.4";
 
 # Parse command line
 my $name=ProgramName::get();
@@ -53,8 +53,8 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
   while(1) {
     my ($altDef,$altSeq)=$genomeReader->nextSequence();
     last unless defined $altDef;
-    $altDef=~/^>(\S+)_\d\s/ || die $altDef;
-    my $geneID=$1;
+    $altDef=~/^>(\S+)_\d\s.*\/cigar=(\S+)/ || die $altDef;
+    my ($geneID,$cigar)=($1,$2);
     my ($refDef,$refSeq);
     while(1) {
       ($refDef,$refSeq)=$refReader->nextSequence();
@@ -65,9 +65,14 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
     }
 
     # Align ref to alt gene to get CIGAR string for the mapper
-    writeFasta(">ref",$refSeq,$refFasta);
-    writeFasta(">alt",$altSeq,$altFasta);
-    System("$ALIGNER -q -c $cigarFile $SUBST_MATRIX $GAP_OPEN $GAP_EXTEND $refFasta $altFasta DNA $BANDWIDTH");
+    #writeFasta(">ref",$refSeq,$refFasta);
+    #writeFasta(">alt",$altSeq,$altFasta);
+    #System("$ALIGNER -q -c $cigarFile $SUBST_MATRIX $GAP_OPEN $GAP_EXTEND $refFasta $altFasta DNA $BANDWIDTH");
+
+    # Write cigar string into file
+    open(CIGAR,">$cigarFile") || die $cigarFile;
+    print CIGAR "$cigar\n";
+    close(CIGAR);
 
     # Get the gene annotation and map each isoform separately
     my $gene=$geneHash{$geneID}; die unless $gene;
