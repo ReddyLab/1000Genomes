@@ -9,15 +9,16 @@ my $SRC="/home/bmajoros/1000G/src";
 my @subdirs=`ls $BASEDIR`;
 foreach my $dir (@subdirs) {
   next if $dir eq "ref";
+  my $outfile="$BASEDIR/$dir/mapped.gff";
+  System("rm $outfile") if -e $outfile;
   System("$SRC/map-anno-to-haplotypes.pl $GFF $REF $BASEDIR/$dir");
-
 }
 
 
 sub System
 {
   my ($cmd)=@_;
-  print "$cmd\n";
+  #print "$cmd\n";
   system($cmd);
 }
 

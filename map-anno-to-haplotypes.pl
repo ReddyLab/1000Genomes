@@ -117,7 +117,7 @@ sub writeGFF
 sub System
 {
   my ($cmd)=@_;
-  print "$cmd\n";
+  #print "$cmd\n";
   system($cmd);
 }
 
