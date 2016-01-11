@@ -44,7 +44,6 @@ foreach my $file (@files) {
   foreach my $subdir (@dirs) 
     { append("$BASEDIR/$subdir/$ID-2.fasta",\*OUT,$ID,2) }
   close(OUT);
-  }
 }
 
 sub System {
