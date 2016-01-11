@@ -11,7 +11,7 @@ my $SLURM_DIR="$THOUSAND/assembly/map-slurms";
 my $writer=new SlurmWriter();
 my @subdirs=`ls $BASEDIR`;
 foreach my $ID (@subdirs) {
-  chomp $ref;
+  chomp $ID;
   next if $ID eq "ref";
   my $outfile="$BASEDIR/$ID/mapped.gff";
   System("rm $outfile") if -e $outfile;
@@ -19,7 +19,7 @@ foreach my $ID (@subdirs) {
   $writer->addCommand($cmd);
   $writer->mem(4000);
 }
-$writer->writeScripts(400,$SLURM_DIR,$ID,"$BASEDIR/$ID");
+$writer->writeScripts(200,$SLURM_DIR,$ID,"$BASEDIR/$ID");
 
 
 sub System
