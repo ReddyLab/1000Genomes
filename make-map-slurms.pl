@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use SlurmWriter;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $BASEDIR="$THOUSAND/assembly/combined";
@@ -19,7 +20,7 @@ foreach my $ID (@subdirs) {
   $writer->addCommand($cmd);
   $writer->mem(4000);
 }
-$writer->writeScripts(200,$SLURM_DIR,$ID,"$BASEDIR/$ID");
+$writer->writeScripts(200,$SLURM_DIR,"map",$BASEDIR);
 
 
 sub System
