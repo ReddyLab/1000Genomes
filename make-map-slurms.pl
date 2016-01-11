@@ -18,9 +18,9 @@ foreach my $ID (@subdirs) {
   System("rm $outfile") if -e $outfile;
   my $cmd="$SRC/map-anno-to-haplotypes.pl $GFF $REF $BASEDIR/$ID";
   $writer->addCommand($cmd);
-  $writer->mem(4000);
+  $writer->mem(40000);
 }
-$writer->writeScripts(200,$SLURM_DIR,"map",$BASEDIR);
+$writer->writeScripts(200,$SLURM_DIR,"map",$SLURM_DIR);
 
 
 sub System
