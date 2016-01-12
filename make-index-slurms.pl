@@ -1,9 +1,12 @@
 #!/usr/bin/perl
 use strict;
 
-my $BASEDIR="/data/reddylab/Reference_Data/1000Genomes/analysis/assembly/combined";
-my $IDs="/data/reddylab/Reference_Data/1000Genomes/analysis/assembly/Geuvadis-keep.txt";
-my $SLURMS="$BASEDIR/index-slurms";
+my $THOUSAND="/home/bmajoros/1000G";
+my $ASSEMBLY="$THOUSAND/assembly";
+my $COMBINED="$ASSEMBLY/combined";
+my $BASEDIR=$COMBINED;
+my $IDs="$ASSEMBLY/Geuvadis-keep.txt";
+my $SLURMS="$ASSEMBLY/index-slurms";
 
 my @IDs;
 open(IN,$IDs) || die $IDs;
