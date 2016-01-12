@@ -32,7 +32,7 @@ cd $dir
    --runMode genomeGenerate \\
    --genomeDir $dir \\
    --genomeFastaFiles $dir/*.fasta \\
-   --sjdbGTFfile $dir/mapped.gff \\
+   --sjdbGTFfile $dir/hap.gff \\
    --sjdbGTFtagExonParentTranscript Parent \\
    --sjdbOverhang 74 \\
    --runThreadN 1

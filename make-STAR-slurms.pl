@@ -5,7 +5,7 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $BASEDIR="$THOUSAND/assembly/combined";
 my $IDs="$THOUSAND/assembly/Geuvadis-keep.txt";
 my $RNA_LIST="$THOUSAND/assembly/id-map-parsed.txt";
-my $SLURMS="$BASEDIR/STAR-slurms";
+my $SLURMS="$THOUSAND/assembly/STAR-slurms";
 my $RNA_DIR="$THOUSAND/trim/output";
 
 my @IDs;
