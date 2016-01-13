@@ -24,7 +24,12 @@ while(<IN>) {
 close(IN);
 
 foreach my $ID (@IDs) {
-  my $rnaID=$rnaHash{$ID}; die $ID unless $rnaID;
+  my $rnaID=$rnaHash{$ID};
+  #die $ID unless $rnaID;
+  if(!$rnaID) {
+    print "not found: $ID\n";
+    next;
+  }
   my $dir="$BASEDIR/$ID";
   my $slurm="$SLURMS/$ID.slurm";
   open(OUT,">$slurm") || die $slurm;
