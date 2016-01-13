@@ -35,7 +35,7 @@ foreach my $ID (@IDs) {
 #SBATCH -o $ID.output
 #SBATCH -e $ID.output
 #SBATCH -A $ID
-#SBATCH --mem 100000
+#SBATCH --mem 40000
 #SBATCH --cpus-per-task=1
 #
 cd $dir
