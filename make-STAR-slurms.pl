@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
+my $CPUs=32;
 my $THOUSAND="/home/bmajoros/1000G";
 my $BASEDIR="$THOUSAND/assembly/combined";
 my $IDs="$THOUSAND/assembly/Geuvadis-keep.txt";
@@ -41,7 +42,7 @@ foreach my $ID (@IDs) {
 #SBATCH -e $ID.output
 #SBATCH -A $ID
 #SBATCH --mem 40000
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=$CPUs
 #
 cd $dir
 /data/reddylab/software/STAR_2.4.2a/STAR-STAR_2.4.2a/bin/Linux_x86_64/STAR \\
@@ -52,7 +53,7 @@ cd $dir
   --outFileNamePrefix $ID \\
   --outSAMstrandField intronMotif \\
   --sjdbOverhang 74 \\
-  --runThreadN 1
+  --runThreadN $CPUs
 
 ";
   close(OUT);
