@@ -20,21 +20,33 @@ my $numTrans=@$transcripts;
 for(my $i=0 ; $i<$numTrans ; ++$i) {
   my $trans=$transcripts->[$i];
   my $exons=$trans->{exons};
-  die unless @$exons>0;
+  next unless @$exons>0; #die $trans->getID() unless @$exons>0;
   my $exon=$exons->[0];
   my $exonType=$exon->{type};
   my $proteinCoding=0;
-  if($codingTypes{$exonType} || $trans->{extraFields}=~/protein/) {
+  my $extraFields=$trans->{extraFields};
+  if($extraFields=~/protein/) {
+    foreach my $exon (@$exons) { $exon->setType("CDS") }
     my $gff=$trans->toGff();
     print CDS $gff;
   }
   my $exons=$trans->getRawExons();
+  my ($substrate,$source,$begin,$end,$strand);
+  $source=$trans->getSource();
+  $strand=$trans->getStrand();
+  $substrate=$trans->getSubstrate();
   foreach my $exon (@$exons) {
-    $exon->toGff();
-    print EXONS $exon;
+    my $gff=$exon->toGff();
+    print EXONS $gff;
+    if(!defined($begin) || $exon->getBegin()<$begin)
+      { $begin=$exon->getBegin() }
+    if(!defined($end) || $exon->getEnd()>$end)
+      { $end=$exon->getEnd() }
   }
+  ++$begin; # GFF is 1-based
+  print EXONS "$substrate\t$source\ttranscript\t$begin\t$end\t.\t$strand\t.\t$extraFields\n";
 }
-close($CDS);
+close(CDS);
 close(EXONS);
 
 

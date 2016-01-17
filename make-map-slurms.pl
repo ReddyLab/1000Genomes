@@ -13,14 +13,15 @@ my $writer=new SlurmWriter();
 my @subdirs=`ls $BASEDIR`;
 foreach my $ID (@subdirs) {
   chomp $ID;
-  next if $ID eq "ref";
+  #next if $ID eq "ref" || $ID eq "trash";
+  next unless $ID=~/HG\d+/ || $ID=~/NA\d+/;
   my $outfile="$BASEDIR/$ID/mapped.gff";
-  System("rm $outfile") if -e $outfile;
+  System("rm -f $outfile") if -e $outfile;
   my $cmd="$SRC/map-anno-to-haplotypes.pl $GFF $REF $BASEDIR/$ID";
   $writer->addCommand($cmd);
   $writer->mem(40000);
 }
-$writer->writeScripts(200,$SLURM_DIR,"map",$SLURM_DIR);
+$writer->writeScripts(445,$SLURM_DIR,"map",$SLURM_DIR);
 
 
 sub System
