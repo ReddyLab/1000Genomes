@@ -2,6 +2,7 @@
 use strict;
 use SlurmWriter;
 
+my $MEMORY=10000; # was 40000
 my $THOUSAND="/home/bmajoros/1000G";
 my $BASEDIR="$THOUSAND/assembly/combined";
 my $GFF="$THOUSAND/assembly/local-genes.gff";
@@ -19,7 +20,7 @@ foreach my $ID (@subdirs) {
   System("rm -f $outfile") if -e $outfile;
   my $cmd="$SRC/map-anno-to-haplotypes.pl $GFF $REF $BASEDIR/$ID";
   $writer->addCommand($cmd);
-  $writer->mem(40000);
+  $writer->mem($MEMORY);
 }
 $writer->writeScripts(445,$SLURM_DIR,"map",$SLURM_DIR);
 

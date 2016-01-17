@@ -55,14 +55,14 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
     last unless defined $altDef;
     $altDef=~/^>(\S+)_\d\s.*\/cigar=(\S+)/ || die $altDef;
     my ($geneID,$cigar)=($1,$2);
-    my ($refDef,$refSeq);
-    while(1) {
-      ($refDef,$refSeq)=$refReader->nextSequence();
-      die unless defined $refDef;
-      $refDef=~/^>(\S+)\s/ || die $refDef;
-      my $refGeneID=$1;
-      last if $refGeneID eq $geneID;
-    }
+    #my ($refDef,$refSeq);
+    #while(1) {
+    #  ($refDef,$refSeq)=$refReader->nextSequence();
+    #  die unless defined $refDef;
+    #  $refDef=~/^>(\S+)\s/ || die $refDef;
+    #  my $refGeneID=$1;
+    #  last if $refGeneID eq $geneID;
+    #}
 
     # Align ref to alt gene to get CIGAR string for the mapper
     #writeFasta(">ref",$refSeq,$refFasta);
