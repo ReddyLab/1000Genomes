@@ -41,17 +41,17 @@ while(1) {
 	my $signal=substr($seq,$begin-2,2);
 	if($strand eq "-") {
 	  $signal=Translation::reverseComplement(\$signal);
-	  print "donor\t$signal\n";
+	  print "donor\t$signal\t$id\n";
 	}
-	else { print "acceptor\t$signal\n" }
+	else { print "acceptor\t$signal\t$id\n" }
       }
       if($i+1<$numExons) {
 	my $signal=substr($seq,$end,2);
 	if($strand eq "-") {
 	  $signal=Translation::reverseComplement(\$signal);
-	  print "acceptor\t$signal\n";
+	  print "acceptor\t$signal\t$id\n";
 	}
-	else { print "donor\t$signal\n" }
+	else { print "donor\t$signal\t$id\n" }
       }
     }
   }

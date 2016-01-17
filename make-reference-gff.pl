@@ -20,9 +20,7 @@ my $numTrans=@$transcripts;
 for(my $i=0 ; $i<$numTrans ; ++$i) {
   my $trans=$transcripts->[$i];
   my $exons=$trans->{exons};
-  next unless @$exons>0; #die $trans->getID() unless @$exons>0;
-  my $exon=$exons->[0];
-  my $exonType=$exon->{type};
+  #next unless @$exons>0; #die $trans->getID() unless @$exons>0;
   my $proteinCoding=0;
   my $extraFields=$trans->{extraFields};
   if($extraFields=~/protein/) {
