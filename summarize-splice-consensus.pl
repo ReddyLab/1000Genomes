@@ -6,7 +6,7 @@ my $name=ProgramName::get();
 die "$name <infile> <outfile\n" unless @ARGV==2;
 my ($infile,$outfile)=@ARGV;
 
-my (%donors,%acceptors,$N);
+my (%donors,%acceptors);
 open(IN,$infile) || die $infile;
 while(<IN>) {
   chomp;
@@ -15,7 +15,6 @@ while(<IN>) {
   my ($type,$seq,$gene)=@fields;
   my $hash=$type eq "donor" ? \%donors : \%acceptors;
   ++$hash->{$seq};
-  ++$n;
 }
 close(IN);
 
@@ -40,13 +39,11 @@ sub summarize
 {
   my $hash=shift @_;
   my @keys=keys %$hash;
-  foreach my $key (@keys) {
-    $hash->{$key}=$value/$n;
-  }
+  my $n=0;
+  foreach my $key (@keys) { $n+=$hash->{$key} }
+  foreach my $key (@keys) { $hash->{$key}/=$n }
   my $total=0;
-  foreach my $seq (@_) {
-    $total+=$hash->{$seq};
-  }
+  foreach my $seq (@_) { $total+=$hash->{$seq} }
   return $total;
 }
 
