@@ -3,7 +3,7 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <input.gff> <output.gff>" unless @ARGV==2;
+die "$name <input.gff> <output.gff>\n" unless @ARGV==2;
 my ($infile,$outfile)=@ARGV;
 
 process($infile,$outfile);

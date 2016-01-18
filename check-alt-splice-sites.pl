@@ -3,9 +3,18 @@ use strict;
 use GffTranscriptReader;
 use FastaReader;
 use Translation;
+use ProgramName;
 
-my $REF="/home/bmajoros/1000G/assembly/combined/HG00097/1.fasta";
-my $GFF="/home/bmajoros/1000G/assembly/combined/HG00097/mapped.gff";
+my $name=ProgramName::get();
+die "$name <HG####>\n" unless @ARGV==1;
+my ($indiv)=@ARGV;
+
+my $THOUSAND="/home/bmajoros/1000G";
+my $ASSEMBLY="$THOUSAND/assembly";
+my $COMBINED="$ASSEMBLY/combined";
+my $REF="$COMBINED/$indiv/1.fasta";
+my $GFF="$COMBINED/$indiv/mapped.gff";
+my $OUTFILE="$COMBINED/$indiv/splice-sites.txt";
 
 my %hash;
 my $reader=new GffTranscriptReader;
@@ -18,6 +27,7 @@ for(my $i=0 ; $i<$numGenes ; ++$i) {
   $hash{$id}=$gene;
 }
 
+open(OUT,">$OUTFILE") || die $OUTFILE;
 my $reader=new FastaReader($REF);
 while(1) {
   my ($def,$seq)=$reader->nextSequence();
@@ -42,21 +52,21 @@ while(1) {
 	my $signal=substr($seq,$begin-2,2);
 	if($strand eq "-") {
 	  $signal=Translation::reverseComplement(\$signal);
-	  print "donor\t$signal\t$id\n";
+	  print OUT "donor\t$signal\t$id\n";
 	}
-	else { print "acceptor\t$signal\t$id\n" }
+	else { print OUT "acceptor\t$signal\t$id\n" }
       }
       if($i+1<$numExons) {
 	my $signal=substr($seq,$end,2);
 	if($strand eq "-") {
 	  $signal=Translation::reverseComplement(\$signal);
-	  print "acceptor\t$signal\t$id\n";
+	  print OUT "acceptor\t$signal\t$id\n";
 	}
-	else { print "donor\t$signal\t$id\n" }
+	else { print OUT "donor\t$signal\t$id\n" }
       }
     }
   }
 }
-
+close(OUT);
 
 
