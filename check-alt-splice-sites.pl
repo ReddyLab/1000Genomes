@@ -4,8 +4,8 @@ use GffTranscriptReader;
 use FastaReader;
 use Translation;
 
-my $REF="/home/bmajoros/1000G/assembly/combined/HG00096/1.fasta";
-my $GFF="/home/bmajoros/1000G/assembly/combined/HG00096/mapped-1.gff";
+my $REF="/home/bmajoros/1000G/assembly/combined/HG00097/1.fasta";
+my $GFF="/home/bmajoros/1000G/assembly/combined/HG00097/mapped.gff";
 
 my %hash;
 my $reader=new GffTranscriptReader;
@@ -25,6 +25,7 @@ while(1) {
   $def=~/>(\S+)/ || die $def;
   my $id=$1;
   my $gene=$hash{$id};
+  next unless $gene->getSubstrate()=~/_1/;
   die $id unless $gene;
   my $numTrans=$gene->getNumTranscripts();
   for(my $i=0 ; $i<$numTrans ; ++$i) {
