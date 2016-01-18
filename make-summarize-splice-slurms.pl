@@ -4,7 +4,7 @@ use strict;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
-my $INFILE="splice-sites.txt"
+my $INFILE="splice-sites.txt";
 my $OUTFILE="splice-summary.txt";
 my $SLURM_DIR="$ASSEMBLY/summarize-splice-slurms";
 

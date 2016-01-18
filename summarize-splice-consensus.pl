@@ -18,12 +18,14 @@ while(<IN>) {
 }
 close(IN);
 
+open(OUT,">$outfile") || die $outfile;
 my $totalGT=summarize(\%donors,"GT","GC","AT");
 my $totalAG=summarize(\%acceptors,"AG","AC");
-print "DONORS $totalGT\n";
-print "ACCEPTORS $totalAG\n";
+print OUT "DONORS $totalGT\n";
+print OUT "ACCEPTORS $totalAG\n";
 dumpHash(\%donors,"donor");
 dumpHash(\%acceptors,"acceptor");
+close(OUT);
 
 sub dumpHash
 {
@@ -31,7 +33,7 @@ sub dumpHash
   my @keys=keys %$hash;
   foreach my $key (@keys) {
     my $value=$hash->{$key};
-    print "$label\t$key\t$value\n";
+    print OUT "$label\t$key\t$value\n";
   }
 }
 
