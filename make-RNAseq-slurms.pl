@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 use strict;
 
-my $CPUs=32;
+my $CPUs=16;
+my $MEMORY=40000;
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 #my $IDs="$THOUSAND/assembly/Geuvadis-keep.txt";
@@ -48,7 +49,7 @@ foreach my $ID (@IDs) {
 #SBATCH -o $slurmID.output
 #SBATCH -e $slurmID.output
 #SBATCH -A RNA$slurmID
-#SBATCH --mem 10000
+#SBATCH --mem $MEMORY
 #SBATCH --cpus-per-task=$CPUs
 #
 cd $dir
@@ -65,7 +66,9 @@ bowtie2-build 1and2.fa 1and2
 
 tophat2 --output-dir $dir/RNA --min-intron-length 30 --num-threads $CPUs --GTF $dir/reformatted.gff 1and2 $FASTQ/$rnaID\_1.fastq.gz $FASTQ/$rnaID\_2.fastq.gz
 
-/data/reddylab/software/stringtie/stringtie-1.2.1.Linux_x86_64/stringtie accepted_hits.bam -G $dir/reformatted.gff -o stringtie.gff -p 1 -C stringtie.coverage -A stringtie.abundance
+/data/reddylab/software/stringtie/stringtie-1.2.1.Linux_x86_64/stringtie accepted_hits.bam -G $dir/reformatted.gff -o stringtie.gff -p $CPUs -C stringtie.coverage -A stringtie.abundance
+
+rm *.bt2 1and2.fa accepted_hits.bam
 ";
   close(OUT);
   ++$slurmID;
