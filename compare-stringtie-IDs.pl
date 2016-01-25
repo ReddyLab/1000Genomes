@@ -14,9 +14,11 @@ while(<IN>) {
   next unless @fields[2] eq "transcript";
   $_=~/transcript_id "([^"]+)";/ || die $_;
   my $stTransID=$1;
-  $_=~/reference_id "([^"]+)";/ || die $_;
-  my $transID=$1;
-  print "$transID\t$stTransID\n";
+  if(/reference_id "([^"]+)";/) {
+    my $transID=$1;
+    print "$transID\t$stTransID\n";
+  }
+  else { print "NONE\t$stTransID\n" }
 }
 close(IN);
 
