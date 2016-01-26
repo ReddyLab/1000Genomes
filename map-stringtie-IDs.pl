@@ -4,7 +4,7 @@ use GffTranscriptReader;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <in.gff> <out.gf>\n" unless @ARGV==2;
+die "$name <in.gff> <out.gff>\n" unless @ARGV==2;
 my ($infile,$outfile)=@ARGV;
 
 my $reader=new GffTranscriptReader();
@@ -19,12 +19,14 @@ for(my $i=0 ; $i<$numTranscripts ; ++$i) {
   $transcript->setGeneId($substrate);
   if(defined($hash->{"reference_id"})) {
     my $transcriptID=$hash->{"reference_id"};
-    $transcript->setTranscriptId($transcriptId);
+    $transcript->setTranscriptId($transcriptID);
   }
   my @filteredPairs;
   foreach my $pair (@$keyValuePairs) {
     my ($key,$value)=@$pair;
-    next if $key eq "gene_id" || $key eq "transcript_id";
+    next if $key eq "gene_id" || $key eq "transcript_id" ||
+      $key eq "reference_id" || $key eq "ref_gene_id";
+    #print "AAA $key $value\n";
     push @filteredPairs,$pair;
   }
   $transcript->setExtraFieldsFromKeyValuePairs(\@filteredPairs);
