@@ -30,6 +30,7 @@ for(my $i=0 ; $i<$numTranscripts ; ++$i) {
     push @filteredPairs,$pair;
   }
   $transcript->setExtraFieldsFromKeyValuePairs(\@filteredPairs);
+  $transcript->setExonTypes("exon");
   my $gff=$transcript->toGff();
   print OUT $gff;
 }
