@@ -3,8 +3,8 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <in.fasta> <out-dir>\n" unless @ARGV==2;
-my ($infile,$outDir)=@ARGV;
+die "$name <in.fasta>\n" unless @ARGV==1;
+my ($infile)=@ARGV;
 
 open(IN,$infile) || die "can't open $infile";
 while(<IN>) {
