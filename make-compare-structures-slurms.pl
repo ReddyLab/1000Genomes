@@ -13,7 +13,7 @@ my @subdirs=`ls $COMBINED`;
 foreach my $ID (@subdirs) {
   chomp $ID;
   next unless $ID=~/HG\d+/ || $ID=~/NA\d+/;
-  my $infile1="$COMBINED/$ID/mapped.gff";
+  my $infile1="$COMBINED/$ID/reformatted.gff";
   my $infile2="$COMBINED/$ID/RNA/stringtie-reformatted.gff";
   my $outfile="$COMBINED/$ID/RNA/structure-comparison.txt";
   System("rm -f $outfile") if -e $outfile;
