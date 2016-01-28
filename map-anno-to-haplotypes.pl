@@ -49,9 +49,14 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
   while(1) {
     my ($altDef,$altSeq)=$genomeReader->nextSequence();
     last unless defined $altDef;
-    if($altIsRef) { $altDef=~/^>(\S+)\s.*\/cigar=(\S+)/ || die $altDef }
-    else { $altDef=~/^>(\S+)_\d\s.*\/cigar=(\S+)/ || die $altDef }
-    my ($geneID,$cigar)=($1,$2);
+    #print "$altIsRef : $altDef\n";
+    my ($geneID,$cigar);
+    if($altIsRef) 
+      { $altDef=~/^>(\S+)\s.*\/cigar=(\S+)/ || die $altDef;
+	($geneID,$cigar)=($1,$2) }
+    else { $altDef=~/^>(\S+)_\d\s.*\/cigar=(\S+)/ || die $altDef;
+	   ($geneID,$cigar)=($1,$2) }
+    #print "geneID=$geneID\tcigar=$cigar\n";
 
     # Write cigar string into file
     open(CIGAR,">$cigarFile") || die $cigarFile;
@@ -59,7 +64,7 @@ for(my $haplotype=1 ; $haplotype<=2 ; ++$haplotype) {
     close(CIGAR);
 
     # Get the gene annotation and map each isoform separately
-    my $gene=$geneHash{$geneID}; die unless $gene;
+    my $gene=$geneHash{$geneID}; die $geneID unless $gene;
     my $numTrans=$gene->getNumTranscripts();
     for(my $i=0 ; $i<$numTrans ; ++$i) {
       my $transcript=$gene->getIthTranscript($i);
