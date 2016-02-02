@@ -3,7 +3,7 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <infile> <outfile>" unless @ARGV==2;
+die "$name <infile> <outfile>\n" unless @ARGV==2;
 my ($infile,$outfile)=@ARGV;
 
 open(IN,$infile) || die $infile;
