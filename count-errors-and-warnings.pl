@@ -7,14 +7,14 @@ my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
 
 my $name=ProgramName::get();
-die "$name <path-to-individual>\n" unless @ARGV==1;
+die "$name <individual-id>\n" unless @ARGV==1;
 my ($subdir)=@ARGV;
-my ($totalWarnings,$totalErrors);
+my ($totalWarnings,$totalErrors,$genesWithWarnings,$genesWithErrors);
 
 my $dir="$COMBINED/$subdir";
 process("$dir/1.fasta");
 process("$dir/2.fasta");
-print "$totalWarnings\t$totalErrors\n";
+print "$totalWarnings\t$totalErrors\t$genesWithWarnings\t$genesWithErrors\n";
 
 sub process {
   my ($infile)=@_;
@@ -25,6 +25,8 @@ sub process {
     my ($warnings,$errors)=($1,$2);
     $totalWarnings+=$warnings;
     $totalErrors+=$errors;
+    if($warnings>0) { ++$genesWithWarnings }
+    if($errors>0) { ++$genesWithErrors }
   }
   close(IN);
 }
