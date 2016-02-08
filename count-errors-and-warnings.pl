@@ -9,12 +9,12 @@ my $COMBINED="$ASSEMBLY/combined";
 my $name=ProgramName::get();
 die "$name <individual-id>\n" unless @ARGV==1;
 my ($subdir)=@ARGV;
-my ($totalWarnings,$totalErrors,$genesWithWarnings,$genesWithErrors);
+my ($totalWarnings,$totalErrors,$genesWithWarnings,$genesWithErrors,$totalGenes);
 
 my $dir="$COMBINED/$subdir";
 process("$dir/1.fasta");
 process("$dir/2.fasta");
-print "$totalWarnings\t$totalErrors\t$genesWithWarnings\t$genesWithErrors\n";
+print "$totalWarnings\t$totalErrors\t$genesWithWarnings\t$genesWithErrors\t$totalGenes\n";
 
 sub process {
   my ($infile)=@_;
@@ -27,6 +27,7 @@ sub process {
     $totalErrors+=$errors;
     if($warnings>0) { ++$genesWithWarnings }
     if($errors>0) { ++$genesWithErrors }
+    ++$totalGenes;
   }
   close(IN);
 }
