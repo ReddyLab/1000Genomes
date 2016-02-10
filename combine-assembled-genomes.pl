@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 use strict;
+use FastaReader;
+use FastaWriter;
 use GffTranscriptReader;
 
 # Globals
@@ -8,6 +10,7 @@ my $ASSEMBLY="$THOUSAND/assembly";
 my $BASEDIR="$ASSEMBLY/fasta";
 my $OUTDIR="$ASSEMBLY/combined";
 my $GFF="$ASSEMBLY/genes-all-10.gff";
+my $writer=new FastaWriter;
 my @dirs=(0,1,2,3,4,5,6,7,8,9);
 
 # Load error/warning list
@@ -71,20 +74,44 @@ sub System {
 sub append
 {
   my ($filename,$out,$ID,$haplotype)=@_;
-  open(IN,$filename) || die $filename;
-  while(<IN>) {
-    chomp;
-    if(/^>(\S+)(.*)/) {
-      my ($gene,$rest)=($1,$2);
-      next unless $keep{$gene};
-      if($ID ne "ref") {$gene.="_$haplotype"}
-      my $key="$ID $gene";
-      my $numWarn=0+$warnings{$key};
-      my $numErr=0+$errors{$key};
-      print $out ">$gene$rest /warnings=$numWarn /errors=$numErr\n";
-    }
-    else { print $out "$_\n" }
+  my $reader=new FastaReader($filename);
+  while(1) {
+    my ($defline,$seqRef)=$reader->nextSequenceRef();
+    last unless $defline;
+    $defline=~/^>(\S+)(.*)/ || die "Can't parse defline: $defline";
+    my ($gene,$rest)=($1,$2);
+    next unless $keep{$gene};
+    if($ID ne "ref") {$gene.="_$haplotype"}
+    my $key="$ID $gene";
+    my $numWarn=0+$warnings{$key};
+    my $numErr=0+$errors{$key};
+    $defline=">$gene$rest /warnings=$numWarn /errors=$numErr\n";
+    $writer->addToFastaRef($defline,$seqRef,$out);
   }
-  close(IN);
+  $reader->close();
 }
+
+
+
+#sub append_OBSOLETE
+#{
+#  my ($filename,$out,$ID,$haplotype)=@_;
+#  open(IN,$filename) || die $filename;
+#  while(<IN>) {
+#    chomp;
+#    if(/^>(\S+)(.*)/) {
+#      my ($gene,$rest)=($1,$2);
+#      next unless $keep{$gene};
+#      if($ID ne "ref") {$gene.="_$haplotype"}
+#      my $key="$ID $gene";
+#      my $numWarn=0+$warnings{$key};
+#      my $numErr=0+$errors{$key};
+#      print $out ">$gene$rest /warnings=$numWarn /errors=$numErr\n";
+#    }
+#    else { print $out "$_\n" }
+#  }
+#  close(IN);
+#}
+
+
 
