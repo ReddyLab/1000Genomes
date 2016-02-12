@@ -24,13 +24,19 @@ my ($notFound,$sampleSize);
 my $parser=new EssexParser($FBI_FILE);
 while(1) {
   my $report=$parser->nextElem(); last unless $report;
+print "A\n";
   my $status=$report->findChild("status"); next unless $status;
+print "B\n";
   my $code=$status->getIthElem(0); next unless $code;
+print "C\n";
 
   # Find a transcript with no-stop-codon
   next unless $code eq "bad-annotation";
-  my $array=$node->findDescendents("no-stop-codon");
+print "D\n";
+  my $array=$status->findDescendents("no-stop-codon");
+print "E\n";
   next unless @$array>0;
+print "F\n";
   my $geneID=$report->getAttribute("substrate");
   my $transcriptID=$report->getAttribute("transcript-ID");
   ++$sampleSize;
@@ -47,7 +53,7 @@ while(1) {
   my $begin=$stopCoord;
   my $end=$begin+6;
   system("twoBitToFa -seq=$substrate -start=$begin -end=$end $TWO_BIT $tempFile");
-  my $eq=FastaReader::firstSequence($tempFile);
+  my $seq=FastaReader::firstSequence($tempFile); die unless length($seq)==6;
   if($strand eq "-") { $seq=Translation::reverseComplement(\$seq) }
   my $firstCodon=substr($seq,0,3); my $secondCodon=substr($seq,3,3);
   if($stopCodons{$firstCodon} || $stopCodons{$secondCodon}) { next }
