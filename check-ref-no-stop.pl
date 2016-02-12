@@ -50,8 +50,10 @@ while(1) {
   my $seq=FastaReader::firstSequence($tempFile); die unless length($seq)==6;
   if($strand eq "-") { $seq=Translation::reverseComplement(\$seq) }
   my $firstCodon=substr($seq,0,3); my $secondCodon=substr($seq,3,3);
-  if($stopCodons{$firstCodon} || $stopCodons{$secondCodon}) { next }
-  print "$firstCodon\t$transcriptID\n";
+  if($stopCodons{$firstCodon} || $stopCodons{$secondCodon}) {
+    print "found\t$firstCodon\t$secondCodon\t$transcriptID\n";
+    next
+  }
   ++$notFound;
 }
 unlink($tempFile) if -e $tempFile;

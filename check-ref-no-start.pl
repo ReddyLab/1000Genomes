@@ -37,7 +37,7 @@ while(1) {
   # Get ensembl GFF for this transcript
   my $transcript=$byTranscriptID->{$transcriptID};
   die "$transcriptID not found in ensembl GFF" unless $transcript;
-  my $startCoord=getStopCoord($transcript);
+  my $startCoord=getStartCoord($transcript);
   my $strand=$transcript->getStrand();
 
   # Extract sequence from 2bit file
@@ -49,8 +49,10 @@ while(1) {
   my $seq=FastaReader::firstSequence($tempFile); die unless length($seq)==6;
   if($strand eq "-") { $seq=Translation::reverseComplement(\$seq) }
   my $firstCodon=substr($seq,0,3); my $secondCodon=substr($seq,3,3);
-  if($startCodons{$firstCodon} || $startCodons{$secondCodon}) { next }
-  print "$firstCodon\t$transcriptID\n";
+  if($startCodons{$firstCodon} || $startCodons{$secondCodon}) {
+    print "found\t$firstCodon\t$secondCodon\t$transcriptID\n";
+    next
+  }
   ++$notFound;
 }
 unlink($tempFile) if -e $tempFile;
