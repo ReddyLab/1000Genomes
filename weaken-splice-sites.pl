@@ -4,7 +4,8 @@ use GffTranscriptReader;
 use FastaReader;
 use FastaWriter;
 
-# This script breaks the splice consensus to test FBI
+# This script weakens splice sites by changing the bases flanking the
+# actual splice site.  This is used to test FBI.
 
 my $MAX_SEQ=10000;
 my $THOUSAND="/home/bmajoros/1000G";
