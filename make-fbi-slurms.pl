@@ -12,9 +12,8 @@ my $slurmID=1;
 foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
-  my $dir="$combined/$subdir";
+  my $dir="$COMBINED/$subdir";
   my $slurm="$SLURM_DIR/$slurmID.slurm";
-  die unless -e $infile;
   unlink("$dir/1.essex") if -e "$dir/1.essex";
   unlink("$dir/2.essex") if -e "$dir/2.essex";
   open(OUT,">$slurm") || die $slurm;
