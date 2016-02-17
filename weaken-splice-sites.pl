@@ -13,7 +13,8 @@ my $COMBINED="$THOUSAND/assembly/combined";
 my $INDIV="$COMBINED/HG00096";
 my $IN_GFF="$INDIV/mapped.gff";
 my $IN_FASTA="$INDIV/1.fasta";
-my $OUT_FASTA="broken2.fasta";
+my $OUT_FASTA="weakened.fasta";
+my @ALPHA=('A','C','G','T');
 
 my $gffReader=new GffTranscriptReader;
 my $bySubstrate=$gffReader->hashBySubstrate($IN_GFF);
@@ -40,12 +41,12 @@ while(1) {
   my $exon=$transcript->getIthExon($index);
   my $type=$exon->getType();
   if($type eq "single-exon") { next }
-  if($type eq "initial-exon") { breakDonor($exon->getEnd(),\$seq) }
+  if($type eq "initial-exon") { weakenSite($exon->getEnd(),\$seq) }
   elsif($type eq "internal-exon") {
-    if(rand(1)<0.5) { breakDonor($exon->getEnd(),\$seq) }
-    else { breakAcceptor($exon->getBegin()-2,\$seq) }
+    if(rand(1)<0.5) { weakenSite($exon->getEnd(),\$seq) }
+    else { weakenSite($exon->getBegin()-2,\$seq) }
   }
-  elsif($type eq "final-exon") { breakAcceptor($exon->getBegin()-2,\$seq) }
+  elsif($type eq "final-exon") { weakenSite($exon->getBegin()-2,\$seq) }
   else { die "unknown exon type: $type" }
   $fastaWriter->addToFastaRef($def,\$seq,\*OUT);
   foreach my $transcript (@$transcripts) { undef $transcript }
@@ -54,17 +55,21 @@ while(1) {
 }
 close(OUT);
 
-sub breakDonor
+sub weakenSite
 {
   my ($pos,$seqRef)=@_;
-  substr($$seqRef,$pos,2,"TG");
+  my $victim;
+  if(int(rand(1))<0.5) # left
+    { $victim=$pos-1-int(rand(3)) }
+  else # right
+    { $victim=$pos+2+int(rand(3)) }
+  my $old=substr($$seqRef,$victim,1);
+  my $newIndex=int(rand(4));
+  my $new=$ALPHA[$newIndex];
+  if($new eq $old) { $new=$ALPHA[($newIndex+1)%4] }
+  substr($$seqRef,$victim,1,$new);
 }
 
-sub breakAcceptor
-{
-  my ($pos,$seqRef)=@_;
-  substr($$seqRef,$pos,2,"GA");
-}
 
 
 
