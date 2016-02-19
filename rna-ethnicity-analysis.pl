@@ -9,7 +9,7 @@ my $RNA="$THOUSAND/assembly/rna-table.txt";
 my %present;
 my @dirs=`ls $THOUSAND/assembly/combined`;
 foreach my $dir (@dirs) {
-  chomp;
+  chomp $dir;
   next unless $dir=~/HG\d+/ || $dir=~/NA\d+/;
   $present{$dir}=1;
 }
@@ -49,6 +49,7 @@ while(<IN>) {
   for(my $i=2 ; $i<$numFields ; ++$i) {
     if($fields[$i]>0) {
       my $ID=$header[$i];
+      next unless $present{$ID};
       my $ethnic=$ethnicity{$ID}; die unless length($ethnic)>0;
       ++$counts{$ethnic};
     }
