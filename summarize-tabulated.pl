@@ -21,7 +21,7 @@ my @keys=keys %hash;
 foreach my $key (@keys) {
   my $array=$hash{$key};
   my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats($array);
-  print "$mean +/- $stddev ($min\-$max)\n";
+  print "$key\t$mean +/- $stddev ($min\-$max)\n";
 }
 
 
