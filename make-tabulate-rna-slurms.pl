@@ -4,7 +4,7 @@ use strict;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
-my $SLURM_DIR="$ASSEMBLY/tabulate-slurms";
+my $SLURM_DIR="$ASSEMBLY/tabulate-rna-slurms";
 
 my @dirs=`ls $COMBINED`;
 my $slurmID=1;
@@ -23,7 +23,6 @@ foreach my $subdir (@dirs) {
 #
 cd $SLURM_DIR
 /home/bmajoros/1000G/src/tabulate-rna.pl $dir/RNA/stringtie.gff > $dir/RNA/tab.txt
-date
 ";
   close(OUT);
   ++$slurmID;
