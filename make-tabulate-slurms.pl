@@ -16,10 +16,10 @@ foreach my $subdir (@dirs) {
   open(OUT,">$slurm") || die $slurm;
   print OUT "#!/bin/bash
 #
-#SBATCH -J filter$slurmID
+#SBATCH -J tabulate$slurmID
 #SBATCH -o $slurmID.output
 #SBATCH -e $slurmID.output
-#SBATCH -A filter$slurmID
+#SBATCH -A tabulate$slurmID
 #
 cd $SLURM_DIR
 
