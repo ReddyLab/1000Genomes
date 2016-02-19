@@ -8,8 +8,10 @@ foreach my $file (@files) {
   chomp $file;
   open(IN,$file) || die $file;
   while(<IN>) {
-    if(/\S+\s+\S+\s+\d+\s+\d+:\d+:\d+\s+EST\s+\d+/) { ++$dates }
+    if(/\S+\s+\S+\s+\d+\s+\d+:\d+:\d+\s+EST\s+\d+/) {
+      #print "$file\t$_\n";
+      ++$dates }
   }
   close(IN);
-  if($dates<2) { print "$file\n" }
+  if($dates<4) { print "$file\n" }
 }
