@@ -3,13 +3,16 @@ use strict;
 
 my $INFILE="/home/bmajoros/1000G/assembly/combined/tab-all-sorted.txt";
 
+print "transcript\tgene";
 my @indiv;
 my @dirs=`ls /home/bmajoros/1000G/assembly/combined`;
 foreach my $dir (@dirs) {
   chomp $dir;
   next unless $dir=~/HG\d+/ || $dir=~/NA\d+/;
   push @indiv,$dir;
+  print "\t$dir";
 }
+print "\n";
 
 my ($prevTrans,$prevGene,%hash);
 open(IN,$INFILE) || die $INFILE;
@@ -21,7 +24,7 @@ while(<IN>) {
   if($transcript ne $prevTrans) {
     if($prevTrans) {
       print "$prevTrans\t$prevGene";
-      foreach my $ID (@invid) {
+      foreach my $ID (@indiv) {
 	my $bool=$hash{$ID} ? 1 : 0;
 	print "\t$bool";
       }
