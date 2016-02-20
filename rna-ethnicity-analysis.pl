@@ -65,7 +65,7 @@ while(<IN>) {
   my $numEth=@ethnicities;
   open(OUT,">$TABLE_FILE") || die $TABLE_FILE;
   print OUT "2 $numEth\n";
-  my ($table,$numZeros,$colSum1,$colSum2);
+  my (@table,$tableText,$numZeros,$colSum1,$colSum2);
   foreach my $key (@ethnicities) {
     my $count=0+$counts{$key};
     my $nonCount=0+$nonCounts{$key};
@@ -73,7 +73,9 @@ while(<IN>) {
     #my $antiCount=$multinomial{$key}-$count;
     #print "$key\t$count\t$nonCount\n";
     print OUT "$count\t$nonCount\n";
-    $table.="$key\t$count\t$nonCount\n";
+    $tableText.="$key\t$count\t$nonCount\n";
+    my $row=[$count,$nonCount];
+    push @table,$row;
 #    if($count==0 || $nonCount==0) { ++$numZeros }
 #    $colSum1+=$count; $colSum2+=$nonCount;
   }
@@ -87,10 +89,39 @@ while(<IN>) {
   my ($P,$indep)=@fields;
   if($P<=$ALPHA) {
     print "$transcript\t$gene\t$P\n";
-    print "$table\n";
+    print "$tableText\n";
+    my $mostExtremeRow=mostExtremeRow(\@table);
+    my $collapsed=collapse(\@table,$mostExtremeRow);
+    for(my $i=0 ; $i<2 ; ++$i) {
+      for(my $j=0 ; $j<2 ; ++$j) {
+	my $entry=$collapsed->[$i]->[$j];
+	print
+      }
+    }
   }
 }
 close(IN);
+
+
+
+sub collapse
+{
+  # Input: array of rows, each of which is a pointer to a n array of columns
+
+  my ($table,$mostExtreme)=@_;
+  my $collapsed=[];
+  my $numRows=@$table; die unless $numRows==5;
+  my $numCols=@{$table->[0]}; die unless $numCols==2;
+  for(my $i=0 ; $i<$numRows ; ++$i) {
+    for(my $j=0 ; $j<$numCols ; ++$j) {
+      my $entry=$table->[$i]->[$j];
+      my $rowId=($i==$mostExtreme ? 1 : 0);
+      $collapsed->[$rowId]->[$j]+=$entry;
+    }
+  }
+  return $collapsed;
+}
+
 
 
 sub mostExtremeRow
@@ -98,24 +129,31 @@ sub mostExtremeRow
   # Input: array of rows, each of which is a pointer to a n array of columns
 
   my ($table)=@_;
-  my $numRows=@$table;  die unless $numRows==5;
-  my $numCols=@{$table->[0]} die unless $numCols==2;
-  my (@rowSums,@colSums,@expectedCounts,$total);
+  my $numRows=@$table; die unless $numRows==5;
+  my $numCols=@{$table->[0]}; die unless $numCols==2;
+  my (@rowSums,@colSums);
   for(my $i=0 ; $i<$numRows ; ++$i) {
     for(my $j=0 ; $j<$numCols ; ++$j) {
       my $entry=$table->[$i]->[$j];
       $rowSums[$i]+=$entry;
       $colSums[$j]+=$entry;
-      $total+=$entry;
     }
   }
-  my @colProportions;
+  my ($total,@colProportions);
+  for(my $j=0 ; $j<$numCols ; ++$j) { $total+=$colSums[$j] }
   for(my $j=0 ; $j<$numCols ; ++$j) { $colProportions[$j]=$colSums[$j]/$total }
+  my ($biggestDeviation,$biggestIndex);
   for(my $i=0 ; $i<$numRows ; ++$i) {
     for(my $j=0 ; $j<$numCols ; ++$j) {
-      $expectedCounts[$i]->[$j]=$colProportions[$j]*$rowSums[$j];
+      my $expectedCount=$colProportions[$j]*$rowSums[$i];
+      my $deviation=abs($table->[$i]->[$j]-$expectedCount);
+      if($deviation>$biggestDeviation) {
+	$biggestDeviation=$deviation;
+	$biggestIndex=$i;
+      }
     }
   }
+  return $biggestIndex;
 }
 
 
