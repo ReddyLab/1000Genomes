@@ -105,9 +105,11 @@ while(<IN>) {
     }
     my $P=0+`$cmd`;
     if($P<$ALPHA) {
-      print "$transcript\t$gene\t$P\n";
-      print "$tableText\n";
-      print "Fisher: $P\n";
+      my $pop=$ethnicities[$mostExtremeRow];
+      print "$pop\t$transcript\t$gene\tP=$P\n";
+      print "pop\tpresent\tabsent\n";
+      print "$tableText";
+      print "================================\n";
     }
   }
 }
