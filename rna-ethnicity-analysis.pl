@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
+my $ALPHA=0.0005;
 my $TABLE_FILE="table.tmp";
 my $THOUSAND="/home/bmajoros/1000G";
 my $POP="$THOUSAND/ethnicity.txt";
@@ -64,6 +65,7 @@ while(<IN>) {
   my $numEth=@ethnicities;
   open(OUT,">$TABLE_FILE") || die $TABLE_FILE;
   print OUT "2 $numEth\n";
+  my ($table,$numZeros,$colSum1,$colSum2);
   foreach my $key (@ethnicities) {
     my $count=0+$counts{$key};
     my $nonCount=0+$nonCounts{$key};
@@ -71,7 +73,11 @@ while(<IN>) {
     #my $antiCount=$multinomial{$key}-$count;
     #print "$key\t$count\t$nonCount\n";
     print OUT "$count\t$nonCount\n";
+    $table.="$key\t$count\t$nonCount\n";
+#    if($count==0 || $nonCount==0) { ++$numZeros }
+#    $colSum1+=$count; $colSum2+=$nonCount;
   }
+  #next unless $numZeros==1 && $colSum1>60 && $colSum2>60;
   #print "===============\n";
   close(OUT);
   my $result=`/home/bmajoros/cia/BOOM/chi-square $TABLE_FILE`;
@@ -79,9 +85,39 @@ while(<IN>) {
   my @fields=split/\s+/,$result;
   die $result unless @fields>=2;
   my ($P,$indep)=@fields;
-  if($P<0.05) { print "$transcript\t$gene\t$P\n" }
+  if($P<=$ALPHA) {
+    print "$transcript\t$gene\t$P\n";
+    print "$table\n";
+  }
 }
 close(IN);
+
+
+sub mostExtremeRow
+{
+  # Input: array of rows, each of which is a pointer to a n array of columns
+
+  my ($table)=@_;
+  my $numRows=@$table;  die unless $numRows==5;
+  my $numCols=@{$table->[0]} die unless $numCols==2;
+  my (@rowSums,@colSums,@expectedCounts,$total);
+  for(my $i=0 ; $i<$numRows ; ++$i) {
+    for(my $j=0 ; $j<$numCols ; ++$j) {
+      my $entry=$table->[$i]->[$j];
+      $rowSums[$i]+=$entry;
+      $colSums[$j]+=$entry;
+      $total+=$entry;
+    }
+  }
+  my @colProportions;
+  for(my $j=0 ; $j<$numCols ; ++$j) { $colProportions[$j]=$colSums[$j]/$total }
+  for(my $i=0 ; $i<$numRows ; ++$i) {
+    for(my $j=0 ; $j<$numCols ; ++$j) {
+      $expectedCounts[$i]->[$j]=$colProportions[$j]*$rowSums[$j];
+    }
+  }
+}
+
 
 
 
