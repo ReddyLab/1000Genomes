@@ -155,9 +155,12 @@ sub mostExtremeRow
   for(my $j=0 ; $j<$numCols ; ++$j) { $colProportions[$j]=$colSums[$j]/$total }
   my ($biggestDeviation,$biggestIndex);
   for(my $i=0 ; $i<$numRows ; ++$i) {
-    for(my $j=0 ; $j<$numCols ; ++$j) {
-      my $expectedCount=$colProportions[$j]*$rowSums[$i];
-      my $deviation=abs($table->[$i]->[$j]-$expectedCount);
+    #for(my $j=0 ; $j<$numCols ; ++$j) {
+    {
+      #my $expectedCount=$colProportions[$j]*$rowSums[$i];
+      my $expectedCount=$colProportions[0]*$rowSums[$i];
+      #my $deviation=abs($table->[$i]->[$j]-$expectedCount);
+      my $deviation=$expectedCount-$table->[$i]->[0];
       if($deviation>$biggestDeviation) {
 	$biggestDeviation=$deviation;
 	$biggestIndex=$i;
