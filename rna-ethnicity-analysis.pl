@@ -1,11 +1,16 @@
 #!/usr/bin/perl
 use strict;
 
-my $ALPHA=0.0005;
+my $ALPHA=0.05;
 my $TABLE_FILE="table.tmp";
 my $THOUSAND="/home/bmajoros/1000G";
 my $POP="$THOUSAND/ethnicity.txt";
 my $RNA="$THOUSAND/assembly/rna-table.txt";
+
+# Compute adjusted alpha level to control FWER
+my $m=`wc -l $RNA`-1;
+$ALPHA=1-(1-$ALPHA)**(1/$m);
+print "adjusted alpha=$ALPHA\n";
 
 # Load the list of individuals actually present in our data
 my %present;
@@ -87,16 +92,22 @@ while(<IN>) {
   my @fields=split/\s+/,$result;
   die $result unless @fields>=2;
   my ($P,$indep)=@fields;
-  if($P<=$ALPHA) {
-    print "$transcript\t$gene\t$P\n";
-    print "$tableText\n";
+  #if($P<=$ALPHA) {
+  {
     my $mostExtremeRow=mostExtremeRow(\@table);
     my $collapsed=collapse(\@table,$mostExtremeRow);
+    my $cmd="/home/bmajoros/src/scripts/fisher-exact-test.R";
     for(my $i=0 ; $i<2 ; ++$i) {
       for(my $j=0 ; $j<2 ; ++$j) {
 	my $entry=$collapsed->[$i]->[$j];
-	print
+	$cmd.=" $entry";
       }
+    }
+    my $P=0+`$cmd`;
+    if($P<$ALPHA) {
+      print "$transcript\t$gene\t$P\n";
+      print "$tableText\n";
+      print "Fisher: $P\n";
     }
   }
 }
