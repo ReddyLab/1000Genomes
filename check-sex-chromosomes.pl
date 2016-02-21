@@ -21,7 +21,7 @@ while(<IN>) {
     my ($pop,$ENST)=($1,$2);
     my $chr=$chr{$ENST};
     next if $chr eq "chrX" || $chr eq "chrY";
-    ++$counts{$ENST};
+    ++$counts{$pop};
   }
 }
 close(IN);
