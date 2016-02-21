@@ -5,10 +5,11 @@ my %chr;
 open(IN,"/home/bmajoros/1000G/assembly/local-CDS-and-UTR.gff") || die;
 while(<IN>) {
   chomp;
-  next unless $_=~/transcript_id=(\S+)/;
+  next unless $_=~/transcript_id=([^;]+)/;
   my $id=$1;
   my @fields=split;
   my $chr=$fields[0];
+#  print "mapping $id => $chr\n";
   $chr{$id}=$chr;
 }
 close(IN);
@@ -21,6 +22,7 @@ while(<IN>) {
     my ($pop,$ENST)=($1,$2);
     my $chr=$chr{$ENST};
     next if $chr eq "chrX" || $chr eq "chrY";
+    #print "$chr\n";
     ++$counts{$pop};
   }
 }
