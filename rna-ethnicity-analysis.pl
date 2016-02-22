@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
+my $RANDOMIZE=1;
 my $ALPHA=0.05;
 my $TABLE_FILE="table.tmp";
 my $THOUSAND="/home/bmajoros/1000G";
@@ -14,12 +15,6 @@ print "adjusted alpha=$ALPHA\n";
 
 # Load the list of individuals actually present in our data
 my %present;
-#my @dirs=`ls $THOUSAND/assembly/combined`;
-#foreach my $dir (@dirs) {
-#  chomp $dir;
-#  next unless $dir=~/HG\d+/ || $dir=~/NA\d+/;
-#  $present{$dir}=1;
-#}
 open(IN,$RNA) || die $RNA;
 my $line=<IN>; chomp $line; my @fields=split/\s+/,$line;
 close(IN);
@@ -40,10 +35,16 @@ while(<IN>) {
 close(IN);
 my @ethnicities=keys %multinomial;
 
-# Normalize the multinomial into a proper distribution
-#my $sum==0;
-#foreach my $key (@ethnicities) { $sum+=$multinomial{$key} }
-#foreach my $key (@ethnicities) { $multinomial{$key}/=$sum }
+# Randomize the ethnicity assignment, to generate a null distribution
+if($RANDOMIZE) {
+  my @IDs=keys %ethnicity;
+  my $numIDs=@IDs;
+  for(my $i=0 ; $i<$numIDs ; ++$i) {
+    my $j=int(rand($numIDs-$i))+$i;
+    my $ethI=$ethnicity{$i}; my $ethJ=$ethnicity{$j};
+    $ethnicity{$i}=$ethJ; $ethnicity{$j}=$ethI;
+  }
+}
 
 # Process the RNA counts file
 my @header;
@@ -87,11 +88,11 @@ while(<IN>) {
   #next unless $numZeros==1 && $colSum1>60 && $colSum2>60;
   #print "===============\n";
   close(OUT);
-  my $result=`/home/bmajoros/cia/BOOM/chi-square $TABLE_FILE`;
-  chomp $result;
-  my @fields=split/\s+/,$result;
-  die $result unless @fields>=2;
-  my ($P,$indep)=@fields;
+  #my $result=`/home/bmajoros/cia/BOOM/chi-square $TABLE_FILE`;
+  #chomp $result;
+  #my @fields=split/\s+/,$result;
+  #die $result unless @fields>=2;
+  #my ($P,$indep)=@fields;
   #if($P<=$ALPHA) {
   {
     my $mostExtremeRow=mostExtremeRow(\@table);
