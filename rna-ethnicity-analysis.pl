@@ -1,9 +1,15 @@
 #!/usr/bin/perl
 use strict;
+use ProgramName;
 
+my $name=ProgramName::get();
+die "$name <randomize-fraction> <alpha>\n" unless @ARGV==2;
+my ($RANDOMIZE_FRACTION,$ALPHA)=@ARGV;
+
+$RANDOMIZE_FRACTION=0+$RANDOMIZE_FRACTION;
 my $RANDOMIZE=1;
-my $ALPHA=0.05;
-my $TABLE_FILE="table.tmp";
+#my $ALPHA=0.05;
+#my $TABLE_FILE="table.tmp";
 my $THOUSAND="/home/bmajoros/1000G";
 my $POP="$THOUSAND/ethnicity.txt";
 my $RNA="$THOUSAND/assembly/rna-table.txt";
@@ -39,10 +45,13 @@ my @ethnicities=keys %multinomial;
 if($RANDOMIZE) {
   my @IDs=keys %ethnicity;
   my $numIDs=@IDs;
+  $numIDs=$RANDOMIZE_FRACTION*$numIDs;
   for(my $i=0 ; $i<$numIDs ; ++$i) {
     my $j=int(rand($numIDs-$i))+$i;
-    my $ethI=$ethnicity{$i}; my $ethJ=$ethnicity{$j};
-    $ethnicity{$i}=$ethJ; $ethnicity{$j}=$ethI;
+    my $idI=$IDs[$i]; my $idJ=$IDs[$j];
+    my $ethI=$ethnicity{$idI}; my $ethJ=$ethnicity{$idJ};
+    #print "swapping $i and $j <=> $ethI and $ethJ\n";
+    $ethnicity{$idI}=$ethJ; $ethnicity{$idJ}=$ethI;
   }
 }
 
@@ -69,8 +78,8 @@ while(<IN>) {
   #foreach my $key (@ethnicities) { $N+=$counts{$key} }
   #print "N=$N\n";
   my $numEth=@ethnicities;
-  open(OUT,">$TABLE_FILE") || die $TABLE_FILE;
-  print OUT "2 $numEth\n";
+  #open(OUT,">$TABLE_FILE") || die $TABLE_FILE;
+  #print OUT "2 $numEth\n";
   my (@table,$tableText,$numZeros,$colSum1,$colSum2);
   foreach my $key (@ethnicities) {
     my $count=0+$counts{$key};
@@ -78,7 +87,7 @@ while(<IN>) {
     #my $expectedCount=$multinomial{$key}*$N;
     #my $antiCount=$multinomial{$key}-$count;
     #print "$key\t$count\t$nonCount\n";
-    print OUT "$count\t$nonCount\n";
+    #print OUT "$count\t$nonCount\n";
     $tableText.="$key\t$count\t$nonCount\n";
     my $row=[$count,$nonCount];
     push @table,$row;
@@ -87,7 +96,7 @@ while(<IN>) {
   }
   #next unless $numZeros==1 && $colSum1>60 && $colSum2>60;
   #print "===============\n";
-  close(OUT);
+  #close(OUT);
   #my $result=`/home/bmajoros/cia/BOOM/chi-square $TABLE_FILE`;
   #chomp $result;
   #my @fields=split/\s+/,$result;

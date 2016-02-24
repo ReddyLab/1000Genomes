@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+use strict;
+use EssexParser;
+use ProgramName;
+
+my $MAX_PERCENT_CHANGE=30;
+
+my $name=ProgramName::get();
+die "$name <in.essex>\n" unless @ARGV==1;
+my ($infile)=@ARGV;
+
+my (%counts,%flags);
+my $parser=new EssexParser($infile);
+while(1) {
+  my $report=$parser->nextElem();
+  last unless $report;
+  my $status=$report->findChild("status");
+  next unless $status;
+  my $code=$status->getIthElem(0);
+  next unless $code;
+  my $inactivated=0;
+  if($status eq "mapped") {
+    my $differ=$status->findChild("protein-differs");
+    if($differ) {
+      my $match=$differ->findChild("percent-match");
+      my $percent=$match->getIthElem(0);
+      if($percent<$MIN_PERCENT_CHANGE) { $inactivated=1 }
+    }
+    my $PTC=$status->findChild("premature-stop");
+    if($PTC && $PTC->getIthElem(0) eq "NMD") { $inactivated=1 }
+    else {
+      my $n=$status->numElements();
+      for(my $i=0 ; $i<$n ; ++$i) {
+	my $child=$status->getIthElem($i);
+	if(!EssexNode::isaNode($child) && $child eq "nonstop-decay"
+	   || $child eq "no-start-codon")
+	  { $inactivated=1 }
+      }
+    }
+  }
+  elsif($status eq "splicing-changes") {
+    my $ref=$report->findChild("reference-transcript");
+    my $refType=$ref->getAttribute("type");
+    my $alts=$status->findChildren("alternate-structures");
+    if($alts) {
+      my $fates=$alts->findDescendents("fate");
+      if($fates) {
+	foreach my $fate (@$fates) {
+	  my $state=$fate->getIthElem(0);
+	  if($state eq "NMD") { $inactivated=1 }
+	  elsif($state eq "noncoding" && $refType eq "protein-coding")
+	    { $inactivated=1 }
+	}
+      }
+    }
+  }
+    if($
+}
+
+
+#(status
+#   mapped
+#   (premature-stop NMD)
+#   (protein-differs
+#      (percent-match 16.56 477/2881))
+#(status
+#   mapped
+#   nonstop-decay
+#(status
+#   splicing-changes
+#   (weakened-donor 21416 aacagg_GT_aaaacagata -21.3023 cagagg_GT_aaaacagata -21.7532)
+#   (alternate-structures
+#      (transcript
+#         (structure-change exon-skipping)
+#         (UTR
+#            (five_prime_UTR 25480 25658 0 + 0))
+#         (fate noncoding))))
+
+
