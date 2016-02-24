@@ -3,7 +3,7 @@ use strict;
 use EssexParser;
 use ProgramName;
 
-my $MAX_PERCENT_CHANGE=30;
+my $MIN_PERCENT_MATCH=50;
 
 my $name=ProgramName::get();
 die "$name <in.essex>\n" unless @ARGV==1;
@@ -18,23 +18,25 @@ while(1) {
   next unless $status;
   my $code=$status->getIthElem(0);
   next unless $code;
-  my $inactivated=0;
-  if($status eq "mapped") {
-    my $differ=$status->findChild("protein-differs");
-    if($differ) {
-      my $match=$differ->findChild("percent-match");
-      my $percent=$match->getIthElem(0);
-      if($percent<$MIN_PERCENT_CHANGE) { $inactivated=1 }
-    }
+  my $inactivated;
+  if($code eq "mapped") {
     my $PTC=$status->findChild("premature-stop");
-    if($PTC && $PTC->getIthElem(0) eq "NMD") { $inactivated=1 }
+    if($PTC && $PTC->getIthElem(0) eq "NMD") { $inactivated="NMD" }
     else {
       my $n=$status->numElements();
       for(my $i=0 ; $i<$n ; ++$i) {
 	my $child=$status->getIthElem($i);
 	if(!EssexNode::isaNode($child) && $child eq "nonstop-decay"
 	   || $child eq "no-start-codon")
-	  { $inactivated=1 }
+	  { $inactivated=$child }
+      }
+      if(!$inactivated) {
+	my $differ=$status->findChild("protein-differs");
+	if($differ) {
+	  my $match=$differ->findChild("percent-match");
+	  my $percent=$match->getIthElem(0);
+	  if($percent<$MIN_PERCENT_MATCH) { $inactivated="protein-differs" }
+	}
       }
     }
   }
@@ -46,17 +48,18 @@ while(1) {
       my $fates=$alts->findDescendents("fate");
       if($fates) {
 	foreach my $fate (@$fates) {
+	  last if $inactivated;
 	  my $state=$fate->getIthElem(0);
-	  if($state eq "NMD") { $inactivated=1 }
+	  if($state eq "NMD") { $inactivated="NMD" }
 	  elsif($state eq "noncoding" && $refType eq "protein-coding")
-	    { $inactivated=1 }
+	    { $inactivated="loss-of-coding-potential" }
 	}
       }
     }
   }
   if($inactivated) {
     my $transID=$report->getAttribute("transcript-ID");
-    print "$transID\n";
+    print "$transID\t$inactivated\n";
   }
 }
 
