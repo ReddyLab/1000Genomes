@@ -54,7 +54,10 @@ while(1) {
       }
     }
   }
-    if($
+  if($inactivated) {
+    my $transID=$report->getAttribute("transcript-ID");
+    print "$transID\n";
+  }
 }
 
 
