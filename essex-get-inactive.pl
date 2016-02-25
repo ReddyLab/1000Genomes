@@ -3,7 +3,7 @@ use strict;
 use EssexParser;
 use ProgramName;
 
-my $MIN_PERCENT_MATCH=50;
+my $MIN_PERCENT_MATCH=70;
 
 my $name=ProgramName::get();
 die "$name <in.essex>\n" unless @ARGV==1;
@@ -40,10 +40,11 @@ while(1) {
       }
     }
   }
-  elsif($status eq "splicing-changes") {
+  elsif($code eq "splicing-changes" && $status->findChild("broken-donor") ||
+	$status->findChild("broken-acceptor")) {
     my $ref=$report->findChild("reference-transcript");
     my $refType=$ref->getAttribute("type");
-    my $alts=$status->findChildren("alternate-structures");
+    my $alts=$status->findChild("alternate-structures");
     if($alts) {
       my $fates=$alts->findDescendents("fate");
       if($fates) {
