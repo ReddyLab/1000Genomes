@@ -60,7 +60,7 @@ foreach my $transcript (@transcripts) {
     my $status=0+$hash->{$indiv};
     print "\t$status";
   }
-  print "\n":
+  print "\n";
 }
 
 
