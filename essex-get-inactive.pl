@@ -45,7 +45,6 @@ while(1) {
   }
   elsif($code eq "no-transcript" && ($status->findChild("broken-donor") ||
 	$status->findChild("broken-acceptor"))) {
-    $report->print(\*STDOUT);
     $why="INTERNAL_ERROR";
     if($status->findChild("broken-donor")) { $why="broken-donor" }
     elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
@@ -69,7 +68,7 @@ while(1) {
       my $fates=$alts->findDescendents("fate");
       if($fates) {
 	foreach my $fate (@$fates) {
-	  last if $inactivated;
+	  last if $inactivated; ### keeps the first only!
 	  my $state=$fate->getIthElem(0);
 	  if($state eq "NMD") { $inactivated="NMD" }
 	  elsif($state eq "noncoding" && $refType eq "protein-coding")
