@@ -1,9 +1,10 @@
 #!/usr/bin/perl
+$|=1;
 use strict;
 use EssexParser;
 use ProgramName;
 
-my $MIN_PERCENT_MATCH=70;
+my $MIN_PERCENT_MATCH=50;
 
 my $name=ProgramName::get();
 die "$name <in.essex>\n" unless @ARGV==1;
@@ -18,9 +19,11 @@ while(1) {
   next unless $status;
   my $code=$status->getIthElem(0);
   next unless $code;
-  my $inactivated;
+  my ($inactivated,$why);
   if($code eq "mapped") {
     my $PTC=$status->findChild("premature-stop");
+    if($status->findChild("frameshift")) { $why="frameshift" }
+    else { $why="sequence-variant" }
     if($PTC && $PTC->getIthElem(0) eq "NMD") { $inactivated="NMD" }
     else {
       my $n=$status->numElements();
@@ -42,6 +45,9 @@ while(1) {
   }
   elsif($code eq "splicing-changes" && $status->findChild("broken-donor") ||
 	$status->findChild("broken-acceptor")) {
+    $why="splicing-changes";
+    if($status->findChild("broken-donor")) { $why="broken-donor" }
+    elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
     my $ref=$report->findChild("reference-transcript");
     my $refType=$ref->getAttribute("type");
     my $alts=$status->findChild("alternate-structures");
@@ -60,7 +66,8 @@ while(1) {
   }
   if($inactivated) {
     my $transID=$report->getAttribute("transcript-ID");
-    print "$transID\t$inactivated\n";
+    my $geneID=$report->getAttribute("gene-ID");
+    print "$geneID\t$transID\t$inactivated\t$why\n";
   }
 }
 
