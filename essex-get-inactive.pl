@@ -29,8 +29,8 @@ while(1) {
       my $n=$status->numElements();
       for(my $i=0 ; $i<$n ; ++$i) {
 	my $child=$status->getIthElem($i);
-	if(!EssexNode::isaNode($child) && $child eq "nonstop-decay"
-	   || $child eq "no-start-codon")
+	if(!EssexNode::isaNode($child) && ($child eq "nonstop-decay"
+	   || $child eq "no-start-codon"))
 	  { $inactivated=$child }
       }
       if(!$inactivated) {
@@ -43,8 +43,22 @@ while(1) {
       }
     }
   }
-  elsif($code eq "splicing-changes" && $status->findChild("broken-donor") ||
-	$status->findChild("broken-acceptor")) {
+  elsif($code eq "no-transcript" && ($status->findChild("broken-donor") ||
+	$status->findChild("broken-acceptor"))) {
+    $report->print(\*STDOUT);
+    $why="INTERNAL_ERROR";
+    if($status->findChild("broken-donor")) { $why="broken-donor" }
+    elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
+    $inactivated="no-transcript";
+  }
+  elsif($code eq "no-start-codon") {
+    $why="sequence-variant";
+    if($status->findChild("broken-donor")) { $why="broken-donor" }
+    elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
+    $inactivated="no-start-codon";
+  }
+  elsif($code eq "splicing-changes" && ($status->findChild("broken-donor") ||
+	$status->findChild("broken-acceptor"))) {
     $why="splicing-changes";
     if($status->findChild("broken-donor")) { $why="broken-donor" }
     elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
