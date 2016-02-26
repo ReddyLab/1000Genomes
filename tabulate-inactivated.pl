@@ -27,7 +27,7 @@ foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
 
-  next unless $subdir=~/HG00096/;
+  next unless $subdir=~/HG0009[67]/;
 
   my $dir="$COMBINED/$subdir";
   my $indiv=$subdir;
