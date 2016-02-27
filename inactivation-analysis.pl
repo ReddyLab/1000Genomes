@@ -3,8 +3,9 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <randomize-fraction> <alpha>\n" unless @ARGV==2;
-my ($RANDOMIZE_FRACTION,$ALPHA)=@ARGV;
+die "$name <inactivation-table.txt> <randomize-fraction> <alpha>\n" 
+  unless @ARGV==3;
+my ($RNA,$RANDOMIZE_FRACTION,$ALPHA)=@ARGV;
 
 $RANDOMIZE_FRACTION=0+$RANDOMIZE_FRACTION;
 my $RANDOMIZE=1;
@@ -12,7 +13,7 @@ my $RANDOMIZE=1;
 #my $TABLE_FILE="table.tmp";
 my $THOUSAND="/home/bmajoros/1000G";
 my $POP="$THOUSAND/ethnicity.txt";
-my $RNA="$THOUSAND/assembly/inactivation-table.txt";
+#my $RNA="$THOUSAND/assembly/inactivation-table.txt";
 
 # Compute adjusted alpha level to control FWER
 my $m=`wc -l $RNA`-1;

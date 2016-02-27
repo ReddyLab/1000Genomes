@@ -2,7 +2,7 @@
 use strict;
 use SummaryStats;
 
-my $HOMOZYGOUS=1;
+my $HOMOZYGOUS=0;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
@@ -27,7 +27,7 @@ foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
 
-  next unless $subdir=~/HG0009[67]/;
+  #next unless $subdir=~/HG0009[67]/;
 
   my $dir="$COMBINED/$subdir";
   my $indiv=$subdir;
@@ -57,7 +57,8 @@ foreach my $transcript (@transcripts) {
   print "$transcript\t$parent";
   my $hash=$genes{$transcript};
   foreach my $indiv (@indiv) {
-    my $status=0+$hash->{$indiv};
+    #my $status=0+$hash->{$indiv};
+    my $status=1-$hash->{$indiv};
     print "\t$status";
   }
   print "\n";
