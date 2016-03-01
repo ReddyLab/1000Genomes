@@ -9,6 +9,8 @@ my %FATES;
 $FATES{"no-transcript"}=1;
 $FATES{"NMD"}=0;
 
+my $rna=loadRNAtable($RNA);
+
 my @dirs=`ls $COMBINED`;
 foreach my $indiv (@dirs) {
   chomp $indiv;
@@ -20,7 +22,9 @@ foreach my $indiv (@dirs) {
     my $gene=$rec->{gene}; my $transcript=$rec->{transcript};
     my $fate=$rec->{fate}; my $why=$rec->{why};
     next unless $FATES{$fate};
-    print "$indiv\t$transcript\t$why\n";
+    if($rna->{$indiv}) {
+      print "$indiv\t$transcript\t$why\n";
+    }
   }
 }
 
@@ -67,5 +71,27 @@ sub getMissing
 }
 
 
+
+sub loadRNAtable
+{
+  my ($file)=@_;
+  my $table={};
+  open(IN,$file) || die $file;
+  my @header;
+  while(<IN>) {
+    chomp; my @fields=split; next unless @fields>=3;
+    if($fields[0] eq "transcript") { # header line
+      @header=@fields;
+    }
+    else {
+      my $numFields=@fields;
+      for(my $i=2 ; $i<$numFields ; ++$i) {
+	if($fields[$i]==1) { $table->{$header[$i]}=1 }
+      }
+    }
+  }
+  close(IN);
+  return $table;
+}
 
 
