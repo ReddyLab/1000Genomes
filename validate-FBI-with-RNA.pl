@@ -22,7 +22,7 @@ foreach my $indiv (@dirs) {
     my $gene=$rec->{gene}; my $transcript=$rec->{transcript};
     my $fate=$rec->{fate}; my $why=$rec->{why};
     next unless $FATES{$fate};
-    if($rna->{$indiv}) {
+    if($rna->{$indiv}->{$transcript}) {
       print "$indiv\t$transcript\t$why\n";
     }
   }
@@ -85,8 +85,11 @@ sub loadRNAtable
     }
     else {
       my $numFields=@fields;
+      my $transcript=$fields[0];
       for(my $i=2 ; $i<$numFields ; ++$i) {
-	if($fields[$i]==1) { $table->{$header[$i]}=1 }
+	#if($header[$i] eq "HG00112" ) {}
+	my $indiv=$header[$i];
+	if($fields[$i]==1) { $table->{$indiv}->{$transcript}=1 }
       }
     }
   }

@@ -11,8 +11,9 @@ my $indiv=$1;
 my %seen;
 open(IN,$infile) || die $infile;
 while(<IN>) {
-  if(/reference_id\s+\"([^\"]+)_\d\";\s+ref_gene_id\s+\"(\S+)_\d\"/) {
-    my ($transcript,$gene)=($1,$2);
+  if(/reference_id\s+\"([^\"]+)_\d\";\s+ref_gene_id\s+\"(\S+)_\d\";\s*cov\s+"([^"]+)";\s+FPKM/) {
+    my ($transcript,$gene,$cov)=($1,$2,$3);
+    next unless $cov>0;
     my $key="$transcript\t$gene\t$indiv";
     next if $seen{$key};
     print "$transcript\t$gene\t$indiv\n";

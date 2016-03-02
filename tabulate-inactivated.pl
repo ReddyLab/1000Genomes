@@ -2,7 +2,7 @@
 use strict;
 use SummaryStats;
 
-my $HOMOZYGOUS=1;
+my $HOMOZYGOUS=0;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";

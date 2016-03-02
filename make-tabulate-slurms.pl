@@ -25,11 +25,11 @@ cd $SLURM_DIR
 
 date
 
-/home/bmajoros/cia/essex-tabulate-changes.pl $dir/1-filtered.essex > $dir/1-tabulated.txt
+/home/bmajoros/cia/essex-tabulate-changes.pl $dir/1.essex > $dir/1-tabulated.txt
 
 date
 
-/home/bmajoros/cia/essex-tabulate-changes.pl $dir/2-filtered.essex > $dir/2-tabulated.txt
+/home/bmajoros/cia/essex-tabulate-changes.pl $dir/2.essex > $dir/2-tabulated.txt
 
 date
 ";
