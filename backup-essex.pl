@@ -9,9 +9,8 @@ my @dirs=`ls $COMBINED`;
 foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
-  my $cmd="cp $COMBINED/$subdir/1.essex $COMBINED/$subdir/1.essex.old";
-  print "$cmd\n";
-
+  system("cp $COMBINED/$subdir/1.essex $COMBINED/$subdir/1.essex.old");
+  system("cp $COMBINED/$subdir/2.essex $COMBINED/$subdir/2.essex.old");
 }
 
 
