@@ -5,7 +5,7 @@ my $echo=0;
 while(<STDIN>) {
   chomp;
   if(/>/) {
-    if(/Homo sapiens chromosome (\S+)\s.*Primary Assembly/) {
+    if(/Homo sapiens chromosome ([^,]+).*Primary Assembly\s*$/) {
       my $chr=$1;
       $echo=1;
       print ">chr$chr\n";
