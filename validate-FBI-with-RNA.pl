@@ -1,15 +1,21 @@
 #!/usr/bin/perl
 use strict;
 
+my $RANDOMIZE=1;
+
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
 my $RNA="$ASSEMBLY/rna-table.txt";
+my $TRANSCRIPT_FILE="$COMBINED/HG00096/mapped.gff";
 my %FATES;
 $FATES{"no-transcript"}=1;
 $FATES{"NMD"}=0;
 
 my $rna=loadRNAtable($RNA);
+
+my @allTranscripts;
+if($RANDOMIZE) { loadTranscripts() }
 
 my @dirs=`ls $COMBINED`;
 foreach my $indiv (@dirs) {
@@ -22,9 +28,10 @@ foreach my $indiv (@dirs) {
     my $gene=$rec->{gene}; my $transcript=$rec->{transcript};
     my $fate=$rec->{fate}; my $why=$rec->{why};
     next unless $FATES{$fate};
-    if($rna->{$indiv}->{$transcript}) {
-      print "$indiv\t$transcript\t$why\n";
-    }
+    my $verdict="OK";
+    if($RANDOMIZE) { $transcript=$allTranscripts[int(rand(@allTranscripts))] }
+    if($rna->{$indiv}->{$transcript}) { $verdict="BAD" }
+    print "$verdict\t$indiv\t$transcript\t$why\n";
   }
 }
 
@@ -87,7 +94,6 @@ sub loadRNAtable
       my $numFields=@fields;
       my $transcript=$fields[0];
       for(my $i=2 ; $i<$numFields ; ++$i) {
-	#if($header[$i] eq "HG00112" ) {}
 	my $indiv=$header[$i];
 	if($fields[$i]==1) { $table->{$indiv}->{$transcript}=1 }
       }
@@ -95,6 +101,19 @@ sub loadRNAtable
   }
   close(IN);
   return $table;
+}
+
+
+
+sub loadTranscripts
+{
+  open(IN,$TRANSCRIPT_FILE) || die;
+  my %hash;
+  while(<IN>) {
+    if(/transcript_id=([^;]+);/) { $hash{$1}=1 }
+  }
+  close(IN);
+  @allTranscripts=keys %hash;
 }
 
 
