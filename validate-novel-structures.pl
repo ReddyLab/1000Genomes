@@ -12,7 +12,7 @@ my $STRINGTIE="$dir/RNA/stringtie.gff";
 my $rna=parseRNA($STRINGTIE);
 my $fbiNovel=0; my $validatedNovel=0;
 parseEssex("$dir/1.essex");
-parseEssex("$dir/2.essex");
+#parseEssex("$dir/2.essex");
 
 print "$validatedNovel out of $fbiNovel were validated by RNA\n";
 
@@ -49,9 +49,9 @@ sub parseEssex
 sub parseRNA
 {
   my ($infile)=@_;
-  my $bySubstrate={}
+  my $bySubstrate={};
   my $reader=new GffTranscriptReader;
-  $transcripts=$reader->loadGFF($infile);
+  my $transcripts=$reader->loadGFF($infile);
   my $numTrans=@$transcripts;
   for(my $i=0 ; $i<$numTrans ; ++$i) {
     my $transcript=$transcripts->[$i];
@@ -73,14 +73,14 @@ sub transcriptsAreEqual
   my $raw2=$trans2->getRawExons();
   my $n1=@$raw1; my $n2=@$raw2;
   if($n1!=$n2) { return 0 }
-  @$raw1=sort {} @$raw1;
-  @$raw2=sort {} @$raw2;
+  @$raw1=sort {$a->getBegin() <=> $b->getBegin()} @$raw1;
+  @$raw2=sort {$a->getBegin() <=> $b->getBegin()} @$raw2;
   for(my $i=0 ; $i<$n1 ; ++$i) {
     my $exon1=$raw1->[$i]; my $exon2=$raw2->[$i];
     if($i+1<$n1)
-      if($exon1->getEnd()!=$exon2->getEnd()) { return 0 }
+      { if($exon1->getEnd()!=$exon2->getEnd()) { return 0 } }
     if($i>0)
-      if($exon1->getBegin()!=$exon2->getBegin()) { return 0 }
+      { if($exon1->getBegin()!=$exon2->getBegin()) { return 0 } }
   }
   undef $raw1; undef $raw2;
   return 1;
