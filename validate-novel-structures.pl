@@ -9,9 +9,9 @@ die "$name <path-to-indiv>\n" unless @ARGV==1;
 my ($dir)=@ARGV;
 my $STRINGTIE="$dir/RNA/stringtie.gff";
 
-my $rna=parseRNA($STRINGTIE);
+my $rna;#=parseRNA($STRINGTIE);
 my $fbiNovel=0; my $validatedNovel=0;
-parseEssex("$dir/1.essex");
+parseEssex("$dir/1.essex.old");
 #parseEssex("$dir/2.essex");
 
 print "$validatedNovel out of $fbiNovel were validated by RNA\n";
@@ -31,6 +31,7 @@ sub parseEssex
     foreach my $alt (@$altStructures) {
       my $fate=$alt->findChild("fate");
       next unless $fate;
+die "ok";
       next if $fate->getIthElem(0) eq "NMD";
       ++$fbiNovel;
       my $found;

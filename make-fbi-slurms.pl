@@ -27,9 +27,9 @@ foreach my $subdir (@dirs) {
 #
 cd $dir
 
-/home/bmajoros/cia/fbi.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/1.fasta /home/bmajoros/1000G/assembly/local-CDS-and-UTR.gff $dir/1.essex
+/home/bmajoros/FBI/fbi.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/1.fasta /home/bmajoros/1000G/assembly/local-CDS-and-UTR.gff $dir/1.essex
 
-/home/bmajoros/cia/fbi.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/2.fasta /home/bmajoros/1000G/assembly/local-CDS-and-UTR.gff $dir/2.essex
+/home/bmajoros/FBI/fbi.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/2.fasta /home/bmajoros/1000G/assembly/local-CDS-and-UTR.gff $dir/2.essex
 
 ";
   close(OUT);
