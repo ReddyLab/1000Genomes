@@ -1,7 +1,10 @@
 #!/usr/bin/perl
 use strict;
+use ProgramName;
 
-my $RANDOMIZE=1;
+my $name=ProgramName::get();
+die "$name <randomize:0/1>\n" unless @ARGV==1;
+my ($RANDOMIZE)=@ARGV;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
