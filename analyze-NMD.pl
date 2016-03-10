@@ -28,15 +28,17 @@ for(my $i=0 ; $i<$n ; ++$i) {
     if($rec->{status} eq "functional") { push @functional,$rec }
     else { push @nmd,$rec }
   }
-  next unless @nmd>0;
+  next unless @nmd>1 && @functional>1;
   my (@nmdFPKM,@functionalFPKM);
   addFPKMs(\@nmd,\@nmdFPKM);
   addFPKMs(\@functional,\@functionalFPKM);
 
-  my ($meanNMD,$sdNMD,$minNMD,$maxNMD)=SummaryStats::summaryStats(\@nmdFPKM);
+  my ($meanNMD,$sdNMD,$minNMD,$maxNMD)=
+    SummaryStats::roundedSummaryStats(\@nmdFPKM);
   my ($meanFunc,$sdFunc,$minFunc,$maxFunc)=
     SummaryStats::summaryStats(\@functionalFPKM);
-  print "$transcriptID\t$meanNMD\t$meanFunc\t$sdNMD\t$sdFunc\n";
+  my $nNMD=@nmdFPKM; my $nFunc=@functionalFPKM;
+  print "$transcriptID\t$meanNMD\t$meanFunc\t$sdNMD\t$sdFunc\t$nNMD\t$nFunc\n";
 }
 
 
