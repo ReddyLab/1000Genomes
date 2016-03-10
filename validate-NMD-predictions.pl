@@ -17,8 +17,8 @@ my %NMD;
 parseEssex("$dir/1.essex");
 parseEssex("$dir/2.essex");
 
-my @IDs=keys %NMD;
-# my @IDs=keys %$FPKMs;
+#my @IDs=keys %NMD;
+my @IDs=keys %$FPKMs;
 my $n=@IDs;
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcriptID=$IDs[$i];
@@ -64,10 +64,11 @@ sub parseRNA
   for(my $i=0 ; $i<$numTrans ; ++$i) {
     my $transcript=$transcripts->[$i];
     my $fields=$transcript->parseExtraFields();
-    my $hash=$transcript->hashExtraFields($fields);
-    my $FPKM=0+$hash->{"FPKM"};
-    my $transcriptID=$hash->{"reference_id"};
+    my $hashFields=$transcript->hashExtraFields($fields);
+    my $FPKM=0+$hashFields->{"FPKM"};
+    my $transcriptID=$hashFields->{"reference_id"};
     next unless $transcriptID;
+    #print "$transcriptID\t$FPKM\n";
     $hash->{$transcriptID}=$FPKM;
   }
   return $hash;
