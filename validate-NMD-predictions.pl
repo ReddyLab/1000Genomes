@@ -12,20 +12,25 @@ $dir=~/([^\/]+)$/ || die $dir;
 my $indiv=$1;
 my $STRINGTIE="$dir/RNA/stringtie.gff";
 
+my $transcriptIDs=loadTranscriptIDs("$dir/mapped.gff");
 my $FPKMs=parseRNA($STRINGTIE);
 my %NMD;
 parseEssex("$dir/1.essex");
 parseEssex("$dir/2.essex");
 
 #my @IDs=keys %NMD;
-my @IDs=keys %$FPKMs;
-my $n=@IDs;
+#my @IDs=keys %$FPKMs;
+my $n=@$transcriptIDs;
 for(my $i=0 ; $i<$n ; ++$i) {
-  my $transcriptID=$IDs[$i];
-  my $fpkm=0+$FPKMs->{$transcriptID};
-  my $nmd=$NMD{$transcriptID};
-  my $status=$nmd ? "NMD" : "functional";
-  print "$transcriptID\t$indiv\t$status\t$fpkm\n";
+  for(my $hap=1 ; $hap<=2 ; ++$hap) {
+    my $transcriptID=$transcriptIDs->[$i];
+    $transcriptID.="_$hap";
+    my $fpkm=0+$FPKMs->{$transcriptID};
+    my $nmd=$NMD{$transcriptID};
+    my $status=$nmd ? "NMD" : "functional";
+    my $transcriptID=$transcriptIDs->[$i];
+    print "$transcriptID\t$indiv\t$status\t$fpkm\n";
+  }
 }
 
 
@@ -72,6 +77,20 @@ sub parseRNA
     $hash->{$transcriptID}=$FPKM;
   }
   return $hash;
+}
+#============================================
+sub loadTranscriptIDs
+{
+  my ($infile)=@_;
+  my %hash;
+  open(IN,$infile) || die $infile;
+  while(<IN>) {
+    if(/transcript_id=([^;]+)/) { $hash{$1}=1 }
+  }
+  close(IN);
+  my $keys=[];
+  @$keys=keys %hash;
+  return $keys;
 }
 #============================================
 
