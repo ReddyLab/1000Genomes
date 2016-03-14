@@ -3,19 +3,20 @@ use strict;
 use ProgramName;
 use GffTranscriptReader;
 use EssexParser;
+use EssexFBI;
 
 my $name=ProgramName::get();
 die "$name <path-to-indiv>\n" unless @ARGV==1;
 my ($dir)=@ARGV;
 my $STRINGTIE="$dir/RNA/stringtie.gff";
 
-my $rna;#=parseRNA($STRINGTIE);
-my $fbiNovel=0; my $validatedNovel=0;
+my $rna=parseRNA($STRINGTIE);
+my $fbiNovel=0; my $validatedNovel=0; my $notReallyBroken=0;
 parseEssex("$dir/1.essex");
 #parseEssex("$dir/2.essex");
 
 print "$validatedNovel out of $fbiNovel were validated by RNA\n";
-
+print "$notReallyBroken transcripts FBI said were broken were found in RNA\n";
 
 
 #============================================
@@ -24,27 +25,56 @@ sub parseEssex
   my ($infile)=@_;
   my $parser=new EssexParser($infile);
   while(1) {
-    my $elem=$parser->nextElem();
-    last unless $elem;
+    my $elem=$parser->nextElem(); last unless $elem;
+    my $report=new EssexFBI($elem);
+    my $substrate=$report->getSubstrate();
+    my $transcriptID=$report->getTranscriptID();
+    next unless $report->hasBrokenSpliceSite(); # broken, not just weakened!
+#die "OK"; # happens
     my $altStructures=$elem->findDescendents("alternate-structures");
-    next unless $altStructures;
+    next unless $altStructures && @$altStructures>0;
+#die "ok"; # happens
+    my $parent=$altStructures->[0];
+    $altStructures=$parent->findChildren("transcript");
     foreach my $alt (@$altStructures) {
       my $fate=$alt->findChild("fate");
+#die "ok";#happens
       next unless $fate;
-die "ok";
+#die "ok"; # neverhappens
       next if $fate->getIthElem(0) eq "NMD";
-      ++$fbiNovel;
       my $found;
       my $transcript=new Transcript($alt);
-      my $rnaStructs=$rna->{$transcript->getSubstrate()};
-      foreach my $rnaStruct (@$rnaStructs) {
-	if(transcriptsAreEqual($transcript,$rnaStruct)) { $found=1 }
-      }
+      my $transcriptIsInRNA=0;
+      my $rnaTranscript=$rna->{$substrate}->{$transcriptID};
+      if($rnaTranscript && $rnaTranscript->{FPKM}>0) { $transcriptIsInRNA=1 }
+      my $geneIsExpressed=hasNonzeroFPKM($substrate);
+#die "ok"; # never happens
+#no -- i need to first tabulate a list of all genes expressed in *any* indiv?
+
+      next unless $geneIsExpressed;
+      ++$fbiNovel;
+      my $rnaStructs=values %{$rna->{$substrate}};
+      foreach my $rnaStruct (@$rnaStructs)
+	{ if(transcriptsAreEqual($transcript,$rnaStruct)) { $found=1 } }
       if($found) { ++$validatedNovel }
+      if($transcriptIsInRNA) { ++$notReallyBroken }
     }
     undef $elem;
   }
 
+}
+#============================================
+sub hasNonzeroFPKM
+{
+  my ($substrate)=@_;
+  my $hash=$rna->{$substrate};
+  if($hash) {
+    my @keys=keys %$hash;
+    foreach my $transcriptID (@keys) {
+      if($hash->{$transcriptID}->{FPKM}>0) { return 1 }
+    }
+  }
+  return 0;
 }
 #============================================
 sub parseRNA
@@ -62,7 +92,8 @@ sub parseRNA
     my $FPKM=$hash->{"FPKM"};
     $transcript->{FPKM}=$FPKM;
     my $substrate=$transcript->getSubstrate();
-    push @{$bySubstrate->{$substrate}},$transcript
+    my $transcriptID=$transcript->getTranscriptId();
+    $bySubstrate->{$substrate}->{$transcriptID}=$transcript;
   }
   return $bySubstrate;
 }
