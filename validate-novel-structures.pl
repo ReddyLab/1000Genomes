@@ -11,7 +11,7 @@ my $STRINGTIE="$dir/RNA/stringtie.gff";
 
 my $rna;#=parseRNA($STRINGTIE);
 my $fbiNovel=0; my $validatedNovel=0;
-parseEssex("$dir/1.essex.old");
+parseEssex("$dir/1.essex");
 #parseEssex("$dir/2.essex");
 
 print "$validatedNovel out of $fbiNovel were validated by RNA\n";
