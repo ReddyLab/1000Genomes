@@ -27,7 +27,8 @@ for(my $i=0 ; $i<$n ; ++$i) {
     $transcriptID.="_$hap";
     my $fpkm=0+$FPKMs->{$transcriptID};
     my $nmd=$NMD{$transcriptID};
-    my $status=$nmd ? "NMD" : "functional";
+    #my $status=$nmd ? "NMD" : "functional";
+    my $status=$nmd eq "" ? "functional" : $nmd;
     my $transcriptID=$transcriptIDs->[$i];
     print "$transcriptID\t$indiv\t$status\t$fpkm\n";
   }
@@ -52,9 +53,10 @@ sub parseEssex
     $transcriptID.="_$hap";
     my $geneID=$report->getGeneID();
     my $status=$report->getStatusString();
-    if($status eq "mapped" && $report->mappedNMD()) { $NMD{$transcriptID}=1 }
+    if($status eq "mapped" && $report->mappedNMD())
+      { $NMD{$transcriptID}="mapped-NMD" }
     elsif($status eq "splicing-changes" && $report->allAltStructuresLOF())
-      { $NMD{$transcriptID}=1 }
+      { $NMD{$transcriptID}="misspliced-NMD" }
     undef $elem; undef $report;
   }
 }

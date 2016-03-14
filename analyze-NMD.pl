@@ -6,6 +6,13 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
 
+my %chr;
+open(IN,"$ASSEMBLY/local-CDS-and-UTR.gff") || die;
+while(<IN>) {
+  if(/^(chr\S+)\s.*transcript_id=([^;]+);/) { $chr{$2}=$1 }
+}
+close(IN);
+
 my %hash;
 my @dirs=`ls $COMBINED`;
 foreach my $subdir (@dirs) {
@@ -20,6 +27,8 @@ my @transcriptIDs=keys %hash;
 my $n=@transcriptIDs;
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcriptID=$transcriptIDs[$i];
+  my $chr=$chr{$transcriptID};
+  next if $chr eq "chrX" || $chr eq "chrY";
   my @array=values(%{$hash{$transcriptID}});
   my $n=@array;
   my (@functional0,@functional1,@functional2);
@@ -28,6 +37,8 @@ for(my $i=0 ; $i<$n ; ++$i) {
     my $functionalCopies=0;
     if($rec->{status}->[0] eq "functional") { ++$functionalCopies }
     if($rec->{status}->[1] eq "functional") { ++$functionalCopies }
+    #if($rec->{status}->[0] ne "mapped-NMD") { ++$functionalCopies }
+    #if($rec->{status}->[1] ne "mapped-NMD") { ++$functionalCopies }
     if($functionalCopies==2) { push @functional2,$rec }
     elsif($functionalCopies==1) { push @functional1,$rec }
     elsif($functionalCopies==0) { push @functional0,$rec }
@@ -45,8 +56,7 @@ for(my $i=0 ; $i<$n ; ++$i) {
   my $mean1=mean(\@FPKM1);
   my $mean2=mean(\@FPKM2);
   next unless $mean2>0;
-  print "$transcriptID\t$mean0\t$mean1\t$mean2\t$n0\t$n1\t$n2\n";
- # print "$transcriptID\t$meanNMD\t$meanFunc\t$sdNMD\t$sdFunc\t$nNMD\t$nFunc\n";
+  print "$chr\t$transcriptID\t$mean0\t$mean1\t$mean2\t$n0\t$n1\t$n2\n";
 }
 
 
@@ -78,10 +88,8 @@ sub process
   my ($infile)=@_;
   open(IN,$infile) || die "can't open $infile\n";
   while(<IN>) {
-    chomp; my @fields=split; next unless @fields>=4;
+    chomp; my @fields=split/\t/; next unless @fields>=4;
     my ($transcript,$indiv,$status,$fpkm)=@fields;
-    #my $rec={indiv=>$indiv,status=>$status,FPKM=>$fpkm};
-    #push @{$hash{$transcript}},$rec;
     my $rec=$hash{$transcript}->{$indiv};
     if(!$rec) { $hash{$transcript}->{$indiv}=$rec={status=>[],FPKM=>[]} }
     push @{$rec->{status}},$status;
