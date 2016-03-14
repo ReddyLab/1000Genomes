@@ -33,7 +33,7 @@ for(my $i=0 ; $i<$n ; ++$i) {
     elsif($functionalCopies==0) { push @functional0,$rec }
   }
   my $n0=@functional0+0; my $n1=@functional1+0; my $n2=@functional2+0;
-  print "XXX $n0\t$n1\t$n2\n";
+  #print "XXX $n0\t$n1\t$n2\n";
   next unless $n0+$n1>=1 && $n2>=1;
   my (@FPKM0,@FPKM1,@FPKM2);
   addFPKMs(\@functional0,\@FPKM0);
@@ -44,6 +44,7 @@ for(my $i=0 ; $i<$n ; ++$i) {
   my $mean0=mean(\@FPKM0);
   my $mean1=mean(\@FPKM1);
   my $mean2=mean(\@FPKM2);
+  next unless $mean2>0;
   print "$transcriptID\t$mean0\t$mean1\t$mean2\t$n0\t$n1\t$n2\n";
  # print "$transcriptID\t$meanNMD\t$meanFunc\t$sdNMD\t$sdFunc\t$nNMD\t$nFunc\n";
 }
@@ -56,7 +57,7 @@ sub mean
   my $n=@$array;
   my $sum=0;
   for(my $i=0 ; $i<$n ; ++$i) { $sum+=$array->[$i] }
-  return $sum/$n;
+  return $n>0 ? $sum/$n : 0;
 }
 
 
@@ -82,7 +83,7 @@ sub process
     #my $rec={indiv=>$indiv,status=>$status,FPKM=>$fpkm};
     #push @{$hash{$transcript}},$rec;
     my $rec=$hash{$transcript}->{$indiv};
-    if(!$rec) { $rec={status=>[],FPKM=>[]} }
+    if(!$rec) { $hash{$transcript}->{$indiv}=$rec={status=>[],FPKM=>[]} }
     push @{$rec->{status}},$status;
     push @{$rec->{FPKM}},$fpkm;
   }
