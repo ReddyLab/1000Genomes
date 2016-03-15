@@ -30,33 +30,40 @@ sub parseEssex
     my $substrate=$report->getSubstrate();
     my $transcriptID=$report->getTranscriptID();
     next unless $report->hasBrokenSpliceSite(); # broken, not just weakened!
-#die "OK"; # happens
     my $altStructures=$elem->findDescendents("alternate-structures");
     next unless $altStructures && @$altStructures>0;
-#die "ok"; # happens
     my $parent=$altStructures->[0];
     $altStructures=$parent->findChildren("transcript");
     foreach my $alt (@$altStructures) {
       my $fate=$alt->findChild("fate");
-#die "ok";#happens
       next unless $fate;
-#die "ok"; # neverhappens
-      next if $fate->getIthElem(0) eq "NMD";
+      #next if $fate->getIthElem(0) eq "NMD";
       my $found;
       my $transcript=new Transcript($alt);
       my $transcriptIsInRNA=0;
       my $rnaTranscript=$rna->{$substrate}->{$transcriptID};
       if($rnaTranscript && $rnaTranscript->{FPKM}>0) { $transcriptIsInRNA=1 }
       my $geneIsExpressed=hasNonzeroFPKM($substrate);
-#die "ok"; # never happens
+
 #no -- i need to first tabulate a list of all genes expressed in *any* indiv?
 
       next unless $geneIsExpressed;
       ++$fbiNovel;
-      my $rnaStructs=values %{$rna->{$substrate}};
-      foreach my $rnaStruct (@$rnaStructs)
-	{ if(transcriptsAreEqual($transcript,$rnaStruct)) { $found=1 } }
+      my @rnaStructs=values %{$rna->{$substrate}}; my $rna;
+      foreach my $rnaStruct (@rnaStructs)
+	{ if(transcriptsAreEqual($transcript,$rnaStruct))
+	    { $rna=$rnaStruct; $found=1 } }
       if($found) { ++$validatedNovel }
+      #die "found" if $found; ### debugging
+      if(0 && $found) {
+	print "FBI PREDICTION:\n";
+	print $transcript->toGff(); print "\n";
+	print "RNA:\n";
+	print $rna->toGff(); print "\n";
+	print "ESSEX:\n";
+	$elem->print(\*STDOUT);
+	print "\n";
+      }
       if($transcriptIsInRNA) { ++$notReallyBroken }
     }
     undef $elem;
