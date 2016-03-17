@@ -6,7 +6,8 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
 
-my (%hash,$altSum,$altN,$frameshiftLen,$frameshiftSquared,$frameshiftN);
+my (%hash,$altSum,$altSquared,$altN,$frameshiftLen,$frameshiftSquared,
+    $frameshiftN,$crypticSum,$crypticSquared,$crypticN);
 my @dirs=`ls $COMBINED`;
 my $slurmID=1;
 foreach my $subdir (@dirs) {
@@ -24,14 +25,20 @@ foreach my $key (@keys) {
   print "$key\t$mean +/- $stddev ($min\-$max)\n";
 }
 my $meanAlt=$altSum/$altN;
-print "ALT_TRANSCRIPTS\tmean=$meanAlt\tsum=$altSum\tN=$altN\n";
+my $varAlt=($altSquared-$altSum*$altSum/$altN)/($altN-1);
+my $sdAlt=sqrt($varAlt);
+print "ALT_TRANSCRIPTS\tmean=$meanAlt\tSD=$sdAlt\tsum=$altSum\tN=$altN\n";
 my $meanFrameshift=$frameshiftLen/$frameshiftN;
 my $varFrameshift=
   ($frameshiftSquared-$frameshiftLen*$frameshiftLen/$frameshiftN)/
   ($frameshiftN-1);
 my $sdFrameshift=sqrt($varFrameshift);
-
 print "FRAMESHIFT_LENGTHS\tmean=$meanFrameshift\tSD=$sdFrameshift\tsum=$frameshiftLen\tN=$frameshiftN\n";
+my $meanCryptic=$crypticSum/$crypticN;
+my $varCryptic=($crypticSquared-$crypticSum*$crypticSum/$crypticN)/
+  ($crypticN-1);
+my $sdCryptic=sqrt($varCryptic);
+print "CRYPTIC_SITES\tmean=$meanCryptic\tSD=$sdCryptic\tsum=$crypticSum\tN=$crypticN\n";
 
 sub process
 {
@@ -39,9 +46,16 @@ sub process
   open(IN,$infile) || die $infile;
   while(<IN>) {
     chomp;
-    if(/ALT_TRANSCRIPTS\s+(\S+)\s+(\S+)/) {
+    if(/ALT_TRANSCRIPTS\s+(\S+)\s+(\S+)\s+(\S+)/) {
       $altSum+=$1;
-      $altN+=$2;
+      $altSquared+=$2;
+      $altN+=$3;
+      next;
+    }
+    if(/CRYPTIC_SITES\s+(\S+)\s+(\S+)\s+(\S+)/) {
+      $crypticSum+=$1;
+      $crypticSquared+=$2;
+      $crypticN+=$3;
       next;
     }
     if(/GENES_FRAMESHIFT\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/) {

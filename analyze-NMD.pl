@@ -13,7 +13,7 @@ while(<IN>) {
 }
 close(IN);
 
-my %hash;
+my (%hash,%byIndiv,%indivNMD,%indivHomoNMD);
 my @dirs=`ls $COMBINED`;
 foreach my $subdir (@dirs) {
   chomp $subdir;
@@ -23,6 +23,26 @@ foreach my $subdir (@dirs) {
   next if -z $infile;
   process($infile);
 }
+my @indivs=keys %byIndiv;
+foreach my $indiv (@indivs) {
+  my $hash=$byIndiv{$indiv};
+  my @array=values(%$hash);
+  my $n=@array;
+  for(my $i=0 ; $i<$n ; ++$i) {
+    my $rec=$array[$i];
+    my $functionalCopies=0;
+    if($rec->{status}->[0] eq "functional") { ++$functionalCopies }
+    if($rec->{status}->[1] eq "functional") { ++$functionalCopies }
+    if($functionalCopies<2) { ++$indivNMD{$indiv} }
+    if($functionalCopies==0) { ++$indivHomoNMD{$indiv} }
+  }
+}
+my @array=values %indivNMD;
+my ($mean,$stddev,$min,$max)=SummaryStats::summaryStats(\@array);
+print "# transcripts NMD per individual:\t$mean +/- $stddev ($min\-$max)";
+my @array=values %indivHomoNMD;
+my ($mean,$stddev,$min,$max)=SummaryStats::summaryStats(\@array);
+print "# transcripts homozygous NMD per individual:\t$mean +/- $stddev ($min\-$max)";
 my @transcriptIDs=keys %hash;
 my $n=@transcriptIDs;
 for(my $i=0 ; $i<$n ; ++$i) {
@@ -94,6 +114,9 @@ sub process
     if(!$rec) { $hash{$transcript}->{$indiv}=$rec={status=>[],FPKM=>[]} }
     push @{$rec->{status}},$status;
     push @{$rec->{FPKM}},$fpkm;
+    my $rec=$byIndiv{$indiv}->{$transcript};
+    if(!$rec) { $byIndiv{$indiv}->{$transcript}=$rec={status=>[]}}
+    push @{$rec->{status}},$status
   }
   close(IN);
 }
