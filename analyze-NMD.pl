@@ -39,10 +39,10 @@ foreach my $indiv (@indivs) {
 }
 my @array=values %indivNMD;
 my ($mean,$stddev,$min,$max)=SummaryStats::summaryStats(\@array);
-print "# transcripts NMD per individual:\t$mean +/- $stddev ($min\-$max)";
+print "# transcripts NMD per individual:\t$mean +/- $stddev ($min\-$max)\n";
 my @array=values %indivHomoNMD;
 my ($mean,$stddev,$min,$max)=SummaryStats::summaryStats(\@array);
-print "# transcripts homozygous NMD per individual:\t$mean +/- $stddev ($min\-$max)";
+print "# transcripts homozygous NMD per individual:\t$mean +/- $stddev ($min\-$max)\n";
 my @transcriptIDs=keys %hash;
 my $n=@transcriptIDs;
 for(my $i=0 ; $i<$n ; ++$i) {
@@ -111,12 +111,12 @@ sub process
     chomp; my @fields=split/\t/; next unless @fields>=4;
     my ($transcript,$indiv,$status,$fpkm)=@fields;
     my $rec=$hash{$transcript}->{$indiv};
-    if(!$rec) { $hash{$transcript}->{$indiv}=$rec={status=>[],FPKM=>[]} }
+    if(!$rec) {
+      $byIndiv{$indiv}->{$transcript}=
+	$hash{$transcript}->{$indiv}=
+	  $rec={status=>[],FPKM=>[]} }
     push @{$rec->{status}},$status;
     push @{$rec->{FPKM}},$fpkm;
-    my $rec=$byIndiv{$indiv}->{$transcript};
-    if(!$rec) { $byIndiv{$indiv}->{$transcript}=$rec={status=>[]}}
-    push @{$rec->{status}},$status
   }
   close(IN);
 }
