@@ -19,10 +19,28 @@ while(1) {
   my $cigar=$report->getCigar();
   my $transcript=$report->getMappedTranscript();
 
+  my $indels=parseCigar($cigar);
 
 }
 
 
+
+sub parseCigar
+{
+  my ($cigar)=@_;
+  my $array=[];
+  open(CIGAR,"/home/bmajoros/cia/collapse-cigar.pl $cigar|") || die;
+  <CIGAR>;
+  while(<CIGAR>) {
+    chomp; my @fields=split; next unless @fields>=5;
+    my ($refPos,$altPos,$len,$bp,$type)=@fields;
+    $type=($type eq "insertion" ? "I" : "D");
+    my $rec={pos=>$pos,len=>$len,type=>$type};
+    push @$array,$rec;
+  }
+  close(CIGAR);
+  return $array;
+}
 
 
 
