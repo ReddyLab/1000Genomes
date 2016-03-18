@@ -5,7 +5,7 @@ use GffTranscriptReader;
 use EssexParser;
 use EssexFBI;
 
-my $NMD_PARM=70;
+my $NMD_PARM=50;
 
 my $name=ProgramName::get();
 die "$name <path-to-indiv>\n" unless @ARGV==1;
@@ -57,7 +57,7 @@ sub parseEssex
     my $status=$report->getStatusString();
     if($status eq "mapped" && $report->mappedNMD($NMD_PARM))
       { $NMD{$transcriptID}="mapped-NMD" }
-    elsif($status eq "splicing-changes" && $report->allAltStructuresLOF())
+    elsif($status eq "splicing-changes" && $report->allExonSkippingNMD())
       { $NMD{$transcriptID}="misspliced-NMD" }
     undef $elem; undef $report;
   }

@@ -13,7 +13,7 @@ my $STRINGTIE="$dir/RNA/stringtie.gff";
 my $rna=parseRNA($STRINGTIE);
 my $fbiNovel=0; my $validatedNovel=0; my $notReallyBroken=0;
 parseEssex("$dir/1.essex");
-#parseEssex("$dir/2.essex");
+parseEssex("$dir/2.essex");
 
 print "$validatedNovel out of $fbiNovel were validated by RNA\n";
 print "$notReallyBroken transcripts FBI said were broken were found in RNA\n";
@@ -50,12 +50,13 @@ sub parseEssex
       next unless $geneIsExpressed;
       ++$fbiNovel;
       my @rnaStructs=values %{$rna->{$substrate}}; my $rna;
+      print "=========================================\n";
       foreach my $rnaStruct (@rnaStructs)
 	{ if(transcriptsAreEqual($transcript,$rnaStruct))
 	    { $rna=$rnaStruct; $found=1 } }
       if($found) { ++$validatedNovel }
       #die "found" if $found; ### debugging
-      if(0 && $found) {
+      if(!$found) {
 	print "FBI PREDICTION:\n";
 	print $transcript->toGff(); print "\n";
 	print "RNA:\n";
@@ -117,9 +118,11 @@ sub transcriptsAreEqual
   for(my $i=0 ; $i<$n1 ; ++$i) {
     my $exon1=$raw1->[$i]; my $exon2=$raw2->[$i];
     if($i+1<$n1)
-      { if($exon1->getEnd()!=$exon2->getEnd()) { return 0 } }
+      #{ if($exon1->getEnd()!=$exon2->getEnd()) { return 0 } }
+      { print $exon1->getEnd() . " vs " . $exon2->getEnd() . "\n" }
     if($i>0)
-      { if($exon1->getBegin()!=$exon2->getBegin()) { return 0 } }
+      #{ if($exon1->getBegin()!=$exon2->getBegin()) { return 0 } }
+      { print $exon1->getBegin() . " vs " . $exon2->getBegin() . "\n" }
   }
   undef $raw1; undef $raw2;
   return 1;

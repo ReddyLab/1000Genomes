@@ -12,6 +12,7 @@ open(HIST,">$HIST_OUT") || die $HIST_OUT;
 open(LM,">$LM_OUT") || die $LM_OUT;
 open(IN,$INFILE) || die $INFILE;
 while(<IN>) {
+  next if(/^\s*#/);
   chomp; my @fields=split; next unless @fields>=7;
   my ($chr,$transcriptID,$mean0,$mean1,$mean2,$n0,$n1,$n2)=@fields;
   my $n01=$n0+$n1; my $mean01=($mean0*$n0+$mean1*$n1)/$n01;
