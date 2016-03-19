@@ -14,6 +14,8 @@ while(1) {
   last unless $elem;
   my $report=new EssexFBI($elem);
   next unless $report->getStatusString() eq "mapped";
+  #next if $report->mappedNMD(50);
+  next if $elem->findDescendent("premature-stop");
   my $substrate=$report->getSubstrate();
   my $transcriptID=$report->getTranscriptID();
   my $cigar=$report->getCigar();
@@ -25,7 +27,7 @@ while(1) {
     my $exon=$transcript->getIthExon($i);
     my $netIndel=0; my $hasFrameshiftIndel=0;
     foreach my $indel (@$indels) {
-      if($exon->containsCoordinate($indel->{pos})) {
+      if($exon->containsCoordinate($indel->{altPos})) {
 	if($indel->{type} eq "I") { $netIndel+=$indel->{len} }
 	else { $netIndel-=$indel->{len} }
 	if($indel->{len}%3 != 0) { $hasFrameshiftIndel=1 }
@@ -34,12 +36,21 @@ while(1) {
     if($hasFrameshiftIndel) {
       my $mod=$netIndel%3;
       next unless $mod==0;
-      #print "$netIndel\t$mod\n";
+      my ($begin,$end);
+      my $refPositions;
       foreach my $indel (@$indels) {
-	if($exon->containsCoordinate($indel->{pos})) {
-	  print $indel->{len} . $indel->{type} . "\n";
-	}
+	next unless $exon->containsCoordinate($indel->{altPos});
+	my $indelBegin=$indel->{altPos};
+	my $len=$indel->{type} eq "I" ? $indel->{len} : 0;
+	my $indelEnd=$indel->{altPos}+$len;
+	if(!defined($begin) || $indelBegin<$begin) { $begin=$indelBegin }
+	if(!defined($end) || $indelEnd>$end) { $end=$indelEnd }
+	if($refPositions ne "") { $refPositions.="," }
+	$refPositions.=$indel->{refPos};
+	#print $indel->{altPos} . "\t" . $indel->{len} . $indel->{type} . "\n";
       }
+      my $frameshiftLen=$end-$begin;
+      print "$frameshiftLen\t$refPositions\n";
       print "===========================\n";
     }
   }
@@ -58,7 +69,7 @@ sub parseCigar
     chomp; my @fields=split; next unless @fields>=5;
     my ($refPos,$altPos,$len,$bp,$type)=@fields;
     $type=($type eq "insertion" ? "I" : "D");
-    my $rec={pos=>$altPos,len=>$len,type=>$type};
+    my $rec={refPos=>$refPos,altPos=>$altPos,len=>$len,type=>$type};
     push @$array,$rec;
   }
   close(CIGAR);
