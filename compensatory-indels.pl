@@ -5,8 +5,8 @@ use EssexParser;
 use EssexFBI;
 
 my $name=ProgramName::get();
-die "$name <infile.essex>\n" unless @ARGV==1;
-my ($infile)=@ARGV;
+die "$name <indiv-ID> <infile.essex>\n" unless @ARGV==2;
+my ($indiv,$infile)=@ARGV;
 
 my $parser=new EssexParser($infile);
 while(1) {
@@ -50,8 +50,8 @@ while(1) {
 	#print $indel->{altPos} . "\t" . $indel->{len} . $indel->{type} . "\n";
       }
       my $frameshiftLen=$end-$begin;
-      print "$frameshiftLen\t$refPositions\n";
-      print "===========================\n";
+      my $AAlen=$frameshiftLen/3;
+      print "$indiv\t$transcriptID\t$AAlen\t$refPositions\n";
     }
   }
   undef $indels;
