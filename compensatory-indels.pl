@@ -8,6 +8,10 @@ my $name=ProgramName::get();
 die "$name <indiv-ID> <infile.essex>\n" unless @ARGV==2;
 my ($indiv,$infile)=@ARGV;
 
+chomp $infile;
+$infile=~/(\d).essex$/ || die $infile;
+my $hap=$1;
+
 my $parser=new EssexParser($infile);
 while(1) {
   my $elem=$parser->nextElem();
@@ -18,12 +22,14 @@ while(1) {
   next if $elem->findDescendent("premature-stop");
   my $substrate=$report->getSubstrate();
   my $transcriptID=$report->getTranscriptID();
+  my $geneID=$report->getGeneID();
   my $cigar=$report->getCigar();
   my $transcript=$report->getMappedTranscript();
 
   my $indels=parseCigar($cigar);
   my $numExons=$transcript->numExons();
   for(my $i=0 ; $i<$numExons ; ++$i) {
+    my $exonID=$i+1;
     my $exon=$transcript->getIthExon($i);
     my $netIndel=0; my $hasFrameshiftIndel=0;
     foreach my $indel (@$indels) {
@@ -50,8 +56,8 @@ while(1) {
 	#print $indel->{altPos} . "\t" . $indel->{len} . $indel->{type} . "\n";
       }
       my $frameshiftLen=$end-$begin;
-      my $AAlen=$frameshiftLen/3;
-      print "$indiv\t$transcriptID\t$AAlen\t$refPositions\n";
+      my $AAlen=int($frameshiftLen/3);
+      print "$indiv\thap$hap\t$geneID\t$transcriptID\texon$exonID\t$AAlen\t$refPositions\n";
     }
   }
   undef $indels;
