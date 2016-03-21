@@ -34,9 +34,9 @@ while(1) {
   next unless $ok;
   my $transcriptID=$report->getTranscriptID();
   my $geneID=$report->getGeneID();
-  my $transcript=$report->getMappedTranscript();
-  my $transcriptSeq=loadSequence($transcript);
-  my $protein=Translation::translate(\$transcriptSeq);
+  my $mapped=$elem->findDescendent("mapped-transcript");
+  my $protein=$mapped->getAttribute("translation");
+  #print "$protein\n\n";
   if($protein=~/\*\S/) {
     print "$indiv\t$hap\t$geneID\t$transcriptID\t$protein\n";
   }
