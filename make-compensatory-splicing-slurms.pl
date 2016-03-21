@@ -23,9 +23,11 @@ foreach my $subdir (@dirs) {
 #
 cd $dir
 
-/home/bmajoros/1000G/src/compensatory-splicing.pl $subdir $dir/1.essex > $dir/1-compensatory-splicing.txt
+/home/bmajoros/1000G/src/compensatory-splicing2.pl $dir 1 > $dir/1-compensatory-splicing.txt
+/home/bmajoros/1000G/src/compensatory-splicing2.pl $dir 2 > $dir/2-compensatory-splicing.txt
 
-/home/bmajoros/1000G/src/compensatory-splicing.pl $subdir $dir/2.essex > $dir/2-compensatory-splicing.txt
+#/home/bmajoros/1000G/src/compensatory-splicing2.pl $subdir $dir/1.essex > $dir/1-compensatory-splicing.txt
+#/home/bmajoros/1000G/src/compensatory-splicing2.pl $subdir $dir/2.essex > $dir/2-compensatory-splicing.txt
 
 ";
   close(OUT);
