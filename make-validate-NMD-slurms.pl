@@ -3,7 +3,7 @@ use strict;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
-my $COMBINED="$ASSEMBLY/combined";
+my $COMBINED="$ASSEMBLY/combined-hg19";
 my $SLURM_DIR="$ASSEMBLY/validate-NMD-slurms";
 
 my @dirs=`ls $COMBINED`;
