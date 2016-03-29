@@ -51,42 +51,38 @@ for(my $i=0 ; $i<$n ; ++$i) {
   next if $chr eq "chrX" || $chr eq "chrY";
   my @array=values(%{$hash{$transcriptID}});
   my $n=@array;
-  my (@functional0,@functional1,@functional2);
+  my (@points,$n0,$n1,$n2,$expressed);
   for(my $i=0 ; $i<$n ;++$i) {
     my $rec=$array[$i];
     my $functionalCopies=0;
     if($rec->{status}->[0] eq "functional") { ++$functionalCopies }
     if($rec->{status}->[1] eq "functional") { ++$functionalCopies }
-    #if($rec->{status}->[0] ne "mapped-NMD") { ++$functionalCopies }
-    #if($rec->{status}->[1] ne "mapped-NMD") { ++$functionalCopies }
-    if($functionalCopies==2) { push @functional2,$rec }
-    elsif($functionalCopies==1) { push @functional1,$rec }
-    elsif($functionalCopies==0) { push @functional0,$rec }
+    my $fpkm;
+    foreach my $x (@{$rec->{FPKM}}) {$fpkm+=$x}
+    if($fpkm>0) { $expressed=1 }
+    push @points,[$functionalCopies,$fpkm];
+    if($functionalCopies==0) { ++$n0 }
+    elsif($functionalCopies==1) { ++$n1 }
+    elsif($functionalCopies==2) { ++$n2 }
   }
-  my $n0=@functional0+0; my $n1=@functional1+0; my $n2=@functional2+0;
-  #print "XXX $n0\t$n1\t$n2\n";
+  next unless $expressed;
   next unless $n0+$n1>=1 && $n2>=1;
-  my (@FPKM0,@FPKM1,@FPKM2);
-  addFPKMs(\@functional0,\@FPKM0);
-  addFPKMs(\@functional1,\@FPKM1);
-  addFPKMs(\@functional2,\@FPKM2);
-
-  my $n0=@FPKM0; my $n1=@FPKM1; my $n2=@FPKM2;
-  my $mean0=mean(\@FPKM0);
-  my $mean1=mean(\@FPKM1);
-  my $mean2=mean(\@FPKM2);
-  next unless $mean2>0;
-  print "$chr\t$transcriptID\t$mean0\t$mean1\t$mean2\t$n0\t$n1\t$n2\n";
+  my $mean=meanFPKM(\@points);
+  foreach my $point (@points) {
+    my ($copies,$fpkm)=@$point;
+    my $score=log($fpkm/$mean+1);
+    print "$chr\t$transcriptID\t$copies\t$fpkm\n";
+  }
 }
 
 
 
-sub mean
+sub meanFPKM
 {
   my ($array)=@_;
   my $n=@$array;
   my $sum=0;
-  for(my $i=0 ; $i<$n ; ++$i) { $sum+=$array->[$i] }
+  for(my $i=0 ; $i<$n ; ++$i) { $sum+=$array->[$i]->[1] }
   return $n>0 ? $sum/$n : 0;
 }
 
