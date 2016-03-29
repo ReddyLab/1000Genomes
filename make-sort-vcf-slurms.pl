@@ -14,11 +14,11 @@ foreach my $file (@files) {
   next unless($file=~/chr([^\.]+)\.vcf\.gz/);
   my $id=$1;
   my $outfile="chr$id.sorted.vcf.gz";
-  my $cmd="setenv TMPDIR /home/bmajoros/1000G/vcf/GRCh38/tmp ; cat $file | bgzip -d | vcf-sort | bgzip > $DIR/$outfile";
+  my $cmd="setenv TMPDIR /home/bmajoros/1000G/vcf/GRCh38/tmp ; cat $file | bgzip -d | vcf-sort | bgzip > $DIR/$outfile ; tabix $DIR/$outfile";
   #print "$cmd\n";
   $writer->addCommand($cmd);
 }
 
 $writer->mem(30000);
-$writer->writeScripts($NUM_SCRIPTS,$SLURM_DIR,"SORT",$GRCH38);
+$writer->writeScripts($NUM_SCRIPTS,$SLURM_DIR,"SORT",$SLURM_DIR);
 

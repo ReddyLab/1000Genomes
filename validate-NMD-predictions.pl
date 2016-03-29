@@ -57,8 +57,8 @@ sub parseEssex
     my $status=$report->getStatusString();
     if($status eq "mapped" && $report->mappedNMD($NMD_PARM))
       { $NMD{$transcriptID}="mapped-NMD" }
-    elsif($status eq "splicing-changes" && $report->allExonSkippingNMD())
-      { $NMD{$transcriptID}="misspliced-NMD" }
+    #elsif($status eq "splicing-changes" && $report->allExonSkippingNMD())
+    #  { $NMD{$transcriptID}="misspliced-NMD" }
     undef $elem; undef $report;
   }
 }
