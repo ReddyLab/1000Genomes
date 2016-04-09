@@ -14,6 +14,7 @@ while(1) {
   last unless $elem;
   my $report=new EssexFBI($elem);
   next unless$report->hasBrokenSpliceSite();
+  next unless $elem->findChild("alternate-structures");
   my $array=$report->getAltTranscripts();
   my $crypticCount;
   foreach my $transcript (@$array) {
