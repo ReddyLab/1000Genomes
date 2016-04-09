@@ -59,19 +59,22 @@ for(my $i=0 ; $i<$n ; ++$i) {
     if($rec->{status}->[1] eq "functional") { ++$functionalCopies }
     my $fpkm;
     foreach my $x (@{$rec->{FPKM}}) {$fpkm+=$x}
-    if($fpkm>0) { $expressed=1 }
+    #if($fpkm>0) { $expressed=1 }
+    if($fpkm>=5) { $expressed=1 }
     push @points,[$functionalCopies,$fpkm];
     if($functionalCopies==0) { ++$n0 }
     elsif($functionalCopies==1) { ++$n1 }
     elsif($functionalCopies==2) { ++$n2 }
   }
   next unless $expressed;
-  next unless $n0+$n1>=1 && $n2>=1;
+  #next unless $n0+$n1>=5 && $n2>=5;
+  next unless $n0>=5 && $n1>=5 && $n2>=5;
   my $mean=meanFPKM(\@points);
+  next unless $mean>0;
   foreach my $point (@points) {
     my ($copies,$fpkm)=@$point;
     my $score=log($fpkm/$mean+1);
-    print "$chr\t$transcriptID\t$copies\t$fpkm\n";
+    print "$chr\t$transcriptID\t$copies\t$score\n";
   }
 }
 
@@ -82,7 +85,10 @@ sub meanFPKM
   my ($array)=@_;
   my $n=@$array;
   my $sum=0;
-  for(my $i=0 ; $i<$n ; ++$i) { $sum+=$array->[$i]->[1] }
+  for(my $i=0 ; $i<$n ; ++$i) {
+    next unless $array->[$i]->[0]==2;
+    $sum+=$array->[$i]->[1];
+  }
   return $n>0 ? $sum/$n : 0;
 }
 

@@ -13,8 +13,8 @@ open(LM,">$LM_OUT") || die $LM_OUT;
 open(IN,$INFILE) || die $INFILE;
 while(<IN>) {
   next if(/^\s*#/);
-  chomp; my @fields=split; next unless @fields>=7;
-  my ($chr,$transcriptID,$mean0,$mean1,$mean2,$n0,$n1,$n2)=@fields;
+  chomp; my @fields=split; next unless @fields>=4;
+  my ($chr,$transcriptID,$copies,$score)=@fields;
   my $n01=$n0+$n1; my $mean01=($mean0*$n0+$mean1*$n1)/$n01;
   next unless $n01>=5 && $n2>=5 && $mean2>=1;
   my $ratio=$mean01/$mean2;
