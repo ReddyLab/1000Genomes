@@ -17,6 +17,7 @@ while(1) {
   next unless $report->frameshift();
   ++$numFrameshift;
   if($report->mappedNMD(50)) { ++$nmd }
+  undef $elem; undef $report;
 }
 my $percent=$nmd/$numFrameshift;
 print "$nmd / $numFrameshift = $percent\n";

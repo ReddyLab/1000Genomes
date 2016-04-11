@@ -14,13 +14,14 @@ while(1) {
   last unless $elem;
   my $report=new EssexFBI($elem);
   next unless$report->hasBrokenSpliceSite();
-  next unless $elem->findChild("alternate-structures");
+  next unless $elem->findDescendent("alternate-structures");
   my $array=$report->getAltTranscripts();
   my $crypticCount;
   foreach my $transcript (@$array) {
-    my $change=$transcript->getAttribute("structure-change");
+    my $change=$transcript->{structureChange};
     if($change eq "cryptic-site") { ++$crypticCount }
   }
-  print $crypticCount;
+  print "$crypticCount\n";
+  undef $elem; undef $report;
 }
 
