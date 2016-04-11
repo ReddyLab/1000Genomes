@@ -16,7 +16,8 @@ while(1) {
   next unless$report->hasBrokenSpliceSite();
   next unless $elem->findDescendent("alternate-structures");
   my $array=$report->getAltTranscripts();
-  my $crypticCount;
+  next unless @$array>0;
+  my $crypticCount=0;
   foreach my $transcript (@$array) {
     my $change=$transcript->{structureChange};
     if($change eq "cryptic-site") { ++$crypticCount }
