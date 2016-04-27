@@ -3,7 +3,7 @@ use strict;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
-my $COMBINED="$ASSEMBLY/combined";
+my $COMBINED="$ASSEMBLY/combined-hg19";
 my $INFILE="$COMBINED/analyze-nmd.txt";
 my $HIST_OUT="$COMBINED/nmd-hist-data.txt";
 my $LM_OUT="$COMBINED/nmd-lm.txt";

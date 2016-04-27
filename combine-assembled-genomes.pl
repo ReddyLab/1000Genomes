@@ -24,7 +24,10 @@ foreach my $subdir (@dirs) {
     chomp;
     my @fields=split;
     next unless @fields>=6;
+    next unless(/^VCF/);
     my ($severity,$type,$indiv,$gene)=@fields;
+    $gene=~s/_1/_2/g;
+    $gene=~s/_0/_1/g;
     my $key="$indiv $gene";
     if($severity=~/WARNING/) { ++$warnings{$key} }
     elsif($severity=~/ERROR/) { ++$errors{$key} }
@@ -81,14 +84,16 @@ sub append
   while(1) {
     my ($defline,$seqRef)=$reader->nextSequenceRef();
     last unless $defline;
-    $defline=~/^>(\S+)(.*)/ || die "Can't parse defline: $defline";
-    my ($gene,$rest)=($1,$2);
+    $defline=~/^>(\S+)_\d( \/coord=\S+ \/margin=\d+ \/cigar=\S+) \/warnings=\d+ \/errors=\d+(.*)/ || die "Can't parse defline: $defline";
+    my ($gene,$rest1,$rest2)=($1,$2,$3);
     next unless $keep{$gene};
-    if($ID ne "ref") {$gene.="_$haplotype"}
+    #if($ID ne "ref") {$gene.="_$haplotype"}
+    $gene.="_$haplotype";
     my $key="$ID $gene";
     my $numWarn=0+$warnings{$key};
     my $numErr=0+$errors{$key};
-    $defline=">$gene$rest /warnings=$numWarn /errors=$numErr\n";
+    $defline=">$gene$rest2 /warnings=$numWarn /errors=$numErr\n";
+    #$defline=">$gene$rest2\n";
     $writer->addToFastaRef($defline,$seqRef,$out);
   }
   $reader->close();
@@ -96,25 +101,6 @@ sub append
 
 
 
-#sub append_OBSOLETE
-#{
-#  my ($filename,$out,$ID,$haplotype)=@_;
-#  open(IN,$filename) || die $filename;
-#  while(<IN>) {
-#    chomp;
-#    if(/^>(\S+)(.*)/) {
-#      my ($gene,$rest)=($1,$2);
-#      next unless $keep{$gene};
-#      if($ID ne "ref") {$gene.="_$haplotype"}
-#      my $key="$ID $gene";
-#      my $numWarn=0+$warnings{$key};
-#      my $numErr=0+$errors{$key};
-#      print $out ">$gene$rest /warnings=$numWarn /errors=$numErr\n";
-#    }
-#    else { print $out "$_\n" }
-#  }
-#  close(IN);
-#}
 
 
 
