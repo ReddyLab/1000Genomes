@@ -3,6 +3,11 @@ use strict;
 use FastaReader;
 use FastaWriter;
 use GffTranscriptReader;
+use ProgramName;
+
+my $name=ProgramName::get();
+die "$name <partition>\n" unless @ARGV==1;
+my ($partition)=@ARGV;
 
 # Globals
 my $THOUSAND="/home/bmajoros/1000G";
@@ -14,7 +19,8 @@ my $GFF="$ASSEMBLY/genes-all-30.gff";
 my $writer=new FastaWriter;
 #my @dirs=(0,1,2,3,4,5,6,7,8,9);
 my @dirs;
-for(my $i=0 ; $i<30 ; ++$i) { push @dirs,$i }
+#for(my $i=0 ; $i<30 ; ++$i) { push @dirs,$i }
+push @dirs,$partition;
 
 # Load error/warning list
 my (%warnings,%errors);
