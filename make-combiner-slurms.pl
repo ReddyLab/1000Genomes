@@ -6,6 +6,7 @@ my $ASSEMBLY="$THOUSAND/assembly";
 my $SLURM_DIR="$ASSEMBLY/combiner-slurms";
 
 for(my $i=0 ; $i<30 ; ++$i) {
+  my $p=$i+1;
   my $slurm="$SLURM_DIR/$i.slurm";
   open(OUT,">$slurm") || die $slurm;
   print OUT "#!/bin/bash
@@ -17,7 +18,7 @@ for(my $i=0 ; $i<30 ; ++$i) {
 #SBATCH --mem 10000
 #SBATCH -p all
 #
-/home/bmajoros/1000G/src/combine-parallel.pl $i
+/home/bmajoros/1000G/src/combine-assembled-genomes.pl $ASSEMBLY/partitions/partition-$p.txt
 
 ";
   close(OUT);
