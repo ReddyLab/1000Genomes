@@ -14,8 +14,9 @@ my %individuals;
 open(IN,$indivFile) || die "can't open $indivFile\n";
 while(<IN>) {
   chomp;
-  next unless(/\S/);
-  $individuals{$_}=1;
+  next unless(/(\S+)/);
+  $individuals{$1}=1;
+#  print "individuals{$_} = " . $individuals{$_} . "\n"; ### DEBUGGING
 }
 close(IN);
 
@@ -30,6 +31,8 @@ my $writer=new FastaWriter;
 #my @dirs=(0,1,2,3,4,5,6,7,8,9);
 my @dirs;
 for(my $i=0 ; $i<30 ; ++$i) { push @dirs,$i }
+
+#goto SKIP; ### DEBUGGING
 
 # Load error/warning list
 my (%warnings,%errors);
@@ -49,6 +52,7 @@ foreach my $subdir (@dirs) {
   }
   close(IN);
 }
+SKIP:
 
 # Get list of nonredundant genes
 my $reader=new GffTranscriptReader();
@@ -62,6 +66,7 @@ for(my $i=0 ; $i<$numTrans ; ++$i) {
      $prevTrans->overlaps($transcript)) { next }
   $keep{$transcript->getGeneId()}=1;
   $prevTrans=$transcript;
+#last unless $i<1000; ### DEBUGGING
 }
 
 # Combine output files into one FASTA per individual
@@ -70,7 +75,9 @@ foreach my $file (@files) {
   chomp $file;
   $file=~/\/([^\/]+)-1.fasta/ || die;
   my $ID=$1;
+#print "ID=\"$ID\"\n"; ### DEBUGGING
   next unless $individuals{$ID}; # Parallelize by sets of individuals
+#die "ok"; ### DEBUGGING
   System("cd $OUTDIR ; mkdir $ID");
   my $outdir="$OUTDIR/$ID";
 

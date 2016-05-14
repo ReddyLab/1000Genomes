@@ -11,10 +11,10 @@ for(my $i=0 ; $i<30 ; ++$i) {
   open(OUT,">$slurm") || die $slurm;
   print OUT "#!/bin/bash
 #
-#SBATCH -J COMBINE$i
+#SBATCH -J COMB$i
 #SBATCH -o $SLURM_DIR/$i.output
 #SBATCH -e $SLURM_DIR/$i.output
-#SBATCH -A COMBINE$i
+#SBATCH -A COMB$i
 #SBATCH --mem 10000
 #SBATCH -p all
 #
