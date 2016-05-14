@@ -3,6 +3,21 @@ use strict;
 use FastaReader;
 use FastaWriter;
 use GffTranscriptReader;
+use ProgramName;
+
+my $name=ProgramName::get();
+die "$name individuals.txt\n" unless @ARGV==1;
+my ($indivFile)=@ARGV;
+
+# Parallelize by sets of individuals
+my %individuals;
+open(IN,$indivFile) || die "can't open $indivFile\n";
+while(<IN>) {
+  chomp;
+  next unless(/\S/);
+  $individuals{$_}=1;
+}
+close(IN);
 
 # Globals
 my $THOUSAND="/home/bmajoros/1000G";
@@ -55,6 +70,7 @@ foreach my $file (@files) {
   chomp $file;
   $file=~/\/([^\/]+)-1.fasta/ || die;
   my $ID=$1;
+  next unless $individuals{$ID}; # Parallelize by sets of individuals
   System("cd $OUTDIR ; mkdir $ID");
   my $outdir="$OUTDIR/$ID";
 
