@@ -17,8 +17,8 @@ foreach my $subdir (@dirs) {
   my $dir="$COMBINED/$subdir";
   unlink("$dir/1.essex") if -e "$dir/1.essex";
   unlink("$dir/2.essex") if -e "$dir/2.essex";
-  $writer->addCommand("/home/bmajoros/FBI/fbi.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/1.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/1.essex");
-  $writer->addCommand("/home/bmajoros/FBI/fbi.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/2.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/2.essex");
+  $writer->addCommand("cd $dir ; /home/bmajoros/FBI/fbi.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/1.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/1.essex");
+  $writer->addCommand("cd $dir ; /home/bmajoros/FBI/fbi.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/2.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/2.essex");
 }
 $writer->mem(10000);
 $writer->setQueue("new,all");
