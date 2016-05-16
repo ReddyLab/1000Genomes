@@ -23,8 +23,8 @@ close(IN);
 # Globals
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
-my $BASEDIR="$ASSEMBLY/fasta";
-my $OUTDIR="$ASSEMBLY/combined";
+my $BASEDIR="$ASSEMBLY/fasta-ethnic";
+my $OUTDIR="$ASSEMBLY/combined-ethnic";
 #my $GFF="$ASSEMBLY/genes-all-10.gff";
 my $GFF="$ASSEMBLY/genes-all-30.gff";
 my $writer=new FastaWriter;
