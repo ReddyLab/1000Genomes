@@ -15,9 +15,9 @@ my $writer=new SlurmWriter;
 my @VCFs=`ls $VCF/*.vcf.gz`;
 foreach my $vcf (@VCFs) {
   chomp $vcf;
-  $vcf=~/ALL\.([^\.]+)\./ || die $vcf;
+  $vcf=~/ALL\.(chr[^\.]+)\./ || next;
   my $chr=$1;
-  $writer->addCommand("$PROGRAM $vcf $POPULATIONS $COMBINED/major/$chr.vcf");
+  $writer->addCommand("$PROGRAM $vcf $POPULATIONS $COMBINED/major/$chr.vcf.gz");
 }
 $writer->writeArrayScript($SLURM_DIR,"ETH",$SLURM_DIR,500);
 
