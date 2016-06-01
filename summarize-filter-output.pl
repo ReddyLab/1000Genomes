@@ -17,7 +17,7 @@ foreach my $file (@files) {
   close(IN);
 }
 
-my @keys=keys %sums;
+my @keys=keys %values;
 foreach my $key (@keys) {
   my $values=$values{$key};
   my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats($values);
