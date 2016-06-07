@@ -25,13 +25,20 @@ while(<IN>) {
 }
 close(IN);
 
-print "indiv\tshared\tprivate\n";
+print "pop\tindiv\tshared\tprivate\n";
 my @dirs=`ls combined`;
+my %totalLOF; # by gene
 foreach my $dir (@dirs) {
   chomp $dir;
   next unless $dir=~/^HG/ || $dir=~/^NA/;
   process("combined/$dir/1-inactivated.txt",$dir);
   process("combined/$dir/2-inactivated.txt",$dir);
+}
+foreach my $dir (@dirs) {
+  chomp $dir;
+  next unless $dir=~/^HG/ || $dir=~/^NA/;
+  process2("combined/$dir/1-inactivated.txt",$dir);
+  process2("combined/$dir/2-inactivated.txt",$dir);
 }
 
 sub process
@@ -43,11 +50,30 @@ sub process
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=4;
     my ($gene,$transcript,$fate,$why)=@fields;
-    if($ethnicTranscripts->{$pop}->{$transcript}) { ++$shared }
+    ++$totalLOF{$transcript};
+    if($ethnicTranscripts{$pop}->{$transcript}) { ++$shared }
     else { ++$private }
   }
   close(IN);
-  print "$indiv\t$shared\t$private\n";
+  #print "$pop\t$indiv\t$shared\t$private\n";
+}
+
+
+
+sub process2
+{
+  my ($filename,$indiv)=@_;
+  my $private=0; my $shared=0;
+  my $pop=$pop{$indiv};
+  open(IN,$filename) || die $filename;
+  while(<IN>) {
+    chomp; my @fields=split; next unless @fields>=4;
+    my ($gene,$transcript,$fate,$why)=@fields;
+    if($totalLOF{$transcript}==1) { ++$private }
+    else { ++$shared }
+  }
+  close(IN);
+  print "$pop\t$indiv\t$shared\t$private\n";
 }
 
 
