@@ -9,11 +9,8 @@ my ($RNA,$RANDOMIZE_FRACTION,$ALPHA)=@ARGV;
 
 $RANDOMIZE_FRACTION=0+$RANDOMIZE_FRACTION;
 my $RANDOMIZE=1;
-#my $ALPHA=0.05;
-#my $TABLE_FILE="table.tmp";
 my $THOUSAND="/home/bmajoros/1000G";
-my $POP="$THOUSAND/ethnicity.txt";
-#my $RNA="$THOUSAND/assembly/inactivation-table.txt";
+my $POP="$THOUSAND/assembly/populations.txt";
 
 # Compute adjusted alpha level to control FWER
 my $m=`wc -l $RNA`-1;
@@ -76,34 +73,18 @@ while(<IN>) {
     else { ++$nonCounts{$ethnic} }
   }
   my $N=0;
-  #foreach my $key (@ethnicities) { $N+=$counts{$key} }
-  #print "N=$N\n";
   my $numEth=@ethnicities;
-  #open(OUT,">$TABLE_FILE") || die $TABLE_FILE;
-  #print OUT "2 $numEth\n";
   my (@table,$tableText,$numZeros,$colSum1,$colSum2);
   foreach my $key (@ethnicities) {
     my $count=0+$counts{$key};
     my $nonCount=0+$nonCounts{$key};
-    #my $expectedCount=$multinomial{$key}*$N;
-    #my $antiCount=$multinomial{$key}-$count;
-    #print "$key\t$count\t$nonCount\n";
-    #print OUT "$count\t$nonCount\n";
     $tableText.="$key\t$count\t$nonCount\n";
     my $row=[$count,$nonCount];
     push @table,$row;
-#    if($count==0 || $nonCount==0) { ++$numZeros }
-#    $colSum1+=$count; $colSum2+=$nonCount;
   }
-  #next unless $numZeros==1 && $colSum1>60 && $colSum2>60;
-  #print "===============\n";
-  #close(OUT);
-  #my $result=`/home/bmajoros/cia/BOOM/chi-square $TABLE_FILE`;
-  #chomp $result;
-  #my @fields=split/\s+/,$result;
-  #die $result unless @fields>=2;
-  #my ($P,$indep)=@fields;
-  #if($P<=$ALPHA) {
+  my $continue=1;
+  my @tableEthnicities=@ethnicities;
+  while($continue && hasNonzeroBroken(\@table))
   {
     my $mostExtremeRow=mostExtremeRow(\@table);
     my $collapsed=collapse(\@table,$mostExtremeRow);
@@ -116,16 +97,38 @@ while(<IN>) {
     }
     my $P=0+`$cmd`;
     if($P<$ALPHA) {
-      my $pop=$ethnicities[$mostExtremeRow];
+      my $pop=$tableEthnicities[$mostExtremeRow];
       print "$pop\t$transcript\t$gene\tP=$P\n";
       print "pop\tpresent\tabsent\n";
       print "$tableText";
       print "================================\n";
+      deleteRow(\@table,$mostExtremeRow);
+      splice(@tableEthnicities,$mostExtremeRow,1);
+      $tableText="";
+      foreach my $key (@tableEthnicities) {
+	my $count=0+$counts{$key};
+	my $nonCount=0+$nonCounts{$key};
+	$tableText.="$key\t$count\t$nonCount\n";
+      }
     }
+    else { $continue=0 }
   }
 }
 close(IN);
 
+
+
+sub hasNonzeroBroken
+{
+  my ($table)=@_;
+  my $numRows=@$table; #die unless $numRows==5;
+  if($numRows<2) { return 0 }
+  my $numCols=@{$table->[0]}; die unless $numCols==2;
+  for(my $i=0 ; $i<$numRows ; ++$i) {
+    if($table->[$i]->[1]>0) { return 1 }
+  }
+  return 0;
+}
 
 
 sub collapse
@@ -134,7 +137,7 @@ sub collapse
 
   my ($table,$mostExtreme)=@_;
   my $collapsed=[];
-  my $numRows=@$table; die unless $numRows==5;
+  my $numRows=@$table; #die unless $numRows==5;
   my $numCols=@{$table->[0]}; die unless $numCols==2;
   for(my $i=0 ; $i<$numRows ; ++$i) {
     for(my $j=0 ; $j<$numCols ; ++$j) {
@@ -148,12 +151,22 @@ sub collapse
 
 
 
+sub deleteRow
+{
+  # Input: array of rows, each of which is a pointer to a n array of columns
+
+  my ($table,$rowIndex)=@_;
+  splice(@$table,$rowIndex,1);
+}
+
+
+
 sub mostExtremeRow
 {
   # Input: array of rows, each of which is a pointer to a n array of columns
 
   my ($table)=@_;
-  my $numRows=@$table; die unless $numRows==5;
+  my $numRows=@$table; #die unless $numRows==5;
   my $numCols=@{$table->[0]}; die unless $numCols==2;
   my (@rowSums,@colSums);
   for(my $i=0 ; $i<$numRows ; ++$i) {
@@ -168,16 +181,11 @@ sub mostExtremeRow
   for(my $j=0 ; $j<$numCols ; ++$j) { $colProportions[$j]=$colSums[$j]/$total }
   my ($biggestDeviation,$biggestIndex);
   for(my $i=0 ; $i<$numRows ; ++$i) {
-    #for(my $j=0 ; $j<$numCols ; ++$j) {
-    {
-      #my $expectedCount=$colProportions[$j]*$rowSums[$i];
-      my $expectedCount=$colProportions[0]*$rowSums[$i];
-      #my $deviation=abs($table->[$i]->[$j]-$expectedCount);
-      my $deviation=$expectedCount-$table->[$i]->[0];
-      if($deviation>$biggestDeviation) {
-	$biggestDeviation=$deviation;
-	$biggestIndex=$i;
-      }
+    my $expectedCount=$colProportions[0]*$rowSums[$i];
+    my $deviation=$expectedCount-$table->[$i]->[0];
+    if($deviation>$biggestDeviation) {
+      $biggestDeviation=$deviation;
+      $biggestIndex=$i;
     }
   }
   return $biggestIndex;
