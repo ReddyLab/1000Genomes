@@ -24,24 +24,29 @@ while(1) {
   next unless $status;
   next if $status->hasDescendentOrDatum("bad-annotation");
   next if $status->hasDescendentOrDatum("too-many-vcf-errors");
-  next unless $status->hasDescendentOrDatum("mapped");
+#  next unless $status->hasDescendentOrDatum("mapped") ||
+#     $status->hasDescendentOrDatum("splicing-changes") ||
+#        $status->hasDescendentOrDatum("no-transcript");
   my $numChildren=$status->numElements();
   my $splicingChanges;
+  my $statusString=$status->getIthElem(0);
   for(my $i=0 ; $i<$numChildren ; ++$i) {
     my $child=$status->getIthElem($i);
     if(EssexNode::isaNode($child)) {
       my $tag=$child->getTag();
       ++$hash{$tag};
+      if($tag eq "splicing-changes") { $splicingChanges=1 }
       #print "tag $tag\n" unless $tag eq "protein-differs";
     }
     else {
+      if($child eq "splicing-changes") { $splicingChanges=1 }
       ++$hash{$child};
       #print "nontag $child\n" unless $child eq "mapped";
     }
     #my $mapped=$status->findDescendent("mapped-transcript");
     #if($mapped && $mapped->hasDescendentOrDatum("NMD")) {
   }
-  if($status->hasDescendentOrDatum("NMD")) {
+  if($statusString eq "mapped" && $status->hasDescendentOrDatum("NMD")) {
     #print "$transcriptID mapped NMD\n";
     ++$hash{"mapped-NMD"};
   }
