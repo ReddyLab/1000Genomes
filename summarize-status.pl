@@ -5,7 +5,7 @@ use EssexFBI;
 use ProgramName;
 $|=1;
 
-my $MAX_COUNT=10000;
+my $MAX_COUNT=1000;
 
 my $name=ProgramName::get();
 die "$name <infile>\n" unless @ARGV==1;
