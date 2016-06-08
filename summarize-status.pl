@@ -5,7 +5,7 @@ use EssexFBI;
 use ProgramName;
 $|=1;
 
-my $MAX_COUNT=1000;
+my $MAX_COUNT;#=100;
 
 my $name=ProgramName::get();
 die "$name <infile>\n" unless @ARGV==1;
@@ -35,7 +35,6 @@ while(1) {
       #print "tag $tag\n" unless $tag eq "protein-differs";
     }
     else {
-      #next if $child eq "noncoding";
       ++$hash{$child};
       #print "nontag $child\n" unless $child eq "mapped";
     }
@@ -54,7 +53,12 @@ while(1) {
 }
 
 my @keys=keys %hash;
-foreach my $key (%hash) {
+foreach my $key (@keys) {
   my $value=$hash{$key};
   print "$key\t$value\n";
 }
+print "[done]\n";
+
+
+
+
