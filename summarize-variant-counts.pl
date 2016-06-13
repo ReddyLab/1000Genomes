@@ -44,6 +44,8 @@ foreach my $type (@types) {
     my $var=$N>1 ? ($sumXX-$sumX*$sumX/$N)/($N-1) : undef;
     if($var<0) {$var=0}
     my $sd=sqrt($var);
+    $mean=int($mean*1000+5/9)/1000;
+    $sd=int($sd*1000+5/9)/1000;
     print "$mean\($sd)\t";
   }
   print "\n";
