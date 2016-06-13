@@ -12,7 +12,7 @@ open(IN,$POP_FILE) || die "can't open file: $POP_FILE";
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=2;
   my ($indiv,$pop)=@fields;
-  $pop{$indiv}=$pope;
+  $pop{$indiv}=$pop;
 }
 close(IN);
 
@@ -30,8 +30,24 @@ for(my $i=0 ; $i<$n ; ++$i) {
 }
 
 my @pops=keys %attr;
-my @attr=keys $attr{$pops[0]};
-
+print "\t";
+foreach my $pop (@pops) { print "$pop\t" }
+print "\n";
+my @attr=keys %{$attr{$pops[0]}};
+foreach my $attr (@attr) {
+  print "$attr\t";
+  foreach my $pop (@pops) {
+    my $array=$attr{$pop}->{$attr};
+    if(!defined($array)) {
+      print "(none)\t";
+      #{ die "$attr not defined for $pop" }
+      next;
+    }
+    my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats($array);
+    print "$mean\($stddev)\t";
+  }
+  print "\n";
+}
 
 
 sub process

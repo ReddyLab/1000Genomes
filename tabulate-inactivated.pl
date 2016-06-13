@@ -2,6 +2,15 @@
 use strict;
 use SummaryStats;
 
+
+
+###
+my $EVENT="NMD"; ###
+my $WHY="sequence-variant";#"broken-";#"sequence-variant";
+###
+
+
+
 my $HOMOZYGOUS=0;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
@@ -38,10 +47,14 @@ foreach my $subdir (@dirs) {
   my @keys=keys %hash1;
   foreach my $key (@keys) {
     my $rec=$hash1{$key}; my ($event,$why)=@$rec;
+    if($EVENT ne "") { next unless $event eq $EVENT }
+    if($WHY ne "") { next unless $why=~/$WHY/ }
     ++$combined{$key};}
   my @keys=keys %hash2;
   foreach my $key (@keys) {
     my $rec=$hash2{$key}; my ($event,$why)=@$rec;
+    if($EVENT ne "") { next unless $event eq $EVENT }
+    if($WHY ne "") { next unless $why=~/$WHY/ }
     ++$combined{$key};}
   my @keys=keys %combined;
   foreach my $key (@keys) {
