@@ -3,8 +3,8 @@ use strict;
 use ProgramName;
 use SubstitutionMatrix;
 
-#my @keep=("AFR");
-my @keep=("AFR","SAS","EAS");
+my @keep=("AFR");
+#my @keep=("AFR","SAS","EAS");
 my %keep; foreach my $k (@keep) { $keep{$k}=1 }
 my $MATRIX_FILE="/home/bmajoros/alignment/matrices/pam10";
 my $THOUSAND="/home/bmajoros/1000G";
@@ -21,7 +21,6 @@ while(<IN>) {
 }
 close(IN);
 
-#my ($refAndEthnicIdentical,$ethnicAndMappedIdentical);
 my ($ethnicLessExtreme,$refEthnicIdentical,$ethnicMappedIdentical,$sampleSize,
     $refMappedIdentical);
 my $M=new SubstitutionMatrix($MATRIX_FILE);
