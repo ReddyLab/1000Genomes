@@ -2,19 +2,29 @@
 use strict;
 use SummaryStats;
 
-
-
 ###
-my $EVENT="NMD"; ###
-my $WHY="sequence-variant";#"broken-";#"sequence-variant";
+my $EVENT;# ="NMD"; ###
+my $WHY;# ="sequence-variant";#"broken-";#"sequence-variant";
 ###
 
-
-
+my $MAX_NUM_INDIV=347;
 my $HOMOZYGOUS=0;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
+my $POP="$THOUSAND/assembly/populations.txt";
+
+# Read the ethnicity file
+my (%ethnicity,%popSize);
+open(IN,$POP) || die $POP;
+while(<IN>) {
+  chomp; my @fields=split; next unless @fields>=2;
+  my ($ID,$pop)=@fields;
+  next unless $popSize{$pop}<$MAX_NUM_INDIV;
+  ++$popSize{$pop};
+  $ethnicity{$ID}=$pop;
+}
+close(IN);
 
 my %parent;
 my @dirs=`ls $COMBINED`;
@@ -26,6 +36,7 @@ foreach my $subdir (@dirs) {
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
   my $indiv=$subdir;
+  next unless $ethnicity{$indiv};
   push @indiv,$indiv;
   print "\t$indiv";
 }
@@ -35,9 +46,6 @@ my %genes;
 foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
-
-  #next unless $subdir=~/HG0009[67]/;
-
   my $dir="$COMBINED/$subdir";
   my $indiv=$subdir;
   my (%hash1,%hash2);

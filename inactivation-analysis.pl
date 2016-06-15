@@ -2,6 +2,8 @@
 use strict;
 use ProgramName;
 
+my $MAX_NUM_INDIV=347;
+
 my $name=ProgramName::get();
 die "$name <inactivation-table.txt> <randomize-fraction> <alpha>\n" 
   unless @ARGV==3;
@@ -25,14 +27,14 @@ close(IN);
 foreach my $ID (@fields) { $present{$ID}=1 }
 
 # Read the ethnicity file
-my (%ethnicity,%multinomial);
+my (%ethnicity,%multinomial,%popSize);
 open(IN,$POP) || die $POP;
 while(<IN>) {
-  chomp;
-  my @fields=split;
-  next unless @fields>=2;
+  chomp; my @fields=split; next unless @fields>=2;
   my ($ID,$pop)=@fields;
   next unless $present{$ID};
+  next unless $popSize{$pop}<$MAX_NUM_INDIV;
+  ++$popSize{$pop};
   $ethnicity{$ID}=$pop;
   ++$multinomial{$pop};
 }
