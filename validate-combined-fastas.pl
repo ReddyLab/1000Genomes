@@ -19,13 +19,19 @@ foreach my $indiv (@indivs) {
 
 sub process
 {
-  my ($indiv,$genomeNum)=$_;
+  my ($indiv,$genomeNum)=@_;
   my $combinedSize=seqLen("$COMBINED/$indiv/$genomeNum.fasta");
-  print "$indiv combined: $combinedSize\n";
+  #print "$indiv combined: $combinedSize\n";
   my $totalChunkSize;
   for(my $i=0 ; $i<30 ; ++$i) {
-    
+    my $chunkSize=seqLen("$FASTA/$i/$indiv-$genomeNum.fasta");
+    $totalChunkSize+=$chunkSize;
+    #print "\t$totalChunkSize\n";
   }
+  if($totalChunkSize!=$combinedSize) {
+    print "ERROR: $indiv\-$genomeNum $combinedSize != $totalChunkSize\n";
+  }
+  else { print "$indiv OK\n" }
 }
 
 
