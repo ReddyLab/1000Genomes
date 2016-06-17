@@ -18,8 +18,14 @@ while(1) {
   last unless $elem;
   my $report=new EssexFBI($elem);
   next unless $report->getStatusString() eq "mapped";
-  #next if $report->mappedNMD(50);
-  next if $elem->findDescendent("premature-stop");
+  my $status=$elem->findChild("status");
+  next unless $status;
+  next if $status->findDescendent("premature-stop");
+  next if $status->findDescendent("nonstop-decay");
+  next if $status->findDescendent("splicing-changes");
+  next if $status->findDescendent("no-transcript");
+  next if $status->findDescendent("noncoding");
+  next if $status->findDescendent("bad-annotation");
   my $substrate=$report->getSubstrate();
   my $transcriptID=$report->getTranscriptID();
   my $geneID=$report->getGeneID();

@@ -18,14 +18,24 @@ while(1) {
   last unless $elem;
   my $report=new EssexFBI($elem);
   next unless $report->getStatusString() eq "mapped";
-  #next if $report->mappedNMD(50);
-  next if $elem->findDescendent("premature-stop");
+  my $status=$elem->findChild("status");
+  next unless $status;
+  next if $status->findDescendent("premature-stop");
+  next if $status->findDescendent("nonstop-decay");
+  next if $status->findDescendent("splicing-changes");
+  next if $status->findDescendent("no-transcript");
+  next if $status->findDescendent("noncoding");
+  next if $status->findDescendent("bad-annotation");
   my $substrate=$report->getSubstrate();
   my $transcriptID=$report->getTranscriptID();
   my $geneID=$report->getGeneID();
   my $cigar=$report->getCigar();
   my $transcript=$report->getMappedTranscript();
-
+  my $strand=$transcript->getStrand();
+  if($strand eq "-") {
+    $transcript->reverseComplement($elem->getAttribute("alt-length"));
+    $cigar=reverseCigar($cigar);
+  }
   my $indels=parseCigar($cigar);
   my $numExons=$transcript->numExons();
   for(my $i=0 ; $i<$numExons ; ++$i) {
@@ -84,5 +94,9 @@ sub parseCigar
 
 
 
+sub reverseCigar
+{
+  
+}
 
 
