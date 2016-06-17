@@ -64,6 +64,7 @@ while(1) {
 	last;
       }
     }
+    if($frame%3) { print "NOT CORRECTED: $indiv\thap$hap\t$geneID\t$transcriptID\t".printIndel($indel)."\n" }
   }
   undef $indels;
 }
