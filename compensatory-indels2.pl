@@ -42,20 +42,19 @@ while(1) {
     if($indel->{len}%3 && inExon($indel,$transcript))
       { $hasFrameshiftIndel=1 }}
   next unless $hasFrameshiftIndel;
-#print "$transcriptID has frameshift indel\n";
   my $refPos;  my $numIndels=@$indels;
   for(my $i=0 ; $i<$numIndels ; ++$i) {
     my $indel=$indels->[$i];
     next unless $indel->{len}%3!=0 && inExon($indel,$transcript);
     my $frame=$indel->{type} eq "I" ? $indel->{len}%3 : -$indel->{len}%3;
-    $refPos=$indel->{refPos};
+    $refPos=printIndel($indel);
     for(my $j=$i+1 ; $j<$numIndels ; ++$j) {
       my $next=$indels->[$j];
       next unless $next->{len}%3!=0 && inExon($next,$transcript);
       if($next->{type} eq "I") { $frame=($frame+$next->{len})%3 }
       else { $frame=($frame-$next->{len})%3 }
       if($frame<0) { $frame=($frame+3)%3 }
-      $refPos.=",".$next->{refPos};
+      $refPos.=",".printIndel($next);
       if($frame==0) {
 	my $frameshiftLen=nucleotidesAffected($indel->{altPos},
 					      getIndelEnd($next),$transcript);
@@ -83,8 +82,10 @@ sub inExon
   my ($indel,$transcript)=@_;
   my $numExons=$transcript->numExons();
   for(my $i=0 ; $i<$numExons ; ++$i) {
-    if($transcript->getIthExon($i)->containsCoordinate($indel->{altPos}))
-      { return 1 }
+    if($transcript->getIthExon($i)->containsCoordinate($indel->{altPos})) {
+      $indel->{exon}=$i+1;
+      return 1;
+    }
   }
   return 0;
 }
@@ -108,6 +109,13 @@ sub nucleotidesAffected
 	  else { $affected+=$exon->getLength() }}}
       last }}
   return $affected;
+}
+
+sub printIndel
+{
+  my ($indel)=@_;
+  return $indel->{refPos}."=".$indel->{len}.$indel->{type}
+    ."(exon".$indel->{exon}.")";
 }
 
 sub parseCigar
