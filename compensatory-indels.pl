@@ -69,6 +69,7 @@ while(1) {
       my $frameshiftLen=$end-$begin;
       my $AAlen=int($frameshiftLen/3);
       print "$indiv\thap$hap\t$geneID\t$transcriptID\texon$exonID\t$AAlen\t$refPositions\n";
+      print $exon->getBegin() . "-" . $exon->getEnd() . "\n";
     }
   }
   undef $indels;

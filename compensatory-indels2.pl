@@ -42,7 +42,7 @@ while(1) {
     if($indel->{len}%3 && inExon($indel,$transcript))
       { $hasFrameshiftIndel=1 }}
   next unless $hasFrameshiftIndel;
-print "$transcriptID has frameshift indel\n";
+#print "$transcriptID has frameshift indel\n";
   my $refPos;  my $numIndels=@$indels;
   for(my $i=0 ; $i<$numIndels ; ++$i) {
     my $indel=$indels->[$i];
@@ -52,7 +52,8 @@ print "$transcriptID has frameshift indel\n";
     for(my $j=$i+1 ; $j<$numIndels ; ++$j) {
       my $next=$indels->[$j];
       next unless $next->{len}%3!=0 && inExon($next,$transcript);
-      $frame=($frame+$next->{len})%3;
+      if($next->{type} eq "I") { $frame=($frame+$next->{len})%3 }
+      else { $frame=($frame+3-$next->{len})%3 }
       $refPos.=",".$next->{refPos};
       if($frame==0) {
 	my $frameshiftLen=nucleotidesAffected($indel->{altPos},
