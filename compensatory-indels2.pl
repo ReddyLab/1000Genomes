@@ -26,7 +26,7 @@ while(1) {
   next if $status->findDescendent("no-transcript");
   next if $status->findDescendent("noncoding");
   next if $status->findDescendent("bad-annotation");
-  my $substrate=$report->getSubstrate();
+  next unless $status->findDescendent("frameshift");
   my $transcriptID=$report->getTranscriptID();
   my $geneID=$report->getGeneID();
   my $cigar=$report->getCigar();
@@ -38,42 +38,76 @@ while(1) {
   }
   my $indels=parseCigar($cigar);
   my $numExons=$transcript->numExons();
+  my $hasFrameshiftIndel;
   for(my $i=0 ; $i<$numExons ; ++$i) {
-    my $exonID=$i+1;
     my $exon=$transcript->getIthExon($i);
-    my $netIndel=0; my $hasFrameshiftIndel=0;
     foreach my $indel (@$indels) {
       if($exon->containsCoordinate($indel->{altPos})) {
-	if($indel->{type} eq "I") { $netIndel+=$indel->{len} }
-	else { $netIndel-=$indel->{len} }
-	if($indel->{len}%3 != 0) { $hasFrameshiftIndel=1 }
+	if($indel->{len}%3 != 0) { $hasFrameshiftIndel=1 }}}}
+  next unless $hasFrameshiftIndel;
+  my $refPositions;
+  my $numIndels=@$indels;
+  for(my $i=0 ; $i<$numIndels ; ++$i) {
+    my $indel=$indels->[$i];
+    next unless $indel->{len}%3!=0 && inExon($indel,$transcript);
+    my $frame=$indel->{len}%3;
+    $refPositions=$indel->{refPos};
+    for(my $j=$i+1 ; $j<$numIndels ; ++$j) {
+      my $next=$indels->[$j];
+      next unless $next->{len}%3!=0 && inExon($next,$transcript);
+      $frame=($frame+$next->{len})%3;
+      $refPositions.=",".$next->{refPos};
+      if($frame==0) {
+	my $frameshiftLen=nucleotidesAffected($indel->{altPos},
+					      getIndelEnd($next),$transcript);
+	my $AAlen=int($frameshiftLen/3);
+	print "$indiv\thap$hap\t$geneID\t$transcriptID\t$AAlen\t$refPositions\n";
+	$i=$j;
+	last;
       }
-    }
-    if($hasFrameshiftIndel) {
-      my $mod=$netIndel%3;
-      next unless $mod==0;
-      my ($begin,$end);
-      my $refPositions;
-      foreach my $indel (@$indels) {
-	next unless $exon->containsCoordinate($indel->{altPos});
-	my $indelBegin=$indel->{altPos};
-	my $len=$indel->{type} eq "I" ? $indel->{len} : 0;
-	my $indelEnd=$indel->{altPos}+$len;
-	if(!defined($begin) || $indelBegin<$begin) { $begin=$indelBegin }
-	if(!defined($end) || $indelEnd>$end) { $end=$indelEnd }
-	if($refPositions ne "") { $refPositions.="," }
-	$refPositions.=$indel->{refPos};
-	#print $indel->{altPos} . "\t" . $indel->{len} . $indel->{type} . "\n";
-      }
-      my $frameshiftLen=$end-$begin;
-      my $AAlen=int($frameshiftLen/3);
-      print "$indiv\thap$hap\t$geneID\t$transcriptID\texon$exonID\t$AAlen\t$refPositions\n";
     }
   }
   undef $indels;
 }
 
+sub getIndelEnd
+{
+  my ($indel)=@_;
+  my $len=$indel->{type} eq "I" ? $indel->{len} : 0;
+  return $indel->{altPos}+$len;
+}
 
+sub inExon
+{
+  my ($indel,$transcript)=@_;
+  my $numExons=$transcript->numExons();
+  for(my $i=0 ; $i<$numExons ; ++$i) {
+    if($transcript->getIthExon($i)->containsCoordinate($indel->{altPos}))
+      { return 1 }
+  }
+  return 0;
+}
+
+sub nucleotidesAffected
+{
+  my ($begin,$end,$transcript)=@_;
+  my $affected=0;
+  my $numExons=$transcript->numExons();
+  for(my $i=0 ; $i<$numExons ; ++$i) {
+    my $exon=$transcript->getIthExon($i);
+    if($exon->containsCoordinate($begin)) {
+      if($exon->containsCoordinate($end)) { $affected+=$end-$begin }
+      else {
+	$affected+=$exon->getEnd()-$begin;
+	for( ++$i ; $i<$numExons ; ++$i) {
+	  $exon=$transcript->getIthExon();
+	  if($exon->containsCoordinate($end)) {
+	    $affected+=$end-$exon->getBegin();
+	    last }
+	  else { $affected+=$exon->getLength() }}}
+      last }}
+  return $affected;
+}
 
 sub parseCigar
 {
@@ -96,7 +130,10 @@ sub parseCigar
 
 sub reverseCigar
 {
-  
+  my ($cigar)=@_;
+  my $rev;
+  while($cigar=~/^(\d+\D)(.*)/) { $rev="$1$rev"; $cigar=$2 }
+  return $rev;
 }
 
 
