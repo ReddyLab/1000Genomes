@@ -13,8 +13,8 @@ foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
-  $writer->addCommand("/home/bmajoros/FBI/essex-to-gff.pl $dir/1-filtered.essex  $dir/1.gff");
-  $writer->addCommand("/home/bmajoros/FBI/essex-to-gff.pl $dir/2-filtered.essex  $dir/2.gff");
+  $writer->addCommand("/home/bmajoros/FBI/essex-to-gff-AS.pl $dir/1.essex  $dir/1.gff 1");
+  $writer->addCommand("/home/bmajoros/FBI/essex-to-gff-AS.pl $dir/2.essex  $dir/2.gff 2");
 }
 #$writer->mem(5000);
 $writer->setQueue("all");

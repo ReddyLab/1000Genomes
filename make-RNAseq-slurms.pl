@@ -36,7 +36,7 @@ foreach my $ID (@IDs) {
   my $rnaID=$rnaHash{$ID};
   #die $ID unless $rnaID;
   if(!$rnaID) {
-    print "not found: $ID\n";
+    #print "not found: $ID\n";
     next;
   }
   my $dir="$COMBINED/$ID";
@@ -51,6 +51,7 @@ foreach my $ID (@IDs) {
 #SBATCH -A RNA$slurmID
 #SBATCH --mem $MEMORY
 #SBATCH --cpus-per-task=$CPUs
+#SBATCH -p all
 #
 cd $dir
 
@@ -61,12 +62,13 @@ mkdir RNA
 cd RNA
 
 cat ../1.fasta ../2.fasta > 1and2.fa
+cat ../1.gff ../2.gff > 1and2.gff
 
 bowtie2-build 1and2.fa 1and2
 
-tophat2 --output-dir $dir/RNA --min-intron-length 30 --num-threads $CPUs --GTF $dir/reformatted.gff 1and2 $FASTQ/$rnaID\_1.fastq.gz $FASTQ/$rnaID\_2.fastq.gz
+tophat2 --output-dir $dir/RNA --min-intron-length 30 --num-threads $CPUs --GTF $dir/RNA/1and2.gff 1and2 $FASTQ/$rnaID\_1.fastq.gz $FASTQ/$rnaID\_2.fastq.gz
 
-/data/reddylab/software/stringtie/stringtie-1.2.1.Linux_x86_64/stringtie accepted_hits.bam -G $dir/reformatted.gff -o stringtie.gff -p $CPUs -C stringtie.coverage -A stringtie.abundance
+/data/reddylab/software/stringtie/stringtie-1.2.1.Linux_x86_64/stringtie accepted_hits.bam -G $dir/RNA/1and2.gff -o stringtie.gff -p $CPUs -C stringtie.coverage -A stringtie.abundance
 
 rm *.bt2 1and2.fa accepted_hits.bam
 ";
