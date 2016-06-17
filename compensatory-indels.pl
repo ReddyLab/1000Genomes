@@ -63,7 +63,7 @@ while(1) {
 	if(!defined($begin) || $indelBegin<$begin) { $begin=$indelBegin }
 	if(!defined($end) || $indelEnd>$end) { $end=$indelEnd }
 	if($refPositions ne "") { $refPositions.="," }
-	$refPositions.=$indel->{refPos};
+	$refPositions.=$indel->{refPos}."=".$indel->{len}.$indel->{type};
 	#print $indel->{altPos} . "\t" . $indel->{len} . $indel->{type} . "\n";
       }
       my $frameshiftLen=$end-$begin;

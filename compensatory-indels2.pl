@@ -47,13 +47,14 @@ while(1) {
   for(my $i=0 ; $i<$numIndels ; ++$i) {
     my $indel=$indels->[$i];
     next unless $indel->{len}%3!=0 && inExon($indel,$transcript);
-    my $frame=$indel->{len}%3;
+    my $frame=$indel->{type} eq "I" ? $indel->{len}%3 : -$indel->{len}%3;
     $refPos=$indel->{refPos};
     for(my $j=$i+1 ; $j<$numIndels ; ++$j) {
       my $next=$indels->[$j];
       next unless $next->{len}%3!=0 && inExon($next,$transcript);
       if($next->{type} eq "I") { $frame=($frame+$next->{len})%3 }
-      else { $frame=($frame+3-$next->{len})%3 }
+      else { $frame=($frame-$next->{len})%3 }
+      if($frame<0) { $frame=($frame+3)%3 }
       $refPos.=",".$next->{refPos};
       if($frame==0) {
 	my $frameshiftLen=nucleotidesAffected($indel->{altPos},
