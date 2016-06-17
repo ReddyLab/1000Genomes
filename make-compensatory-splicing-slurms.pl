@@ -20,6 +20,7 @@ foreach my $subdir (@dirs) {
 #SBATCH -o $SLURM_DIR/$slurmID.output
 #SBATCH -e $SLURM_DIR/$slurmID.output
 #SBATCH -A SPLICE$slurmID
+#SBATCH -p new,all
 #
 cd $dir
 

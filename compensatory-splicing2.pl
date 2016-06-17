@@ -10,7 +10,7 @@ my $name=ProgramName::get();
 die "$name <path-to-individual> <hap:1/2>\n" unless @ARGV==2;
 my ($pathToIndiv,$hap)=@ARGV;
 chop $pathToIndiv if($pathToIndiv=~/\/$/);
-my $essex="$pathToIndiv/$hap.essex";
+my $essex="$pathToIndiv/$hap-filtered.essex";
 $pathToIndiv=~/combined\/(\S+)/ || die $pathToIndiv;
 my $indiv=$1;
 my $fasta="$pathToIndiv/$hap.fasta";
