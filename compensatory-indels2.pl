@@ -69,6 +69,8 @@ while(1) {
   undef $indels;
 }
 
+print "[done]\n";
+
 sub getIndelEnd
 {
   my ($indel)=@_;
