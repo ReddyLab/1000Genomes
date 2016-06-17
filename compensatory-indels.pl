@@ -31,6 +31,11 @@ while(1) {
   my $geneID=$report->getGeneID();
   my $cigar=$report->getCigar();
   my $transcript=$report->getMappedTranscript();
+  my $strand=$transcript->getStrand();
+  if($strand eq "-") {
+    $transcript->reverseComplement($elem->getAttribute("alt-length"));
+    $cigar=reverseCigar($cigar);
+  }
 
   my $indels=parseCigar($cigar);
   my $numExons=$transcript->numExons();
@@ -91,4 +96,11 @@ sub parseCigar
 
 
 
+sub reverseCigar
+{
+  my ($cigar)=@_;
+  my $rev;
+  while($cigar=~/^(\d+\D)(.*)/) { $rev="$1$rev"; $cigar=$2 }
+  return $rev;
+}
 

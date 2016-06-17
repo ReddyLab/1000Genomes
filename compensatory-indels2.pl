@@ -37,31 +37,28 @@ while(1) {
     $cigar=reverseCigar($cigar);
   }
   my $indels=parseCigar($cigar);
-  my $numExons=$transcript->numExons();
   my $hasFrameshiftIndel;
-  for(my $i=0 ; $i<$numExons ; ++$i) {
-    my $exon=$transcript->getIthExon($i);
-    foreach my $indel (@$indels) {
-      if($exon->containsCoordinate($indel->{altPos})) {
-	if($indel->{len}%3 != 0) { $hasFrameshiftIndel=1 }}}}
+  foreach my $indel (@$indels) {
+    if($indel->{len}%3 && inExon($indel,$transcript))
+      { $hasFrameshiftIndel=1 }}
   next unless $hasFrameshiftIndel;
-  my $refPositions;
-  my $numIndels=@$indels;
+print "$transcriptID has frameshift indel\n";
+  my $refPos;  my $numIndels=@$indels;
   for(my $i=0 ; $i<$numIndels ; ++$i) {
     my $indel=$indels->[$i];
     next unless $indel->{len}%3!=0 && inExon($indel,$transcript);
     my $frame=$indel->{len}%3;
-    $refPositions=$indel->{refPos};
+    $refPos=$indel->{refPos};
     for(my $j=$i+1 ; $j<$numIndels ; ++$j) {
       my $next=$indels->[$j];
       next unless $next->{len}%3!=0 && inExon($next,$transcript);
       $frame=($frame+$next->{len})%3;
-      $refPositions.=",".$next->{refPos};
+      $refPos.=",".$next->{refPos};
       if($frame==0) {
 	my $frameshiftLen=nucleotidesAffected($indel->{altPos},
 					      getIndelEnd($next),$transcript);
 	my $AAlen=int($frameshiftLen/3);
-	print "$indiv\thap$hap\t$geneID\t$transcriptID\t$AAlen\t$refPositions\n";
+	print "$indiv\thap$hap\t$geneID\t$transcriptID\t$AAlen\t$refPos\n";
 	$i=$j;
 	last;
       }
