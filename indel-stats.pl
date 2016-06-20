@@ -5,7 +5,8 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 
 my (%indivsWithFrameshifts,%allIndivs,%genesWithFrameshifts,
-    %transcriptsWithFrameshifts);
+    %transcriptsWithFrameshifts,%indivsWithCompensatory,%genesWithCompensatory,
+    %transcriptsWithCompensatory);
 my @dirs=`ls $COMBINED`;
 foreach my $dir (@dirs) {
   chomp $dir;
@@ -28,8 +29,15 @@ my @transcriptsWithFrameshifts=keys %transcriptsWithFrameshifts;
 my $numTranscriptsWithFrameshifts=@transcriptsWithFrameshifts;
 print "$numGenesWithFrameshifts genes had a frameshift in at least one individual\n";
 print "$numTranscriptsWithFrameshifts transcripts had a frameshift in at least one individual\n";
-
-
+my @genesWithCompensatory=keys %genesWithCompensatory;
+my @transcriptsWithCompensatory=keys %transcriptsWithCompensatory;
+my @indivsWithCompensatory=keys %indivsWithCompensatory;
+my $numGenesWithCompensatory=@genesWithCompensatory;
+my $numTranscriptsWithCompensatory=@transcriptsWithCompensatory;
+my $numIndivsWithCompensatory=@indivsWithCompensatory;
+print "$numIndivsWithCompensatory individuals had at least one compensatory indel\n";
+print "$numGenesWithCompensatory genes had a least one transcript with compensatory indels\n";
+print "$numTranscriptsWithCompensatory transcripts had at least one compensatory indel\n";
 
 sub process
 {
@@ -45,13 +53,15 @@ sub process
       $transcriptsWithFrameshifts{$transcriptID}=1;
 
     }
-    else {
+    else { # compensatory frameshifts
       $indivsWithFrameshifts{$indiv}=1;
+      $indivsWithCompensatory{$indiv}=1;
       my $geneID=$fields[2];
       my $transcriptID=$fields[3];
       $genesWithFrameshifts{$geneID}=1;
       $transcriptsWithFrameshifts{$transcriptID}=1;
-
+      $genesWithCompensatory{$geneID}=1;
+      $transcriptsWithCompensatory{$transcriptID}=1;
     }
   }
   close(IN);
