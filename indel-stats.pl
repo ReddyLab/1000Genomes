@@ -9,7 +9,8 @@ my $COMBINED="$THOUSAND/assembly/combined";
 # Process input files
 my (%indivsWithFrameshifts,%allIndivs,%genesWithFrameshifts,
     %transcriptsWithFrameshifts,%indivsWithCompensatory,%genesWithCompensatory,
-    %transcriptsWithCompensatory,%frameshiftLengthsByGene,%lengths);
+    %transcriptsWithCompensatory,%frameshiftLengthsByGene,%lengths,
+    %correctingVariants);
 my @dirs=`ls $COMBINED`;
 foreach my $dir (@dirs) {
   chomp $dir;
@@ -47,16 +48,16 @@ foreach my $indiv (@indivsWithCompensatory) {
   my $count=keys %{$indivsWithCompensatory{$indiv}};
   push @counts,$count;
 }
-my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats(@counts);
+my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats(\@counts);
 print "each indiv had compensatory indels in $mean +- $stddev genes\n";
 
 # Frameshifts per individual
-my @counts;
+my @counts; my @indivsWithFrameshifts=keys %indivsWithFrameshifts;
 foreach my $indiv (@indivsWithFrameshifts) {
   my $count=keys %{$indivsWithFrameshifts{$indiv}};
   push @counts,$count;
 }
-my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats(@counts);
+my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats(\@counts);
 print "each indiv had frameshifts in $mean +- $stddev genes\n";
 
 # Genes/transcripts/individuals with compensatory frameshifts
@@ -81,6 +82,10 @@ foreach my $gene (@genes)
   { my $length=$lengths{$gene}; print OUT "$length\n" }
 close(OUT);
 
+# Number of variants involved in correcting a frameshift
+open(OUT,">correcting-variants.txt") || die;
+foreach my $x (values %correctingVariants) { print OUT "$x\n" }
+close(OUT);
 
 
 
@@ -93,6 +98,7 @@ sub process
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=5;
     if(/NOT CORRECTED/) {
+      my $geneID=$fields[4];
       $indivsWithFrameshifts{$indiv}->{$geneID}=1;
       my $geneID=$fields[4];
       $genesWithFrameshifts{$geneID}=1;
@@ -101,19 +107,25 @@ sub process
 
     }
     elsif(/exon/) { # compensatory frameshifts
-      $indivsWithFrameshifts{$indiv}=1;
-      $indivsWithCompensatory{$indiv}->{$geneID}=1;
       my $geneID=$fields[2];
+      $indivsWithFrameshifts{$indiv}->{$geneID}=1;
+      $indivsWithCompensatory{$indiv}->{$geneID}=1;
       $genesWithFrameshifts{$geneID}=1;
       $genesWithCompensatory{$geneID}->{$indiv}=1;
       my $transcriptID=$fields[3];
       $transcriptsWithFrameshifts{$transcriptID}=1;
       $transcriptsWithCompensatory{$transcriptID}->{$indiv}=1;
       my $length=$fields[4];
-      die $_ unless $length>0;
-      if($lengths{$geneID}==0 || 
-	 $lengths{$geneID}>0 && $length>$lengths{$geneID})
-	{ $lengths{$geneID}=$length }
+      #die $_ unless $length>0;
+      $fields[5]=~/^(\d+)/ || die $fields[5];
+      my $variantID="$geneID\@$1";
+      if($lengths{$variantID}==0 ||
+	 $lengths{$variantID}>0 && $length>$lengths{$variantID})
+	{ $lengths{$variantID}=$length }
+      my @variants=split/,/,$fields[5];
+      my $numVariants=@variants;
+      my $numCorrectingVariants=$numVariants-1;
+      $correctingVariants{$variantID}=$numCorrectingVariants;
     }
   }
   close(IN);
