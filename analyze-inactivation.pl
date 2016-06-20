@@ -7,7 +7,7 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 
 # Process input files
-my (@hetCounts,@homoCounts;
+my (@hetCounts,@homoCounts);
 my @dirs=`ls $COMBINED`;
 foreach my $indiv (@dirs) {
   chomp $indiv;
@@ -18,14 +18,20 @@ foreach my $indiv (@dirs) {
   my $numHet=0; my $numHomo=0;
   foreach my $key (@keys1) { if($genes2->{$key}) {++$numHomo} else {++$numHet} }
   foreach my $key (@keys2) { if(!$genes1->{$key}) {++$numHet} }
-  push @hetCounts,$het; push @homoCounts,$homo;
+  push @hetCounts,$numHet; push @homoCounts,$numHomo;
 }
 my ($meanHet,$sdHet,$minHet,$maxHet)=
     SummaryStats::roundedSummaryStats(\@hetCounts);
 my ($meanHomo,$sdHomo,$minHomo,$maxHomo)=
-    SummaryStats::roundedSummaryStats(\@homotCounts);
+    SummaryStats::roundedSummaryStats(\@homoCounts);
 print "Each individual has $meanHet +- $sdHet het LOFs\n";
 print "Each individual has $meanHomo +- $sdHomo homo LOFs\n";
+open(OUT,">het-counts.txt") || die;
+foreach my $het (@hetCounts) { print OUT "$het\n" }
+close(OUT);
+open(OUT,">homo-counts.txt") || die;
+foreach my $homo (@homoCounts) { print OUT "$homo\n" }
+close(OUT);
 
 #=====================================================
 sub process
@@ -36,7 +42,7 @@ sub process
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=4;
     my ($gene,$transcript,$type,$why)=@fields;
-    $brokenGenes{$gene}=1;
+    $brokenGenes->{$gene}=1;
   }
   close(IN);
   return $brokenGenes;
