@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 use strict;
 
+my $SHORT=20;
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 
 my (%indivsWithFrameshifts,%allIndivs,%genesWithFrameshifts,
     %transcriptsWithFrameshifts,%indivsWithCompensatory,%genesWithCompensatory,
-    %transcriptsWithCompensatory);
+    %transcriptsWithCompensatory,%frameshiftLengthsByGene,%lengths);
 my @dirs=`ls $COMBINED`;
 foreach my $dir (@dirs) {
   chomp $dir;
@@ -21,8 +22,7 @@ my $numIndivsWithFrameshifts;
 foreach my $indiv (@indivs) {
   if($indivsWithFrameshifts{$indiv}) { ++$numIndivsWithFrameshifts }
 }
-my $percentIndivsWithFrameshifts=$numIndivsWithFrameshifts/$numIndivs;
-print "$percentIndivsWithFrameshifts = $numIndivsWithFrameshifts\/$numIndivs = proportion of indivs with frameshifts\n";
+print "$numIndivsWithFrameshifts indivs had at least one frameshift\n";
 my @genesWithFrameshifts=keys %genesWithFrameshifts;
 my $numGenesWithFrameshifts=@genesWithFrameshifts;
 my @transcriptsWithFrameshifts=keys %transcriptsWithFrameshifts;
@@ -38,6 +38,18 @@ my $numIndivsWithCompensatory=@indivsWithCompensatory;
 print "$numIndivsWithCompensatory individuals had at least one compensatory indel\n";
 print "$numGenesWithCompensatory genes had a least one transcript with compensatory indels\n";
 print "$numTranscriptsWithCompensatory transcripts had at least one compensatory indel\n";
+my @sorted=sort {(keys(%{$genesWithCompensatory{$b}})+0) <=>
+		   (keys(%{$genesWithCompensatory{$a}})+0)}
+  @genesWithCompensatory;
+for(my $i=0 ; $i<10 ; ++$i) {
+  my $gene=$sorted[$i];
+  my $count=keys %{$genesWithCompensatory{$gene}};
+  print "$gene had compensatories in $count individuals\n";}
+my @genes=keys %lengths;
+open(OUT,">compensatory-lengths.txt") || die;
+foreach my $gene (@genes)
+  { my $length=$lengths{$gene}; print OUT "$length\n" }
+close(OUT);
 
 sub process
 {
@@ -48,20 +60,25 @@ sub process
     if(/NOT CORRECTED/) {
       $indivsWithFrameshifts{$indiv}=1;
       my $geneID=$fields[4];
-      my $transcriptID=$fields[5];
       $genesWithFrameshifts{$geneID}=1;
+      my $transcriptID=$fields[5];
       $transcriptsWithFrameshifts{$transcriptID}=1;
 
     }
-    else { # compensatory frameshifts
+    elsif(/exon/) { # compensatory frameshifts
       $indivsWithFrameshifts{$indiv}=1;
       $indivsWithCompensatory{$indiv}=1;
       my $geneID=$fields[2];
-      my $transcriptID=$fields[3];
       $genesWithFrameshifts{$geneID}=1;
+      $genesWithCompensatory{$geneID}->{$indiv}=1;
+      my $transcriptID=$fields[3];
       $transcriptsWithFrameshifts{$transcriptID}=1;
-      $genesWithCompensatory{$geneID}=1;
-      $transcriptsWithCompensatory{$transcriptID}=1;
+      $transcriptsWithCompensatory{$transcriptID}->{$indiv}=1;
+      my $length=$fields[4];
+      die $_ unless $length>0;
+      if($lengths{$geneID}==0 || 
+	 $lengths{$geneID}>0 && $length>$lengths{$geneID})
+	{ $lengths{$geneID}=$length }
     }
   }
   close(IN);

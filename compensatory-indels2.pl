@@ -58,7 +58,7 @@ while(1) {
       if($frame==0) {
 	my $frameshiftLen=nucleotidesAffected($indel->{altPos},
 					      getIndelEnd($next),$transcript);
-	my $AAlen=int($frameshiftLen/3);
+	my $AAlen=int(($frameshiftLen+2)/3);
 	print "$indiv\thap$hap\t$geneID\t$transcriptID\t$AAlen\t$refPos\n";
 	$i=$j;
 	last;
