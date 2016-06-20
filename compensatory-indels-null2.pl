@@ -77,8 +77,11 @@ while(1) {
   }
   undef $indels;
 }
-my @lengths=values %indelLengths;
-foreach my $len (@lengths) { print "LENGTH $len\n" }
+my @indels=keys %indelLengths;
+foreach my $indel (@indels) {
+  my $len=$indelLengths{$indel};
+  print "LENGTH\t$indel\t$len\n"
+}
 print "[done]\n";
 
 sub getIndelEnd
@@ -157,14 +160,9 @@ sub shuffle
   for(my $i=0 ; $i<$N-1 ; ++$i) {
     my $indel=$array->[$i];
     #$indel->{refPos}=int(rand($refLen));
-    #$indel->{altPos}=int(rand($altLen));
-    my $j=$i+int(rand($N-$i));
-    my $other=$array->[$j];
-    my $len=$other->{len};
-    $other->{len}=$indel->{len};
-    $indel->{len}=$len;
+    $indel->{altPos}=int(rand($altLen));
   }
-  #@$array=sort {$a->{altPos} <=> $b->{altPos}} @$array;
+  @$array=sort {$a->{altPos} <=> $b->{altPos}} @$array;
 }
 
 sub reverseCigar
