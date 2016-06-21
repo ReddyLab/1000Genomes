@@ -7,7 +7,7 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 
 # Process input files
-my (@hetCounts,@homoCounts);
+my (@hetCounts,@homoCounts,%counts);
 my @dirs=`ls $COMBINED`;
 foreach my $indiv (@dirs) {
   chomp $indiv;
@@ -20,18 +20,32 @@ foreach my $indiv (@dirs) {
   foreach my $key (@keys2) { if(!$genes1->{$key}) {++$numHet} }
   push @hetCounts,$numHet; push @homoCounts,$numHomo;
 }
+
+# Report het/homo stats
 my ($meanHet,$sdHet,$minHet,$maxHet)=
     SummaryStats::roundedSummaryStats(\@hetCounts);
 my ($meanHomo,$sdHomo,$minHomo,$maxHomo)=
     SummaryStats::roundedSummaryStats(\@homoCounts);
 print "Each individual has $meanHet +- $sdHet het LOFs\n";
 print "Each individual has $meanHomo +- $sdHomo homo LOFs\n";
+
+# Make counts files for histograms
 open(OUT,">het-counts.txt") || die;
 foreach my $het (@hetCounts) { print OUT "$het\n" }
 close(OUT);
 open(OUT,">homo-counts.txt") || die;
 foreach my $homo (@homoCounts) { print OUT "$homo\n" }
 close(OUT);
+
+# Split out events and causes
+my @keys=keys %counts;
+foreach my $what (@keys) {
+  my @keys=keys %{$counts{$what}};
+  foreach my $why (@keys) {
+    my $count=$counts{$what}->{$why};
+    print "$count total instances of $what $why\n";
+  }
+}
 
 #=====================================================
 sub process
@@ -43,6 +57,7 @@ sub process
     chomp; my @fields=split; next unless @fields>=4;
     my ($gene,$transcript,$type,$why)=@fields;
     $brokenGenes->{$gene}=1;
+    ++$counts{$type}->{$why};
   }
   close(IN);
   return $brokenGenes;
