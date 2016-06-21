@@ -10,7 +10,7 @@ die "$name <in.essex>\n" unless @ARGV==1;
 my ($infile)=@ARGV;
 
 my (%tooManyErrors,%badAnnotation,%NMD,%prematureStop,%startCodonChange,
-    %splicingChanges,%frameshift,%annotationOK);
+    %splicingChanges,%frameshift,%annotationOK,%brokenDonor,%brokenAcceptor);
 my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
@@ -25,7 +25,12 @@ while(1) {
     if($status->hasDescendentOrDatum("too-many-vcf-errors")) {
       ++$tooManyErrors{$geneID};
       next }
-    if($status->hasDescendentOrDatum("NMD")) { ++$NMD{$geneID} }
+    if($status->hasDescendentOrDatum("NMD")) {
+      ++$NMD{$geneID};
+      my $premature=$status->findChild("premature-stop"); die unless $premature;
+      my $dist=$premature->getAttribute("EJC-distance");
+      print "EJC_DISTANCE\t$dist\n";
+    }
     if($status->hasDescendentOrDatum("frameshift")) { ++$frameshift{$geneID} }
     if($status->hasDescendentOrDatum("premature-stop"))
       { ++$prematureStop{$geneID} }
@@ -35,7 +40,13 @@ while(1) {
   else { # splicing-changes/no-transcript/bad-annotation
     if($statusString eq "bad-annotation") { ++$badAnnotation{$geneID} }
     else { ++$annotationOK{$geneID} }
-    if($statusString eq "splicing-changes") { ++$splicingChanges{$geneID} }
+    if($statusString eq "splicing-changes") {
+      ++$splicingChanges{$geneID};
+      if($status->hasDescendentOrDatum("broken-donor"))
+	{ ++$brokenDonor{$geneID} }
+      if($status->hasDescendentOrDatum("broken-acceptor"))
+	{ ++$brokenAcceptor{$geneID} }
+    }
   }
 }
 $parser->close();
@@ -65,10 +76,22 @@ my $numSplicingChanges=keys %splicingChanges;
 print "$numSplicingChanges genes had splicing changes\n";
 
 # Frameshift
-my $numFrameshift=%frameshift;
+my $numFrameshift=keys %frameshift;
 print "$numFrameshift mapped genes had a frameshift indel\n";
 
 # Annotation is OK
 my $annoOK=keys %annotationOK;
 print "$annoOK genes had a valid annotation\n";
+
+# Broken donor site
+my $brokenDonor=keys %brokenDonor;
+print "$brokenDonor genes had at broken donor site\n";
+
+# Broken acceptor site
+my $brokenAcceptor=keys %brokenAcceptor;
+print "$brokenAcceptor genes had a broken acceptor site\n";
+
+
+
+
 
