@@ -11,7 +11,7 @@ my ($infile)=@ARGV;
 
 my (%tooManyErrors,%badAnnotation,%NMD,%prematureStop,%startCodonChange,
     %splicingChanges,%frameshift,%annotationOK,%brokenDonor,%brokenAcceptor,
-    %proteinDiffers);
+    %proteinDiffers,%EJC);
 my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
@@ -101,7 +101,7 @@ print "$proteinDiffers genes had a mapped transcript whose protein changed\n";
 # Distance of stop codon to EJC when there's NMD
 my @genes=keys %EJC;
 foreach my $gene (@genes) {
-  my @distances=keys %{$EJC{$geneID}};
+  my @distances=keys %{$EJC{$gene}};
   foreach my $dist (@distances) { print "EJC_DISTANCE\t$dist\n" }
 }
 
