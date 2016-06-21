@@ -10,7 +10,8 @@ die "$name <in.essex>\n" unless @ARGV==1;
 my ($infile)=@ARGV;
 
 my (%splicingChangeCoding,%splicingChangeNoncoding,%splicingChanges,
-    %altCounts);
+    %altCounts,%codingGenes,%noncodingGenes,%splicingChangesTranscript,
+    %splicingChangesLOF);
 my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
@@ -19,6 +20,8 @@ while(1) {
   my $transcriptID=$fbi->getTranscriptID();
   my $geneID=$fbi->getGeneID();
   my $type=$root->findChild("reference-transcript")->getAttribute("type");
+  if($type eq "protein-coding") { $codingGenes{$geneID}=1 }
+  else { $noncodingGenes{$geneID}=1 }
   my $status=$root->findChild("status");
   my $statusString=$fbi->getStatusString();
   if($statusString eq "mapped") { # mapped: includes too-many-vcf-errors
@@ -33,16 +36,18 @@ while(1) {
   else { # splicing-changes/no-transcript/bad-annotation
     if($statusString eq "splicing-changes") {
       ++$splicingChanges{$geneID};
+      ++$splicingChangesTranscript{$transcriptID};
+      if($fbi->allAltStructuresLOF()) { $splicingChangesLOF{$transcriptID}=1 }
       if($type eq "protein-coding") { ++$splicingChangeCoding{$geneID} }
       else { ++$splicingChangeNoncoding{$geneID} }
       my $alts=$root->findDescendent("alternate-structures");
-      my $numAlts=$alts ? @$alts : 0;
+      my $numAlts=$alts ? $alts->numElements() : 0;
       my $brokenSite=$status->findChild("broken-donor");
       if(!$brokenSite) { $brokenSite=$status->findChild("broken-acceptor") }
       if(!$brokenSite) { die "splicing changes but no broken site!" }
       my $pos=$brokenSite->getIthElem(0);
       $altCounts{"$geneID $pos"}=$numAlts;
-
+      
       if($status->hasDescendentOrDatum("frameshift")) {
 	
       }
@@ -60,6 +65,21 @@ my $splicingChangeCoding=keys %splicingChangeCoding;
 my $splicingChangeNoncoding=keys %splicingChangeNoncoding;
 my $proportion=$splicingChangeCoding/$splicingChanges;
 print "$proportion = $splicingChangeCoding/$splicingChanges coding genes had splicing changes\n";
+my $codingGenes=keys %codingGenes; my $noncodingGenes=%noncodingGenes;
+my $allGenes=$codingGenes+$noncodingGenes;
+my $proportion=$codingGenes/$allGenes;
+print "$proportion = $codingGenes/$allGenes coding genes present\n";
+
+# How often splicing changes result in LOF
+my $splicingChangesTranscript=keys %splicingChangesTranscript;
+my $splicingChangesLOF=keys %splicingChangesLOF;
+my $proportion=$splicingChangesLOF/$splicingChangesTranscript;
+print "$proportion=$splicingChangesLOF/$splicingChangesTranscript transcripts with splicing changes had LOF in all alt structures\n";
+
+# Numbers of alternate structures
+my @altCounts=values %altCounts;
+foreach my $altCount (@altCounts) { print "ALT_STRUCTURES\t$altCount\n" }
+
 
 print "[done]\n";
 
