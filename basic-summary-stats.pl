@@ -10,7 +10,8 @@ die "$name <in.essex>\n" unless @ARGV==1;
 my ($infile)=@ARGV;
 
 my (%tooManyErrors,%badAnnotation,%NMD,%prematureStop,%startCodonChange,
-    %splicingChanges,%frameshift,%annotationOK,%brokenDonor,%brokenAcceptor);
+    %splicingChanges,%frameshift,%annotationOK,%brokenDonor,%brokenAcceptor,
+    %proteinDiffers);
 my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
@@ -29,13 +30,15 @@ while(1) {
       ++$NMD{$geneID};
       my $premature=$status->findChild("premature-stop"); die unless $premature;
       my $dist=$premature->getAttribute("EJC-distance");
-      print "EJC_DISTANCE\t$dist\n";
+      ++$EJC{$geneID}->{$dist};
     }
     if($status->hasDescendentOrDatum("frameshift")) { ++$frameshift{$geneID} }
     if($status->hasDescendentOrDatum("premature-stop"))
       { ++$prematureStop{$geneID} }
     if($status->hasDescendentOrDatum("start-codon-change"))
       { ++$startCodonChange{$geneID} }
+    if($status->hasDescendentOrDatum("protein-differs"))
+      { ++$proteinDiffers{$geneID} }
   }
   else { # splicing-changes/no-transcript/bad-annotation
     if($statusString eq "bad-annotation") { ++$badAnnotation{$geneID} }
@@ -91,7 +94,15 @@ print "$brokenDonor genes had at broken donor site\n";
 my $brokenAcceptor=keys %brokenAcceptor;
 print "$brokenAcceptor genes had a broken acceptor site\n";
 
+# Protein differs
+my $proteinDiffers=keys %proteinDiffers;
+print "$proteinDiffers genes had a mapped transcript whose protein changed\n";
 
-
+# Distance of stop codon to EJC when there's NMD
+my @genes=keys %EJC;
+foreach my $gene (@genes) {
+  my @distances=keys %{$EJC{$geneID}};
+  foreach my $dist (@distances) { print "EJC_DISTANCE\t$dist\n" }
+}
 
 
