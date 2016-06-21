@@ -11,7 +11,7 @@ my ($infile)=@ARGV;
 
 my (%splicingChangeCoding,%splicingChangeNoncoding,%splicingChanges,
     %altCounts,%codingGenes,%noncodingGenes,%splicingChangesTranscript,
-    %splicingChangesLOF);
+    %splicingChangesLOF,%LOF,%noLOF);
 my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
@@ -26,18 +26,20 @@ while(1) {
   my $statusString=$fbi->getStatusString();
   if($statusString eq "mapped") { # mapped: includes too-many-vcf-errors
     if($status->hasDescendentOrDatum("too-many-vcf-errors")) { next }
-    if($status->hasDescendentOrDatum("premature-stop")) {
-
-    }
-    if($status->hasDescendentOrDatum("frameshift")) {
-      
-    }
+    if($fbi->mappedNMD(50) || $fbi->mappedNoStart() || $fbi->mappedNonstop()
+       || $fbi->lossOfCoding() ||
+       $fbi->proteinDiffers() && $fbi->getProteinMatch()<50)
+      { ++$LOF{$geneID}->{$transcriptID} }
+    else { ++$noLOF{$geneID}->{$transcriptID} }
   }
   else { # splicing-changes/no-transcript/bad-annotation
     if($statusString eq "splicing-changes") {
       ++$splicingChanges{$geneID};
       ++$splicingChangesTranscript{$transcriptID};
-      if($fbi->allAltStructuresLOF()) { $splicingChangesLOF{$transcriptID}=1 }
+      if($fbi->allAltStructuresLOF()) {
+	$splicingChangesLOF{$transcriptID}=1;
+	++$LOF{$geneID}->{$transcriptID}; }
+      else { ++$noLOF{$geneID}->{$transcriptID} }
       if($type eq "protein-coding") { ++$splicingChangeCoding{$geneID} }
       else { ++$splicingChangeNoncoding{$geneID} }
       my $alts=$root->findDescendent("alternate-structures");
@@ -48,16 +50,10 @@ while(1) {
       my $pos=$brokenSite->getIthElem(0);
       $altCounts{"$geneID $pos"}=$numAlts;
       
-      if($status->hasDescendentOrDatum("frameshift")) {
-	
-      }
     }
   }
 }
 $parser->close();
-
-#my (%splicingChangeCoding,%splicingChangeNoncoding,%splicingChanges,
-#    %altCounts);
 
 # Splicing changes in coding vs. noncoding genes
 my $splicingChanges=keys %splicingChanges;
@@ -75,6 +71,16 @@ my $splicingChangesTranscript=keys %splicingChangesTranscript;
 my $splicingChangesLOF=keys %splicingChangesLOF;
 my $proportion=$splicingChangesLOF/$splicingChangesTranscript;
 print "$proportion=$splicingChangesLOF/$splicingChangesTranscript transcripts with splicing changes had LOF in all alt structures\n";
+
+# Splicing changes causing LOF in some isoforms but not others
+my @genes=keys %LOF;
+my ($totalLOF,$mixedLOF);
+foreach my $gene (@genes) {
+  ++$totalLOF;
+  if(defined($noLOF{$gene})) { ++$mixedLOF }
+}
+my $proportion=$mixedLOF/$totalLOF;
+print "$proportion = $mixedLOF/$totalLOF of LOF genes had LOF in some isoforms but not others\n";
 
 # Numbers of alternate structures
 my @altCounts=values %altCounts;
