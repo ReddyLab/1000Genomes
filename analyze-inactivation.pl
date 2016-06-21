@@ -39,14 +39,25 @@ close(OUT);
 
 # Split out events and causes
 my @keys=keys %counts;
+my $total=0;
 foreach my $what (@keys) {
-  my @keys=keys %{$counts{$what}};
-  foreach my $why (@keys) {
-    my $count=$counts{$what}->{$why};
-    print "$count total instances of $what $why\n";
+  my $hash=$counts{$what};
+  my @whys=keys %$hash;
+  my $sum=0;  foreach my $why (@whys) { $sum+=$hash->{$why} }
+  $total+=$sum;
+  foreach my $why (@whys) {
+    my $count=$hash->{$why};
+    my $proportion=round($count/$sum);
+    print "$proportion = $count/$sum $what $why\n";
   }
 }
-
+foreach my $what (@keys) {
+  my $hash=$counts{$what};
+  my @whys=keys %$hash;
+  my $sum=0;  foreach my $why (@whys) { $sum+=$hash->{$why} }
+  my $proportion=round($sum/$total);
+  print "TOTAL $what $proportion = $sum/$total\n";
+}
 #=====================================================
 sub process
 {
@@ -62,6 +73,19 @@ sub process
   close(IN);
   return $brokenGenes;
 }
+#=====================================================
+sub round
+{
+  my ($x)=@_;
+  $x=int($x*10000+5/9)/10000;
+  return $x;
+}
+#=====================================================
+#=====================================================
+#=====================================================
+#=====================================================
+#=====================================================
+#=====================================================
 
 
 
