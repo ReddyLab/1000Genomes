@@ -104,5 +104,7 @@ foreach my $gene (@genes) {
   my @distances=keys %{$EJC{$gene}};
   foreach my $dist (@distances) { print "EJC_DISTANCE\t$dist\n" }
 }
+print "[done]\n";
+
 
 
