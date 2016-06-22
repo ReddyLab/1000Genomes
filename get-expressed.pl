@@ -21,7 +21,7 @@ while(<IN>) {
 }
 close(IN);
 
-open(OUT,">$OUTFILE") || die $OUTFILE;
+#open(OUT,">$OUTFILE") || die $OUTFILE;
 my @keys=keys %sum;
 my $n=@keys;
 for(my $i=0 ; $i<$n ; ++$i) {
@@ -29,7 +29,8 @@ for(my $i=0 ; $i<$n ; ++$i) {
   my $sum=$sum{$key};
   my $N=$N{$key};
   my $mean=$sum/$N;
-  print OUT "$key\t$mean\n";
+  #print OUT "$key\t$mean\n";
+  print "$mean\t$sum\t$N\n";
 }
-close(OUT);
+#close(OUT);
 

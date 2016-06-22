@@ -4,13 +4,24 @@ use strict;
 # Globals
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
+my $COMBINED="$ASSEMBLY/combined";
 my %xy; # genes on X/Y chromosomes
 my %expressed; # transcripts expressed in LCLs
 loadXY("$ASSEMBLY/xy.txt",\%xy);
 loadExpressed("$ASSEMBLY/expressed.txt",\%expressed);
 
 # Process each individual
-
+my @indivs=`ls $ASSEMBLY/combined`;
+foreach my $indiv (@indivs) {
+  chomp $indiv;
+  next unless $indiv=~/HG\d+/ || $indiv=~/NA\d+/;
+  my $dir="$COMBINED/$indiv";
+  my %alleleCounts;
+  updateAlleleCounts("$dir/1-inactivated.txt",\%alleleCounts);
+  updateAlleleCounts("$dir/2-inactivated.txt",\%alleleCounts);
+  my $RNA_FILE="$dir/RNA/tab.txt";
+  processRNA($RNA_FILE,\%alleleCounts);
+}
 
 
 
