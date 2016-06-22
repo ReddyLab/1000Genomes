@@ -21,11 +21,27 @@ foreach my $indiv (@indivs) {
   updateAlleleCounts("$dir/2-inactivated.txt",\%alleleCounts);
   invertAlleleCounts(\%alleleCounts);
   my $RNA_FILE="$dir/RNA/tab.txt";
-  processRNA($RNA_FILE,\%alleleCounts);
+  processRNA($RNA_FILE,\%alleleCounts,\%xy);
 }
 
 
 
+#======================================================================
+sub processRNA
+{
+  my ($filename,$alleleCounts,$xy)=@_;
+  open(IN,$filename) || die $filename;
+  <IN>; # header line
+  while(<IN>) {
+    chomp; my @fields=split; next unless @fields>=7;
+    my ($indiv,$allele,$gene,$transcript,$cov,$fpkm,$tpm)=@fields;
+    next if($xy->{$gene}); # ignore sex chromosomes, due to ploidy issues
+
+
+
+  }
+  close(IN);
+}
 #======================================================================
 sub invertAlleleCounts
 {
@@ -49,12 +65,6 @@ sub updateAlleleCounts
     ++$hash->{$transcript};
   }
   close(IN);
-}
-#======================================================================
-sub processRNA
-{
-  my ($filename,$hash)=@_;
-
 }
 #======================================================================
 sub loadXY
