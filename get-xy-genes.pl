@@ -7,6 +7,7 @@ my $INFILE="$THOUSAND/assembly/local-genes.gff";
 my $OUTFILE="$THOUSAND/assembly/xy.txt";
 
 my (%seen);
+open(OUT,">$OUTFILE") || die $OUTFILE;
 open(IN,$INFILE) || die $INFILE;
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=9;
@@ -18,7 +19,7 @@ while(<IN>) {
   my $key="$gene $transcript";
   next if $seen{$key};
   $seen{$key}=1;
-  print "$chr\t$gene\t$transcript\n";
+  print OUT "$chr\t$gene\t$transcript\n";
 }
-
+close(OUT);
 
