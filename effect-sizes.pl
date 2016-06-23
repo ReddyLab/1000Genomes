@@ -3,7 +3,7 @@ use strict;
 
 # Globals
 my $MIN_SAMPLE_SIZE=100;
-my $MIN_FPKM=5;
+my $MIN_FPKM=1;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
@@ -13,6 +13,7 @@ loadXY("$ASSEMBLY/xy.txt",\%xy);
 loadExpressed("$ASSEMBLY/expressed.txt",\%expressed);
 
 # Process each individual
+my (%FPKMnmd,%FPKMwild,%Nnmd,%Nwild);
 my @indivs=`ls $ASSEMBLY/combined`;
 foreach my $indiv (@indivs) {
   chomp $indiv;
@@ -25,7 +26,15 @@ foreach my $indiv (@indivs) {
   updateAlleleCounts("$dir/2-inactivated.txt",\%alleleCounts);
   processRNA($RNA_FILE,\%alleleCounts,\%xy,\%expressed);
 }
-
+my @transcripts=keys %FPKMnmd;
+foreach my $transcript (@transcripts) {
+  my $numNMD=$Nnmd{$transcript}; my $numWild=$Nwild{$transcript};
+  my $nmd=$FPKMnmd{$transcript}; my $wild=$FPKMwild{$transcript};
+  next unless $numWild>0 && $numNMD>0;
+  my $meanNMD=$nmd/$Nnmd; my $meanWild=$wild/$numWild;
+  my $effect=$meanNMD/$meanWild;
+  print "$effect\n";
+}
 
 
 #======================================================================
@@ -42,12 +51,8 @@ sub processRNA
     next unless $mean>0;
     next if $transcript=~/ALT/;
     my $count=2-$alleleCounts->{$transcript};
-    my $normalized=$fpkm/$mean;
-    my $log=log($normalized+0.01);
-#    next unless $transcript eq "ENST00000225328.5";
-    #print "$count\t$log\n";
-    print "$count\t$normalized\n";
-    #if($count==0) { print "$transcript\n" }
+    if($count<2) { $FPKMnmd{$transcript}+=$fpkm; ++$Nnmd{$transcript} }
+    if($count==2) { $FPKMwild{$transcript}+=$fpkm; ++$Nwild{$transcript} }
   }
   close(IN);
 }
