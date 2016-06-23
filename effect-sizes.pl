@@ -3,7 +3,7 @@ use strict;
 
 # Globals
 my $MIN_SAMPLE_SIZE=100;
-my $MIN_FPKM=1;
+my $MIN_FPKM=5;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
@@ -31,9 +31,11 @@ foreach my $transcript (@transcripts) {
   my $numNMD=$Nnmd{$transcript}; my $numWild=$Nwild{$transcript};
   my $nmd=$FPKMnmd{$transcript}; my $wild=$FPKMwild{$transcript};
   next unless $numWild>0 && $numNMD>0;
-  my $meanNMD=$nmd/$Nnmd; my $meanWild=$wild/$numWild;
+  my $meanNMD=$nmd/$numNMD; my $meanWild=$wild/$numWild;
   my $effect=$meanNMD/$meanWild;
+  my $log=log($effect);
   print "$effect\n";
+  #print "$log\n";
 }
 
 
