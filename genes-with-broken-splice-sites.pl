@@ -8,6 +8,7 @@ my $name=ProgramName::get();
 die "$name <indiv> <hap> <in.essex> <outfile>\n" unless @ARGV==4;
 my ($indiv,$hap,$infile,$outfile)=@ARGV;
 
+my %seen;
 open(OUT,">$outfile") || die "can't write to file: $outfile";
 my $parser=new EssexParser($infile);
 while(1) {
@@ -20,7 +21,9 @@ while(1) {
     my $chr=$refTrans->getAttribute("substrate");
     my $geneID=$root->getAttribute("gene-ID");
     my $transcriptID=$root->getAttribute("transcript-ID");
-    print OUT "$indiv\t$hap\t$geneID\t$transcriptID\t$chr";
+    next if $seen{$transcriptID};
+    print OUT "$indiv\t$hap\t$geneID\t$transcriptID\t$chr\n";
+    $seen{$transcriptID}=1;
   }
 }
 close(OUT);
