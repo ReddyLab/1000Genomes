@@ -2,8 +2,10 @@
 use strict;
 
 # Globals
-my $MIN_SAMPLE_SIZE=100;
-my $MIN_FPKM=5;
+my $PSEUDOCOUNT=0.0001;
+my $MIN_SAMPLE_SIZE=30;
+my $MIN_FPKM=1;
+my $log2=log(2);
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
@@ -13,6 +15,7 @@ loadXY("$ASSEMBLY/xy.txt",\%xy);
 loadExpressed("$ASSEMBLY/expressed.txt",\%expressed);
 
 # Process each individual
+print "\"alleles\",\"fpkm\",\"transcript\"\n";
 my @indivs=`ls $ASSEMBLY/combined`;
 foreach my $indiv (@indivs) {
   chomp $indiv;
@@ -42,12 +45,9 @@ sub processRNA
     next unless $mean>0;
     next if $transcript=~/ALT/;
     my $count=2-$alleleCounts->{$transcript};
-    my $normalized=$fpkm/$mean;
-    my $log=log($normalized+0.01);
-#    next unless $transcript eq "ENST00000225328.5";
-    #print "$count\t$log\n";
-    print "$count\t$normalized\n";
-    #if($count==0) { print "$transcript\n" }
+    #my $normalized=$fpkm/$mean;
+    my $log=log($fpkm+$PSEUDOCOUNT)/$log2;
+    print "$count,$log,$transcript\n";
   }
   close(IN);
 }
