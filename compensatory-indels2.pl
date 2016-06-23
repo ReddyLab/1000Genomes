@@ -16,6 +16,7 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $elem=$parser->nextElem();
   last unless $elem;
+  
   my $report=new EssexFBI($elem);
   next unless $report->getStatusString() eq "mapped";
   my $status=$elem->findChild("status");

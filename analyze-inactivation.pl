@@ -4,7 +4,10 @@ use SummaryStats;
 
 # Some globals
 my $THOUSAND="/home/bmajoros/1000G";
-my $COMBINED="$THOUSAND/assembly/combined";
+my $ASSEMBLY="$THOUSAND/assembly";
+my $COMBINED="$ASSEMBLY/combined";
+my %xy; # genes on X/Y chromosomes
+loadXY("$ASSEMBLY/xy.txt",\%xy);
 
 # Process input files
 my (@hetCounts,@homoCounts,%counts);
@@ -16,7 +19,8 @@ foreach my $indiv (@dirs) {
   my $genes2=process("$COMBINED/$indiv/2-inactivated.txt");
   my @keys1=keys %$genes1; my @keys2=keys %$genes2;
   my $numHet=0; my $numHomo=0;
-  foreach my $key (@keys1) { if($genes2->{$key}) {++$numHomo} else {++$numHet} }
+  foreach my $key (@keys1) 
+    { if($genes2->{$key}) {++$numHomo} else {++$numHet} }
   foreach my $key (@keys2) { if(!$genes1->{$key}) {++$numHet} }
   push @hetCounts,$numHet; push @homoCounts,$numHomo;
 }
@@ -67,6 +71,7 @@ sub process
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=4;
     my ($gene,$transcript,$type,$why)=@fields;
+    next if($xy{$gene});
     $brokenGenes->{$gene}=1;
     ++$counts{$type}->{$why};
   }
@@ -80,6 +85,19 @@ sub round
   $x=int($x*10000+5/9)/10000;
   return $x;
 }
+#======================================================================
+sub loadXY
+{
+  my ($filename,$hash)=@_;
+  open(IN,$filename) || die "can't open file: $filename\n";
+  while(<IN>) {
+    chomp; my @fields=split; next unless @fields>=3;
+    my ($chr,$gene,$transcript)=@fields;
+    $hash->{$gene}=1;
+  }
+  close(IN);
+}
+#======================================================================
 #=====================================================
 #=====================================================
 #=====================================================

@@ -2,14 +2,19 @@
 use strict;
 
 # Globals
-my $MIN_SAMPLE_SIZE=100;
+my $MIN_SAMPLE_SIZE=30;
 my $MIN_FPKM=1; # was 1
+my $SMALLEST_FPKM=0.000001; # detection limit
+my $PSEUDOCOUNT=$SMALLEST_FPKM/2; # avoid taking log of zero
 my $log2=log(2);
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
+my $NMD_TRANSCRIPTS="$ASSEMBLY/nmd-transcripts.txt";
 my %xy; # genes on X/Y chromosomes
 my %expressed; # transcripts expressed in LCLs
+my %nmdTranscripts; # transcripts having NMD in at least one individual
+loadNMD($NMD_TRANSCRIPTS,\%nmdTranscripts);
 loadXY("$ASSEMBLY/xy.txt",\%xy);
 loadExpressed("$ASSEMBLY/expressed.txt",\%expressed);
 
@@ -33,11 +38,11 @@ open(LOG,">effect-sizes-log.txt") || die;
 foreach my $transcript (@transcripts) {
   my $numNMD=$Nnmd{$transcript}; my $numWild=$Nwild{$transcript};
   my $nmd=$FPKMnmd{$transcript}; my $wild=$FPKMwild{$transcript};
-  #next unless $numWild>0 && $numNMD>0;
-  next unless $numWild>=10 && $numNMD>=10;
+  next unless $numWild>0 && $numNMD>0;
+  #next unless $numWild>=10 && $numNMD>=10;
   my $meanNMD=$nmd/$numNMD; my $meanWild=$wild/$numWild;
   my $effect=$meanNMD/$meanWild;
-  my $log=log($effect)/$log2;
+  my $log=log($effect+$PSEUDOCOUNT)/$log2;
   print EFFECT "$effect\n";
   print LOG "$log\n";
 }
@@ -102,6 +107,17 @@ sub loadExpressed
     my ($gene,$transcript,$mean,$sampleSize)=@fields;
     next unless $mean>=$MIN_FPKM && $sampleSize>=$MIN_SAMPLE_SIZE;
     $hash->{$transcript}=$mean;
+  }
+  close(IN);
+}
+#======================================================================
+sub loadNMD
+{
+  my ($filename,$hash)=@_;
+  open(IN,$filename) || die "can't open file: $filename\n";
+  while(<IN>) {
+    chomp;
+    $hash->{$_}=1;
   }
   close(IN);
 }

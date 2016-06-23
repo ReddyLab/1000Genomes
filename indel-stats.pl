@@ -72,7 +72,7 @@ print "$numTranscriptsWithCompensatory transcripts had at least one compensatory
 my @sorted=sort {(keys(%{$genesWithCompensatory{$b}})+0) <=>
 		   (keys(%{$genesWithCompensatory{$a}})+0)}
   @genesWithCompensatory;
-for(my $i=0 ; $i<10 ; ++$i) {
+for(my $i=0 ; $i<@sorted ; ++$i) {
   my $gene=$sorted[$i];
   my $count=keys %{$genesWithCompensatory{$gene}};
   print "$gene had compensatories in $count individuals\n";}
