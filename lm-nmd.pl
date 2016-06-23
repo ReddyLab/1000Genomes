@@ -36,9 +36,8 @@ sub processRNA
     chomp; my @fields=split; next unless @fields>=7;
     my ($indiv,$allele,$gene,$transcript,$cov,$fpkm,$tpm)=@fields;
     next if($xy->{$gene}); # ignore sex chromosomes, due to ploidy issues
-
-
-
+    my $count=$alleleCounts->{$transcript}+0;
+    print "$count\t$fpkm\n";
   }
   close(IN);
 }
