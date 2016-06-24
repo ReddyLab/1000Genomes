@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+$|=1;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
@@ -22,14 +23,15 @@ sub process
   my %seen;
   open(IN,$filename) || die $filename;
   while(<IN>) {
-    next unless/ALT\d_([^\"]+)/;
-    my $transcript=$!;
+    next unless/ALT\d_([^_\"]+)/;
+    my $transcript=$1;
     chomp; my @fields=split; next unless @fields>=8;
     my $substrate=$fields[0];
     $substrate=~/(\S+)_(\d)/ || die $substrate;
     my ($gene,$allele)=($1,$2);
     my $key="$allele\t$transcript";
     next if $seen{$key};
+    #print "$indiv\t$allele\t$transcript\n";
     print OUT "$indiv\t$allele\t$transcript\n";
     $seen{$key}=1;
   }
