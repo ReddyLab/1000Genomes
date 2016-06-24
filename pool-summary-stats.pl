@@ -14,6 +14,8 @@ foreach my $indiv (@indivs) {
   process("$COMBINED/$indiv/2.summary-stats");
 }
 
+my (@errors,@bad,@NMD,@PTC,@ATG,@splicing,@frameshift,@valid,@donor,
+    @acceptor);
 sub process
 {
   my ($infile)=@_;
@@ -35,6 +37,17 @@ sub process
   }
   close(IN);
 }
+report(\@errors,"genes with too many VCF errors");
+report(\@bad,"genes with bad annotations");
+report(\@NMD,"mapped genes with NMD");
+report(\@PTC,"mapped genes with a PTC");
+report(\@ATG,"mapped genes with change to ATG");
+report(\@splicing,"genes with splicing changes");
+report(\@frameshift,"mapped genes w/frameshift indel");
+report(\@valid,"genes with a valid annotation");
+report(\@donor,"genes with a broken donor");
+report(\@acceptor,"genes with a broken acceptor");
+
 
 
 
