@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-my $THOUSSAND="/home/bmajoros/1000G";
+my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $RNA="$ASSEMBLY/rna.txt";
 my $STRUCTURE="$ASSEMBLY/structure-changes.txt";
