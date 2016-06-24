@@ -4,7 +4,15 @@ use strict;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $RNA="$ASSEMBLY/rna.txt";
+my $BROKEN="$ASSEMBLY/broken.txt";
 
+# Load the list of broken transcripts (those with a broken splice site)
+open(IN,$BROKEN) || die $BROKEN;
+while(<IN>) {
+}
+close(IN);
+
+# Process the expression file
 my %expr;
 open(IN,$RNA) || die "can't open file: $RNA";
 while(<IN>) {
@@ -15,6 +23,7 @@ while(<IN>) {
 }
 close(IN);
 
+# Tabulate cases of ASE
 my ($same,$different);
 my @genes=keys %expr;
 foreach my $gene (@genes) {
