@@ -5,9 +5,11 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $RNA="$ASSEMBLY/rna.txt";
 my $BROKEN="$ASSEMBLY/broken.txt";
+my $GENES_WITH_ALTS="$ASSEMBLY/alt-genes.txt";
 my %xy; # genes on X/Y chromosomes
 loadXY("$ASSEMBLY/xy.txt",\%xy);
-
+my %altGenes;
+loadAltGenes($GENES_WITH_ALTS,\%altGenes);
 
 # Load the list of broken transcripts (those with a broken splice site)
 my (%brokenAlleles,%brokenIsoforms,$brokenAlleleInstances);
@@ -49,6 +51,7 @@ while(<IN>) {
   $expr{$transcript}->{$indiv}->{$allele}=$FPKM;
   if($brokenAlleles{$transcript}->{$indiv}->{$allele})
     { $brokenExpressed{$transcript}=1; ++$expressedBrokenInstances }
+  if($transcript=~/^ALT/) { $expressedALT{$transcript}=1 }
 }
 close(IN);
 
@@ -72,7 +75,8 @@ foreach my $transcript (@transcripts) {
     my @alleles=keys %$hash2;
     next unless @alleles==2;
     if($hash2->{1} eq $hash2->{2}) { ++$same; $ASEtranscripts{$transcript}=1 }
-    else { ++$different; $allTranscripts{$transcript}=1 }
+    else { ++$different }
+    $allTranscripts{$transcript}=1;
   }
 }
 my $total=$same+$different;
@@ -96,6 +100,17 @@ sub loadXY
   close(IN);
 }
 #======================================================================
+sub loadAltGenes
+{
+  my ($filename,$hash)=@_;
+  open(IN,$filename) || die "can't open file: $filename\n";
+  while(<IN>) {
+    chomp;
+    next unless/\S/;
+    $hash->{$_}=1;
+  }
+  close(IN);
+}
 #======================================================================
 #======================================================================
 #======================================================================
