@@ -4,16 +4,17 @@ use strict;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $INFILE="$ASSEMBLY/structure-changes.txt";
-my $CRYPTIC_FILE="$ASSEMBLY/cryptic-counts.txt";
+my $CRYPTIC_COUNTS="$ASSEMBLY/cryptic-counts.txt";
 
 my (%cryptic);
 open(IN,$INFILE) || die $INFILE;
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=5;
   my ($indiv,$allele,$gene,$altTransID,$change)=@fields;
+  next unless $change eq "cryptic-site";
   $altTransID=~/ALT(\d+)_(\S+)_\d+/ || die "can't parse $altTransID";
   my ($altNum,$transcriptID)=($1,$2);
-  ++$cryptic{"$transcriptID\_$allele"};
+  ++$cryptic{"$transcriptID $indiv $allele"};
 }
 close(IN);
 
