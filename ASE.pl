@@ -41,7 +41,7 @@ my $proportion=$multiplyBroken/$brokenGeneInstances;
 print "$proportion = $multiplyBroken/$brokenGeneInstances : of all the instances of a broken gene in an individual, in this many of those genes were multiple transcripts affected\n";
 
 # Process the expression file
-my (%expr,%brokenExpressed,$expressedBrokenInstances);
+my (%expr,%brokenExpressed,$expressedBrokenInstances,%expressedALT);
 open(IN,$RNA) || die "can't open file: $RNA";
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
@@ -51,9 +51,17 @@ while(<IN>) {
   $expr{$transcript}->{$indiv}->{$allele}=$FPKM;
   if($brokenAlleles{$transcript}->{$indiv}->{$allele})
     { $brokenExpressed{$transcript}=1; ++$expressedBrokenInstances }
-  if($transcript=~/^ALT/) { $expressedALT{$transcript}=1 }
+  if($transcript=~/^ALT/)
+    #{ $expressedALT{$transcript}->{$indiv}->{$allele}=1 }
+    { $expressedALT{"$transcript $indiv $allele"}=1 }
 }
 close(IN);
+
+# How often are the proposed ALT structures actually expressed?
+my $numAltStructures=keys %altGenes;
+my $numAltExpressed=keys %expressedALT;
+my $proportion=$numAltExpressed/$numAltStructures;
+print "$proportion = $numAltExpressed/$numAltStructures : of all those instances where a transcript in an individual has proposed ALT structures, in how many of those instances was there at least one ALT structure that was expressed?\n";
 
 # Quantify expression of supposedly broken transcripts
 my $proportion=$expressedBrokenInstances/$brokenAlleleInstances;
@@ -105,9 +113,10 @@ sub loadAltGenes
   my ($filename,$hash)=@_;
   open(IN,$filename) || die "can't open file: $filename\n";
   while(<IN>) {
-    chomp;
-    next unless/\S/;
-    $hash->{$_}=1;
+    chomp; my @fields=split; next unless @fields>=3;
+    my ($indiv,$allele,$transcript)=@fields;
+    #$hash->{$transcript}->{$indiv}->{$allele}=1;
+    $hash->{"$transcript $indiv $allele"};
   }
   close(IN);
 }
