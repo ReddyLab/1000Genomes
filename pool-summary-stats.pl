@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use SummaryStats;
+$|=1;
 
 # Some globals
 my $THOUSAND="/home/bmajoros/1000G";
@@ -16,13 +17,13 @@ foreach my $indiv (@indivs) {
 }
 
 my (@errors,@bad,@NMD,@PTC,@ATG,@splicing,@frameshift,@valid,@donor,
-    @acceptor);
+    @acceptor,@protein);
 sub process
 {
   my ($infile)=@_;
   open(IN,$infile) || die "can't open $infile";
   while(<IN>) {
-    next if(/EJC_DISTANCE/); next if(/[done]/);
+    next if(/EJC_DISTANCE/); next if(/done/);
     if(/(\d+) genes had too many VCF errors/) { push @errors,$1 }
     if(/(\d+) genes had bad annotations/) { push @bad,$1 }
     if(/(\d+) mapped genes had NMD/) { push @NMD,$1 }
@@ -48,6 +49,7 @@ report(\@frameshift,"mapped genes w/frameshift indel");
 report(\@valid,"genes with a valid annotation");
 report(\@donor,"genes with a broken donor");
 report(\@acceptor,"genes with a broken acceptor");
+report(\@protein,"mapped transcripts whose proteins changed");
 
 sub report
 {

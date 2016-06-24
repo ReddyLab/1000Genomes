@@ -49,7 +49,15 @@ while(1) {
       if(!$brokenSite) { die "splicing changes but no broken site!" }
       my $pos=$brokenSite->getIthElem(0);
       $altCounts{"$geneID $pos"}=$numAlts;
-      
+    }
+    elsif($statusString eq "no-transcript") {
+      my $brokenSite=$status->findChild("broken-donor");
+      if(!$brokenSite) { $brokenSite=$status->findChild("broken-acceptor") }
+      if(!$brokenSite) { die "no-transcript but no broken site!" }
+      my $pos=$brokenSite->getIthElem(0);
+      $altCounts{"$geneID $pos"}=0;
+      if($type eq "protein-coding") { ++$splicingChangeCoding{$geneID} }
+      else { ++$splicingChangeNoncoding{$geneID} }
     }
   }
 }
