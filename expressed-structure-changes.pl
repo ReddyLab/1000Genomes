@@ -26,7 +26,7 @@ while(<IN>) {
   next unless $transcript=~/^ALT/ && $FPKM>0;
   my $altTransID="$transcript\_$allele";
   my $change=$changeType{$altTransID};
-  next unless defined($change) && $change=~/\S/;
+  next unless defined($change) && $change=~/\S/; # filtered: VCF errors
   ++$counts{$change};
 }
 close(IN);
