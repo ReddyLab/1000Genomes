@@ -16,7 +16,7 @@ while(<IN>) {
   chomp; my @fields=split; next unless @fields>=5;
   my ($indiv,$allele,$gene,$transcript,$chr)=@fields;
   next if($chr eq "chrX" || $chr eq "chrY");
-  $brokenAlleles{$transcript}->${$indiv}->{$allele}=1;
+  $brokenAlleles{$transcript}->{$indiv}->{$allele}=1;
   $brokenIsoforms{$gene}->{"$indiv $allele"}->{$transcript}=1;
   ++$brokenAlleleInstances;
 }
@@ -31,7 +31,7 @@ foreach my $gene (@brokenGenes) {
   foreach my $indivAllele (@indivAlleles) {
     ++$brokenGeneInstances;
     my $hash2=$hash1->{$indivAllele};
-    my $numBrokenIsoforms=keys %$hash;
+    my $numBrokenIsoforms=keys %$hash2;
     if($numBrokenIsoforms>1) { ++$multiplyBroken }
   }
 }
@@ -39,7 +39,7 @@ my $proportion=$multiplyBroken/$brokenGeneInstances;
 print "$proportion = $multiplyBroken/$brokenGeneInstances : of all the instances of a broken gene in an individual, in this many of those genes were multiple transcripts affected\n";
 
 # Process the expression file
-my (%expr,%brokenExpressed);
+my (%expr,%brokenExpressed,$expressedBrokenInstances);
 open(IN,$RNA) || die "can't open file: $RNA";
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
@@ -47,7 +47,7 @@ while(<IN>) {
   my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM)=@fields;
   next if $xy{$gene};
   $expr{$transcript}->{$indiv}->{$allele}=$FPKM;
-  if($brokenAlleles{$transcript}->{$indiv}->{$alele})
+  if($brokenAlleles{$transcript}->{$indiv}->{$allele})
     { $brokenExpressed{$transcript}=1; ++$expressedBrokenInstances }
 }
 close(IN);
