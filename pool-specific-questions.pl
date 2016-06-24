@@ -28,7 +28,7 @@ sub process
       { $codingGenesWithSplicingChanges+=$1; $genesWithSplicingChanges+=$2 }
     if(/(\d+)\/(\d+) coding genes present/)
       { $codingGenes+=$1; $allGenes+=$2 }
-    if(/(\d+)\/(\d+)  transcripts with splicing changes had LOF in all alt structures/)
+    if(/(\d+)\/(\d+) transcripts with splicing changes had LOF in all alt structures/)
       { $lofInAll+=$1; $transWithSplicingChanges+=$2 }
     if(/(\d+)\/(\d+) of LOF genes had LOF in some isoforms but not others/)
       { $lofInSome+=$1; $lofGenes+=$2 }
@@ -36,9 +36,9 @@ sub process
   close(IN);
 }
 
-report($genesWithSplicingChanges,$codingGenesWithSplicingChanges,
+report($codingGenesWithSplicingChanges,$genesWithSplicingChanges,
        "proportion of genes with splicing changes that are coding genes");
-report($allGenes,$codingGenes,"proportion of genes that are coding");
+report($codingGenes,$allGenes,"proportion of genes that are coding");
 report($lofInAll,$transWithSplicingChanges,
        "of those genes with splicing changes, this proportion had LOF in all predicted ALT structures");
 report($lofInSome,$lofGenes,"of genes with LOF, this many had LOF in some but not all isoforms");
