@@ -116,7 +116,7 @@ sub loadAltGenes
     chomp; my @fields=split; next unless @fields>=3;
     my ($indiv,$allele,$transcript)=@fields;
     #$hash->{$transcript}->{$indiv}->{$allele}=1;
-    $hash->{"$transcript $indiv $allele"};
+    $hash->{"$transcript $indiv $allele"}=1;
   }
   close(IN);
 }
