@@ -53,10 +53,12 @@ while(<IN>) {
   if($brokenAlleles{$transcript}->{$indiv}->{$allele})
     { $brokenExpressed{$transcript}=1; ++$expressedBrokenInstances }
   if($transcript=~/^ALT\d+_(\S+)/) {
-    my $id=$1; my $key="$id $indiv $allele";
-    $expressedALT{$key}=1;
-    if($altGenes{$key}) { $expressedInAnyone{$id}=1 }
+    my $id=$1;
+    #$expressedALT{"$id $indiv $allele"}=1;
+    $expressedALT{$id}=1;
+    $expressedInAnyone{$id}=1;
   }
+  elsif($altGenes{$transcript}) { $expressedInAnyone{$transcript}=1 }
 }
 close(IN);
 
