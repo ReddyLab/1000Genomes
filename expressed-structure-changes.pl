@@ -26,7 +26,7 @@ while(<IN>) {
   next unless $transcript=~/^ALT/ && $FPKM>0;
   my $altTransID="$transcript\_$allele";
   my $change=$changeType{$altTransID};
-  ++counts{$change};
+  ++$counts{$change};
 }
 close(IN);
 
