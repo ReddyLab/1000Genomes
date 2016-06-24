@@ -43,6 +43,12 @@ report($lofInAll,$transWithSplicingChanges,
        "of those genes with splicing changes, this proportion had LOF in all predicted ALT structures");
 report($lofInSome,$lofGenes,"of genes with LOF, this many had LOF in some but not all isoforms");
 
+sub report
+{
+  my ($numer,$denom,$label)=@_;
+  my $proportion=$numer/$denom;
+  print "$proportion = $numer/$denom : $label\n";
+}
 
 
 
