@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use SummaryStats;
 
 # Some globals
 my $THOUSAND="/home/bmajoros/1000G";
@@ -47,6 +48,13 @@ report(\@frameshift,"mapped genes w/frameshift indel");
 report(\@valid,"genes with a valid annotation");
 report(\@donor,"genes with a broken donor");
 report(\@acceptor,"genes with a broken acceptor");
+
+sub report
+{
+  my ($array,$label)=@_;
+  my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats($array);
+  print "$mean +- $stddev ($min\-$max) $label\n";
+}
 
 
 
