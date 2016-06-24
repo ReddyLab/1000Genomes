@@ -12,11 +12,11 @@ chomp $infile;
 $infile=~/(\d).*\.essex$/ || die $infile;
 my $hap=$1;
 
+my (%indelLengths);
 my $parser=new EssexParser($infile);
 while(1) {
   my $elem=$parser->nextElem();
   last unless $elem;
-  
   my $report=new EssexFBI($elem);
   next unless $report->getStatusString() eq "mapped";
   my $status=$elem->findChild("status");
@@ -40,8 +40,15 @@ while(1) {
   my $indels=parseCigar($cigar);
   my $hasFrameshiftIndel;
   foreach my $indel (@$indels) {
-    if($indel->{len}%3 && inExon($indel,$transcript))
-      { $hasFrameshiftIndel=1 }}
+    if(inExon($indel,$transcript)) {
+      my $refPos=$indel->{refPos};
+      my $id="$geneID\@$refPos";
+      $indelLengths{$id}=$indel->{len};
+      if($indel->{len}%3) { $hasFrameshiftIndel=1 }
+    }
+  }
+    #if($indel->{len}%3 && inExon($indel,$transcript))
+    #  { $hasFrameshiftIndel=1 }}
   next unless $hasFrameshiftIndel;
   my $refPos;  my $numIndels=@$indels;
   for(my $i=0 ; $i<$numIndels ; ++$i) {
@@ -69,7 +76,11 @@ while(1) {
   }
   undef $indels;
 }
-
+my @indels=keys %indelLengths;
+foreach my $indel (@indels) {
+  my $len=$indelLengths{$indel};
+  print "LENGTH\t$indel\t$len\n"
+}
 print "[done]\n";
 
 sub getIndelEnd
