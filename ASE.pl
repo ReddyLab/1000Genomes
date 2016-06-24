@@ -4,24 +4,38 @@ use strict;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $RNA="$ASSEMBLY/rna.txt";
-my $BROKEN="$ASSEMBLY/broken.txt";
+my $BROKEN="$ASSEMBLY/broken-genes.txt";
 
 # Load the list of broken transcripts (those with a broken splice site)
+my %broken;
 open(IN,$BROKEN) || die $BROKEN;
 while(<IN>) {
+  chomp; my @fields=split; next unless @fields>=3;
+  my ($gene,$transcript,$chr)=@fields;
+  next if($chr eq "chrX" || $chr eq "chrY");
+  $broken{$transcript}=1;
 }
 close(IN);
 
 # Process the expression file
-my %expr;
+my (%expr,%brokenExpressed);
 open(IN,$RNA) || die "can't open file: $RNA";
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
   next if $fields[0] eq "indiv";
   my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM)=@fields;
   $expr{$gene}->{$indiv}->{$allele}=$FPKM;
+  if($broken{$transcript}) { $brokenExpressed{$transcript}=1 }
 }
 close(IN);
+
+# Quantify expression of supposedly broken transcripts
+my @broken=keys %broken;
+my $numBroken=@broken;
+my $brokenExpressed=keys %brokenExpressed;
+my $proportion=$brokenExpressed/$numBroken;
+print "$proportion = $brokenExpressed/$numBroken broken transcripts were expressed\n";
+
 
 # Tabulate cases of ASE
 my ($same,$different);
