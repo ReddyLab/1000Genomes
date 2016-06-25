@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+$|=1;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
@@ -52,9 +53,20 @@ while(<IN>) {
   $expr{$transcript}->{$indiv}->{$allele}=$FPKM;
   if($brokenAlleles{$transcript}->{$indiv}->{$allele})
     { $brokenExpressed{$transcript}=1; ++$expressedBrokenInstances }
+
+  #if($transcript=~/^ALT\d+_(\S+)/) {
+  #  my $id=$1;
+  #  #print "$transcript $id $indiv $allele\n";
+  #  $expressedALT{"$id $indiv $allele"}=1;
+  #  $expressedInAnyone{"$id $indiv $allele"}=1;
+  #}
+  #elsif($altGenes{"$transcript $indiv $allele"}) {
+  #  #print "\t\t\t$transcript $indiv $allele\n";
+  #  $expressedInAnyone{"$transcript $indiv $allele"}=1;
+  #}
+
   if($transcript=~/^ALT\d+_(\S+)/) {
     my $id=$1;
-    #$expressedALT{"$id $indiv $allele"}=1;
     $expressedALT{$id}=1;
     $expressedInAnyone{$id}=1;
   }
@@ -63,7 +75,6 @@ while(<IN>) {
 close(IN);
 
 # How often are the proposed ALT structures actually expressed?
-#my $numAltStructures=keys %altGenes;
 my $numAltStructures=keys %expressedInAnyone;
 my $numAltExpressed=keys %expressedALT;
 my $proportion=$numAltExpressed/$numAltStructures;
@@ -122,7 +133,8 @@ sub loadAltGenes
     chomp; my @fields=split; next unless @fields>=3;
     my ($indiv,$allele,$transcript)=@fields;
     #$hash->{$transcript}->{$indiv}->{$allele}=1;
-    $hash->{"$transcript $indiv $allele"}=1;
+    #$hash->{"$transcript $indiv $allele"}=1;
+    $hash->{$transcript}=1;
   }
   close(IN);
 }
