@@ -41,7 +41,7 @@ foreach my $ID (@IDs) {
 #SBATCH -e $slurmID.output
 #SBATCH -A REF$slurmID
 #SBATCH --mem $MEMORY
-#SBATCH -p old
+#SBATCH -p all
 #
 cd $dir/RNA
 
