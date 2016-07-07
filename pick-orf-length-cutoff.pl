@@ -9,15 +9,26 @@ open(IN,$INFILE) || die;
 while(<IN>) {
   chomp;
   next unless $_>0;
-  push @lengths $_;
+  push @lengths,$_;
 }
 close(IN);
 
 @lengths=sort {$a <=> $b} @lengths;
 my $n=@lengths;
-my $index=int($THRESHOLD*$n);
-my $cutoff=$lengths[$index];
-print "length of $cutoff is $THRESHOLD percentile\n";
+
+my $min=$lengths[0];
+print "min = $min AA\n";
+report(0.01);
+report(0.05);
+
+sub report
+{
+  my ($threshold)=@_;
+  my $index=int($threshold*$n);
+  my $cutoff=$lengths[$index];
+  print "length of $cutoff AA is $threshold percentile\n";
+}
+
 
 
 
