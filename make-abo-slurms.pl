@@ -18,6 +18,6 @@ foreach my $subdir (@dirs) {
 }
 $writer->mem(5000);
 $writer->setQueue("new,all");
-$writer->writeArrayScript($SLURM_DIR,"GREP",$SLURM_DIR,500);
+$writer->writeArrayScript($SLURM_DIR,"GREP",$SLURM_DIR,800);
 
 
