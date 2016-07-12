@@ -21,9 +21,11 @@ foreach my $subdir (@dirs) {
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir/RNA";
   next unless -e "$dir/readcounts.txt";
-  filter("$dir/readcounts.txt","$dir/readcounts-filtered.txt");
+  my $personalCount=
+    filter("$dir/readcounts.txt","$dir/readcounts-filtered.txt");
   my $ref="$dir/ref";
-  filter("$ref/readcounts.txt","$ref/readcounts-filtered.txt");
+  my $refCount=filter("$ref/readcounts.txt","$ref/readcounts-filtered.txt");
+  print "$personalCount\t$refCount\n";
 }
 
 
@@ -40,6 +42,7 @@ sub filter
     $gene=~/(\S+)_\d/ || die $gene;
     $gene=$1;
     my $chr=$chr{$gene};
+    die unless $chr;
     next if($chr eq "chrX" || $chr eq "chrY");
     print OUT "$gene\t$count\n";
     $total+=$count;
@@ -47,6 +50,7 @@ sub filter
   print OUT "TOTAL AUTOSOMAL READS:\t$total";
   close(OUT);
   close(IN);
+  return $total;
 }
 
 
