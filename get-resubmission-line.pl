@@ -7,7 +7,7 @@ die "$name <largest-job-num> <outputs-directory>\n" unless @ARGV==2;
 my ($N,$dir)=@ARGV;
 
 my @done;
-for(my $i=1 ; $i<N ; ++$i) { $done[$i]=0 }
+for(my $i=1 ; $i<$N ; ++$i) { $done[$i]=0 }
 my @files=`ls $dir`;
 foreach my $file (@files) {
   chomp $file;
