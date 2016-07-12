@@ -3,10 +3,11 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <outputs-directory>\n" unless @ARGV==1;
-my ($dir)=@ARGV;
+die "$name <largest-job-num> <outputs-directory>\n" unless @ARGV==2;
+my ($N,$dir)=@ARGV;
 
 my @done;
+for(my $i=1 ; $i<N ; ++$i) { $done[$i]=0 }
 my @files=`ls $dir`;
 foreach my $file (@files) {
   chomp $file;
@@ -16,7 +17,7 @@ foreach my $file (@files) {
 }
 my $n=@done;
 my $first=1;
-for(my $i=0 ; $i<$n ; ++$i) {
+for(my $i=1 ; $i<$n ; ++$i) {
   next if $done[$i];
   my $j; for($j=$i+1 ; $j<$n && !$done[$j]; ++$j) {}
   if(!$first) { print "," }
