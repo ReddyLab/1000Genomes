@@ -15,6 +15,8 @@ while(1) {
   my $root=$parser->nextElem();
   last unless $root;
   my $status=$root->findChild("status");
+  next if $status->hasDescendentOrDatum("bad-annotation");
+  next if $status->hasDescendentOrDatum("too-many-vcf-errors");
   my $alts=$status->findDescendent("alternate-structures");
   next unless $alts;
   my $refTrans=$root->findChild("reference-transcript");
