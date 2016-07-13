@@ -34,10 +34,8 @@ while(1) {
     my $fate=$transcript->findDescendent("fate");
     if($fate->hasDescendentOrDatum("NMD")) { $result="NMD" }
     else { $result="OK" }
-    print OUT "$indiv\t$hap\t$geneID\t$transcriptID\t$ALT_ID\t$result\n";
+    print OUT "$indiv\t$hap\t$chr\t$geneID\t$transcriptID\t$ALT_ID\t$result\n";
   }
-
-  # print OUT "$indiv\t$hap\t$geneID\t$transcriptID\t$chr\n";
   $seen{$transcriptID}=1;
 }
 close(OUT);
