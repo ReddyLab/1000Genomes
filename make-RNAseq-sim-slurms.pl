@@ -52,7 +52,7 @@ cd $dir/RNA
 mkdir -p sim
 cd sim
 
-cp ../../random-1.gff ../../random-2.gff > sim.gff
+cat ../../random-1.gff ../../random-2.gff > sim.gff
 
 cat ../../1.fasta ../../2.fasta > 1and2.fa
 
@@ -60,7 +60,7 @@ bowtie2-build 1and2.fa 1and2
 
 tophat2 --output-dir $dir/RNA/sim --min-intron-length 30 --num-threads $CPUs --GTF $dir/RNA/sim/sim.gff 1and2 $FASTQ/$rnaID\_1.fastq.gz $FASTQ/$rnaID\_2.fastq.gz
 
-/data/reddylab/software/stringtie/stringtie-1.2.1.Linux_x86_64/stringtie accepted_hits.bam -G $dir/RNA/sim/sim.gff -o stringtie.gff -p $CPUs -C stringtie.coverage -A stringtie.abundance
+/data/reddylab/software/stringtie/stringtie-1.2.1.Linux_x86_64/stringtie accepted_hits.bam -G $dir/RNA/sim/sim.gff -o $dir/RNA/sim/stringtie.gff -p $CPUs
 
 rm *.bt2 accepted_hits.bam unmapped.bam
 rm 1and2.fa sim.gff
