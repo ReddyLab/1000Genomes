@@ -22,4 +22,5 @@ while(<IN>) {
   }
 }
 close(IN);
+print "[done]\n";
 
