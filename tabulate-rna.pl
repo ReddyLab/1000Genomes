@@ -5,8 +5,10 @@ use ProgramName;
 my $name=ProgramName::get();
 die "$name /path/individual/RNA/stringtie.gff\n" unless @ARGV==1;
 my ($infile)=@ARGV;
-$infile=~/([^\/]+)\/RNA\/stringtie.gff/ || die "can't parse path $infile\n";
-my $indiv=$1;
+my $indiv;
+if($infile=~/([^\/]+)\/RNA\/stringtie.gff/) { $indiv=$1 }
+elsif($infile=~/([^\/]+)\/RNA\/sim\/stringtie.gff/) { $indiv=$1 }
+else { die "can't parse path $infile\n" }
 
 print "indiv\tallele\tgene\ttranscript\tcov\tFPKM\tTPM\n";
 my %seen;
@@ -22,5 +24,5 @@ while(<IN>) {
   }
 }
 close(IN);
-print "[done]\n";
+print STDERR "[done]\n";
 

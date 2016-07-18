@@ -6,24 +6,24 @@ use EssexFBI;
 $|=1;
 
 my $name=ProgramName::get();
-die "$name <indiv> <hap> <in.essex> <outfile>\n" unless @ARGV==4;
-my ($indiv,$hap,$infile,$outfile)=@ARGV;
+die "$name <indiv> <hap> <in.essex> <ALT|SIM> <outfile>\n" unless @ARGV==5;
+my ($indiv,$hap,$infile,$PREFIX,$outfile)=@ARGV;
 
-my (%seen,%altHash,%mappedHash);
+my (%altHash,%mappedHash);
 open(OUT,">$outfile") || die "can't write to file: $outfile";
 my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
   last unless $root;
   my $status=$root->findChild("status");
-  next if $status->hasDescendentOrDatum("bad-annotation");
-  next if $status->hasDescendentOrDatum("too-many-vcf-errors");
+  #next if $status->hasDescendentOrDatum("bad-annotation");
+  #next if $status->hasDescendentOrDatum("too-many-vcf-errors");
   my $fbi=new EssexFBI($root);
   my $ALTs=$fbi->getAltTranscripts();
   next unless @$ALTs>0;
   my $refTranscript=$fbi->getRefTranscript();
   my $transcriptID=$fbi->getTranscriptID();
-  next if $seen{$transcriptID};
+  #next if $seen{$transcriptID};
   my $chr=$refTranscript->getSubstrate();
   my $geneID=$fbi->getGeneID();
   my $mappedTranscript=$fbi->getMappedTranscript();
@@ -32,21 +32,21 @@ while(1) {
   my $hits=$altHash{$key};
   if($hits) {
     foreach my $hit (@$hits) {
-      print "$indiv\t$hap\t$chr\t$geneID\t$transcriptID\t$hit\n";
+      print OUT "$indiv\t$hap\t$chr\t$geneID\t$transcriptID\t$hit\n";
     }}
   my $n=@$ALTs;
   my $result;
   for(my $i=0 ; $i<$n ; ++$i) {
     my $transcript=$ALTs->[$i];
-    my $ALT_ID="ALT$i\_$transcriptID";
+    my $ALT_ID="$PREFIX$i\_$transcriptID";
     my $key=hash($transcript);
     push @{$altHash{$key}},$ALT_ID;
     my $hit=$mappedHash{$key};
     if($hit) {
-      print "$indiv\t$hap\t$chr\t$geneID\t$transcriptID\t$ALT_ID\n";
+      print OUT "$indiv\t$hap\t$chr\t$geneID\t$transcriptID\t$ALT_ID\n";
     }
   }
-  $seen{$transcriptID}=1;
+  #$seen{$transcriptID}=1;
 }
 close(OUT);
 
