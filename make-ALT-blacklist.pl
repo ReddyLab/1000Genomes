@@ -49,7 +49,7 @@ while(1) {
   #$seen{$transcriptID}=1;
 }
 close(OUT);
-
+print "[done]\n";
 
 sub hash
 {
