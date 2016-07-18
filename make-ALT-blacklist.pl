@@ -56,7 +56,7 @@ sub hash
   my ($transcript)=@_;
   my $exons=$transcript->getRawExons();
   my $n=@$exons;
-  my $hash="";
+  my $hash=$transcript->getGeneId();
   for(my $i=0 ; $i<$n ; ++$i) {
     my $exon=$exons->[$i];
     my $begin=$exon->getBegin(); my $end=$exon->getEnd();
