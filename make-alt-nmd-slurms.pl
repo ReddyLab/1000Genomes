@@ -18,9 +18,9 @@ foreach my $indiv (@dirs) {
   $slurm->addCommand("$PROGRAM $indiv 1 $dir/1.essex $dir/1.alts-with-nmd");
   $slurm->addCommand("$PROGRAM $indiv 2 $dir/2.essex $dir/2.alts-with-nmd");
 }
-$slurm->mem(5000);
+#$slurm->mem(5000);
 $slurm->setQueue("new,all");
 $slurm->nice(500); # turns on "nice" (sets it to 100 by default)
-$slurm->writeArrayScript($SLURM_DIR,"ALTNMD",$SLURM_DIR,500);
+$slurm->writeArrayScript($SLURM_DIR,"ALTNMD",$SLURM_DIR,800);
 
 
