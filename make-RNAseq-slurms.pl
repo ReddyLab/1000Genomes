@@ -1,25 +1,21 @@
 #!/usr/bin/perl
 use strict;
+use SlurmWriter;
 
 my $CPUs=8;
 my $MEMORY=40000;
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
-#my $IDs="$THOUSAND/assembly/Geuvadis-keep.txt";
 my $RNA_LIST="$THOUSAND/assembly/id-map-parsed.txt";
 my $SLURMS="$THOUSAND/assembly/RNA-slurms";
 my $FASTQ="$THOUSAND/trim/output";
 
 my @IDs;
-#open(IN,$IDs) || die $IDs;
-#while(<IN>) { chomp; push @IDs,$_ }
-#close(IN);
 my @dirs=`ls $COMBINED`;
 foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
-  push @IDs,$subdir;
-}
+  push @IDs,$subdir;}
 
 my %rnaHash;
 open(IN,$RNA_LIST) || die $RNA_LIST;
@@ -27,33 +23,15 @@ while(<IN>) {
   chomp;
   my @fields=split; next unless @fields>=2;
   my ($rnaID,$indivID)=@fields;
-  $rnaHash{$indivID}=$rnaID;
-}
+  $rnaHash{$indivID}=$rnaID;}
 close(IN);
 
-my $slurmID=1;
+my $slurm=new SlurmWriter;
 foreach my $ID (@IDs) {
   my $rnaID=$rnaHash{$ID};
-  #die $ID unless $rnaID;
-  if(!$rnaID) {
-    #print "not found: $ID\n";
-    next;
-  }
+  next unless $rnaID;
   my $dir="$COMBINED/$ID";
-  my $slurm="$SLURMS/$slurmID.slurm";
-  open(OUT,">$slurm") || die $slurm;
-  print OUT "#!/bin/bash
-#
-#SBATCH --get-user-env
-#SBATCH -J RNA$slurmID
-#SBATCH -o $slurmID.output
-#SBATCH -e $slurmID.output
-#SBATCH -A RNA$slurmID
-#SBATCH --mem $MEMORY
-#SBATCH --cpus-per-task=$CPUs
-#SBATCH -p new,all
-#SBATCH --nice=500
-#
+  $slurm->addCommand("
 cd $dir
 
 module load bowtie2/2.2.4-fasrc01
@@ -77,8 +55,16 @@ rm *.bt2 accepted_hits.bam
 rm 1and2.fa 1and2.gff
 
 echo \\[done\\]
-";
-  close(OUT);
-  ++$slurmID;
+");
 }
 
+#SBATCH --mem $MEMORY
+#SBATCH --cpus-per-task=$CPUs
+#SBATCH -p new,all
+#SBATCH --nice=500
+
+$slurm->nice(500);
+$slurm->mem($MEMORY);
+$slurm->threads($CPUs);
+$slurm->setQueue("new,all");
+$slurm->writeArrayScript($SLURMS,"RNA","",800);
