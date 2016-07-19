@@ -26,7 +26,6 @@ while(1) {
   next if $seen{$transcriptID};
   my $transcripts=$alts->findDescendents("transcript");
   my $n=@$transcripts;
-  print "N $n\n";
   my $result;
   for(my $i=0 ; $i<$n ; ++$i) {
     my $transcript=$transcripts->[$i];
