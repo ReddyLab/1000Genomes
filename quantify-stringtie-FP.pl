@@ -5,6 +5,8 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 my $KEEP="$THOUSAND/assembly/nonblacklist-sims.txt";
 
+print "status\tindiv\tgene\ttranscript\tfpkm\n";
+
 my %keep;
 open(IN,$KEEP) || die "can't open $KEEP";
 while(<IN>) {
