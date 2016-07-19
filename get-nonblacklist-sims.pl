@@ -17,8 +17,7 @@ foreach my $indiv (@dirs) {
   loadBlacklist("$dir/random-2.blacklist",\%blacklist);
   processRNA("$sim/tab.txt",\%keep,\%blacklist);
 }
-my @keep=keys %keep;
-my $n=@keep;
+my @keep=keys %keep; my $n=@keep;
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcript=$keep[$i];
   print "$transcript\n";
