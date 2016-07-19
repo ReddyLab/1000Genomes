@@ -34,12 +34,13 @@ sub processRNA
       my $key="$allele $transcript";
       if($blacklist->{$key}) { next }
       #if($blacklist->{$key}) { print "blacklist\t$transcript\t$fpkm\n" }
-      else { print "simulated\t$gene\t$id\t$fpkm\n" }
+      else { print "simulated\t$indiv\t$gene\t$id\t$fpkm\n" }
     }
     else { print "wildtype\t$indiv\t$gene\t$transcript\t$fpkm\n" }
   }
   close(IN);
 }
+
 
 
 sub loadGFF
@@ -55,6 +56,7 @@ sub loadGFF
   }
   close(IN);
 }
+
 
 
 sub loadBlacklist
