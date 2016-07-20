@@ -62,4 +62,4 @@ $slurm->nice(500);
 $slurm->mem($MEMORY);
 $slurm->threads($CPUs);
 $slurm->setQueue("new,all");
-$slurm->writeArrayScript($SLURMS,"RNA","",800);
+$slurm->writeArrayScript($SLURMS,"BLIND","",800);
