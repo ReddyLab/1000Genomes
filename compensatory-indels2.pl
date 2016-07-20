@@ -3,13 +3,14 @@ use strict;
 use ProgramName;
 use EssexParser;
 use EssexFBI;
+$|=1;
 
 my $name=ProgramName::get();
 die "$name <indiv-ID> <infile.essex>\n" unless @ARGV==2;
 my ($indiv,$infile)=@ARGV;
 
 chomp $infile;
-$infile=~/(\d).*\.essex$/ || die $infile;
+$infile=~/(\d)[^\/]*\.essex$/ || die $infile;
 my $hap=$1;
 
 my (%indelLengths);
