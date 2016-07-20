@@ -22,10 +22,10 @@ close(IN);
 print "transcript\tgene\t#indivs\t#aminoacids\t#indels\n";
 my @keys=keys %transcripts;
 foreach my $key (@keys) {
-  my $rec=$transcripts->{$key};
+  my $rec=$transcripts{$key};
   my $len=$rec->{len}; my $num=$rec->{num};
   my $gene=$rec->{gene}; my $indels=$rec->{numIndels};
-  print "$key\t$gene\t$num\t$len\t$indels";
+  print "$key\t$gene\t$num\t$len\t$indels\n";
 }
 
 
