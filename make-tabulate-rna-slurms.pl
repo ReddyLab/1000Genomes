@@ -14,8 +14,8 @@ foreach my $indiv (@dirs) {
   chomp $indiv;
   next unless $indiv=~/^HG\d+$/ || $indiv=~/^NA\d+$/;
   my $dir="$COMBINED/$indiv";
-  #my $subdir="$dir/RNA";
-  my $subdir="$dir/RNA/sim";
+  my $subdir="$dir/RNA";
+  #my $subdir="$dir/RNA/sim";
   my $gff="$subdir/stringtie.gff";
   next unless -e $gff;
   my $outfile="$subdir/tab.txt";
@@ -23,7 +23,7 @@ foreach my $indiv (@dirs) {
 }
 $slurm->mem(5000);
 $slurm->setQueue("new,all");
-$slurm->nice(500); # turns on "nice" (sets it to 100 by default)
-$slurm->writeArrayScript($SLURM_DIR,"EXPR",$SLURM_DIR,100);
+#$slurm->nice(500); # turns on "nice" (sets it to 100 by default)
+$slurm->writeArrayScript($SLURM_DIR,"EXPR",$SLURM_DIR,445);
 
 
