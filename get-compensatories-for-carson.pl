@@ -13,19 +13,27 @@ while(<IN>) {
   my @indels=split/,/,$indels;
   my $numIndels=@indels;
   $transcripts{$transcript}->{len}=$AA;
-  ++$transcripts{$transcript}->{num};
+  $transcripts{$transcript}->{indivs}->{$indiv}->{$hap}=1;
   $transcripts{$transcript}->{gene}=$gene;
   $transcripts{$transcript}->{numIndels}=$numIndels;
 }
 close(IN);
 
-print "transcript\tgene\t#indivs\t#aminoacids\t#indels\n";
+print "transcript\tgene\t#hetero\t#homo\t#aminoacids\t#indels\n";
 my @keys=keys %transcripts;
-foreach my $key (@keys) {
-  my $rec=$transcripts{$key};
-  my $len=$rec->{len}; my $num=$rec->{num};
-  my $gene=$rec->{gene}; my $indels=$rec->{numIndels};
-  print "$key\t$gene\t$num\t$len\t$indels\n";
+foreach my $transcriptID (@keys) {
+  my $rec=$transcripts{$transcriptID};
+  my $len=$rec->{len}; my $gene=$rec->{gene}; my $indels=$rec->{numIndels};
+  my $indivs=$rec->{indivs};
+  my @indivs=keys %$indivs;
+  my $hetero=0; my $homo=0;
+  foreach my $indiv (@indivs) {
+    my $numAlleles=keys %{$indivs->{$indiv}};
+    if($numAlleles==1) { ++$hetero }
+    elsif($numAlleles==2) { ++$homo }
+    else { die "numAlleles=$numAlleles" }
+  }
+  print "$transcriptID\t$gene\t$hetero\t$homo\t$len\t$indels\n";
 }
 
 
