@@ -1,12 +1,17 @@
 #!/usr/bin/perl
 use strict;
+use ProgramName;
+
+my $name=ProgramName::get();
+die "$name <min-FPKM>\n" unless @ARGV==1;
+my ($MIN_FPKM)=@ARGV;
 
 # Globals
 my $REQUIRE_NMD=1; # look only at transcripts w/NMD in at least one person?
 my $SMALLEST_FPKM=0.000001; # detection limit
 my $PSEUDOCOUNT=$SMALLEST_FPKM/2; # avoid taking log of zero
 my $MIN_SAMPLE_SIZE=30;
-my $MIN_FPKM=0.1;
+#my $MIN_FPKM=0.1;
 my $log2=log(2);
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";

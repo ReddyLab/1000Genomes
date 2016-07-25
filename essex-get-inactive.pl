@@ -83,6 +83,7 @@ while(1) {
     print "$geneID\t$transID\t$inactivated\t$why\n";
   }
 }
+print STDERR "[done]\n";
 
 
 #(status

@@ -5,6 +5,10 @@ use EssexParser;
 use EssexFBI;
 $|=1;
 
+my $slurm=$ENV{"SLURM_JOB_ID"};
+print STDERR "SLURM $slurm\n";
+system("hostname");
+
 my $name=ProgramName::get();
 die "$name <indiv-ID> <infile.essex>\n" unless @ARGV==2;
 my ($indiv,$infile)=@ARGV;
@@ -82,7 +86,7 @@ foreach my $indel (@indels) {
   my $len=$indelLengths{$indel};
   print "LENGTH\t$indel\t$len\n"
 }
-print "[done]\n";
+print STDERR "[done]\n";
 
 sub getIndelEnd
 {

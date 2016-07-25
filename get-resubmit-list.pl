@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-my $SLURMS="/home/bmajoros/1000G/assembly/fbi-slurms";
+my $SLURMS="/home/bmajoros/1000G/assembly/filter-essex-slurms";
 my %running;
 my @list=`squeue -u bmajoros`;
 foreach my $line (@list) {

@@ -24,6 +24,6 @@ foreach my $indiv (@dirs) {
 $slurm->mem(5000);
 $slurm->setQueue("new,all");
 #$slurm->nice(500); # turns on "nice" (sets it to 100 by default)
-$slurm->writeArrayScript($SLURM_DIR,"EXPR",$SLURM_DIR,445);
+$slurm->writeArrayScript($SLURM_DIR,"TAB",$SLURM_DIR,445);
 
 
