@@ -30,7 +30,7 @@ for(my $i=1 ; $i<=$N ; ++$i) {
   $i=$j;
   $first=0;
 }
-if($ok) { print "all jobs finished successfully\n" }
+if($ok) { print "all jobs finished successfully" }
 print "\n";
 
 
