@@ -11,7 +11,7 @@ my ($infile)=@ARGV;
 
 my (%tooManyErrors,%badAnnotation,%NMD,%prematureStop,%startCodonChange,
     %splicingChanges,%frameshift,%annotationOK,%brokenDonor,%brokenAcceptor,
-    %proteinDiffers,%EJC);
+    %proteinDiffers,%EJC,%newStart,%newStartNMD);
 my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
@@ -26,9 +26,17 @@ while(1) {
     if($status->hasDescendentOrDatum("too-many-vcf-errors")) {
       ++$tooManyErrors{$geneID};
       next }
-    if($status->hasDescendentOrDatum("NMD")) {
+    if($status->hasDescendentOrDatum("new-upstream-start-codon")) {
+      ++$newStart{$geneID};
+      my $newStart=$status->findDescendent("new-upstream-start-codon");
+      if($newStart->hasDescendentOrDatum("NMD")) { ++$newStartNMD{$geneID} }
+    }
+    if($status->hasDescendentOrDatum("NMD") &&
+       !$status->hasDescendentOrDatum("new-upstream-start-codon")) {
       ++$NMD{$geneID};
-      my $premature=$status->findChild("premature-stop"); die unless $premature;
+      my $premature=$status->findChild("premature-stop"); 
+      #die unless $premature;
+      if(!$premature) { $status->print(\*STDERR); die }
       my $dist=$premature->getAttribute("EJC-distance");
       ++$EJC{$geneID}->{$dist};
     }
@@ -98,12 +106,19 @@ print "$brokenAcceptor genes had a broken acceptor site\n";
 my $proteinDiffers=keys %proteinDiffers;
 print "$proteinDiffers genes had a mapped transcript whose protein changed\n";
 
+# New upstream start codon
+my $newStart=keys %newStart;
+print "$newStart genes had a new upstream start codon\n";
+my $newStartNMD=keys %newStartNMD;
+print "$newStart genes had a new upstream start codon predicted to cause NMD\n";
+
 # Distance of stop codon to EJC when there's NMD
 my @genes=keys %EJC;
 foreach my $gene (@genes) {
   my @distances=keys %{$EJC{$gene}};
   foreach my $dist (@distances) { print "EJC_DISTANCE\t$dist\n" }
 }
+
 print STDERR "[done]\n";
 
 

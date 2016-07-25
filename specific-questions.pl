@@ -94,8 +94,9 @@ print "$proportion = $mixedLOF/$totalLOF of LOF genes had LOF in some isoforms b
 my @altCounts=values %altCounts;
 foreach my $altCount (@altCounts) { print "ALT_STRUCTURES\t$altCount\n" }
 
+print STDERR "[done]\n";
 
-print "[done]\n";
+
 
 
 

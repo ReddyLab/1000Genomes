@@ -33,7 +33,7 @@ while(1) {
       for(my $i=0 ; $i<$numElem ; ++$i) {
 	my $child=$structChange->getIthElem($i);
 	if(!EssexNode::isaNode($child)) {
-	  print "$indiv\t$hap\t$geneID\t$id\t$child\n";
+	  print OUT "$indiv\t$hap\t$geneID\t$id\t$child\n";
 	}
       }
     }
@@ -42,4 +42,5 @@ while(1) {
 }
 close(OUT);
 
+print STDERR "[done]\n";
 
