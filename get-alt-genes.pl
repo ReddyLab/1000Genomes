@@ -13,9 +13,12 @@ foreach my $indiv (@indivs) {
   chomp $indiv;
   next unless $indiv=~/HG\d+/ || $indiv=~/NA\d+/;
   next unless -e "$COMBINED/$indiv/RNA/stringtie.gff";
-  process("$COMBINED/$indiv/RNA/1and2.gff",$indiv);
+  #process("$COMBINED/$indiv/RNA/1and2.gff",$indiv);
+  process("$COMBINED/$indiv/1.gff",$indiv);
+  process("$COMBINED/$indiv/2.gff",$indiv);
 }
 close(OUT);
+print STDERR "[done]\n";
 
 sub process
 {

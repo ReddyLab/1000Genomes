@@ -82,7 +82,7 @@ foreach my $indel (@indels) {
   my $len=$indelLengths{$indel};
   print "LENGTH\t$indel\t$len\n"
 }
-print "[done]\n";
+print STDERR "[done]\n";
 
 sub getIndelEnd
 {

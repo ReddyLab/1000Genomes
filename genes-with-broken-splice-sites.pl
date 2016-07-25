@@ -27,6 +27,8 @@ while(1) {
   }
 }
 close(OUT);
+print STDERR "[done]\n";
+
 
 
 
