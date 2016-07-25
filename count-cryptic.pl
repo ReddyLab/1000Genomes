@@ -26,3 +26,5 @@ while(1) {
   undef $elem; undef $report;
 }
 
+print STDERR "[done]\n";
+
