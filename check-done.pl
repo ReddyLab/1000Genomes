@@ -18,8 +18,10 @@ for(my $i=1 ; $i<=$N ; ++$i) {
   if(-e $file && done($file)) { $done[$i]=1 }
 }
 my $first=1;
+my $ok=1;
 for(my $i=1 ; $i<=$N ; ++$i) {
   next if $done[$i];
+  $ok=0;
   my $j; for($j=$i+1 ; $j<=$N && !$done[$j]; ++$j) {}
   if(!$first) { print "," }
   my $end=$j-1;
@@ -28,6 +30,7 @@ for(my $i=1 ; $i<=$N ; ++$i) {
   $i=$j;
   $first=0;
 }
+if($ok) { print "all jobs finished successfully\n" }
 print "\n";
 
 
