@@ -8,6 +8,7 @@ my ($infile)=@ARGV;
 my $indiv;
 if($infile=~/([^\/]+)\/RNA\/stringtie.gff/) { $indiv=$1 }
 elsif($infile=~/([^\/]+)\/RNA\/sim\/stringtie.gff/) { $indiv=$1 }
+elsif($infile=~/([^\/]+)\/RNA\/[^\/]+\/stringtie\S*.gff/) { $indiv=$1 }
 else { die "can't parse path $infile\n" }
 
 print "indiv\tallele\tgene\ttranscript\tcov\tFPKM\tTPM\n";
