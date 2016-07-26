@@ -4,8 +4,8 @@ use strict;
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 
-my ($totalFound,$totalNotFound,$uniqueFound,$uniqueNotFound,%seen,
-    $geneFound,$geneNotFound,%geneSeen);
+my ($totalFound,$totalNotFound,%transcriptFound,%allTranscripts,
+    %geneFound,%allGenes);
 my @dirs=`ls $COMBINED`;
 foreach my $subdir (@dirs) {
   chomp $subdir;
@@ -18,12 +18,16 @@ foreach my $subdir (@dirs) {
 my $total=$totalFound+$totalNotFound;
 my $ratio=$totalFound/$total;
 print "$ratio ($totalFound\/$total) expressed ALTs were found by StringTie without annotation\n";
-my $total=$uniqueFound+$uniqueNotFound;
-my $ratio=$uniqueFound/$total;
-print "$ratio ($uniqueFound\/$total) transcripts with expressed ALTs were found by StringTie without annotation\n";
-my $total=$geneFound+$geneNotFound;
-my $ratio=$geneFound/$total;
-print "$ratio ($geneFound\/$total) genes with expressed ALTs were found by StringTie without annotation\n";
+
+my @keys=keys %allTranscripts; my $total=@keys;
+my @found=keys %transcriptFound; my $found=@found;
+my $ratio=$found/$total;
+print "$ratio ($found\/$total) transcripts with expressed ALTs were found by StringTie without annotation\n";
+
+my @keys=keys %allGenes; my $total=@keys;
+my @found=keys %geneFound; my $found=@found;
+my $ratio=$found/$total;
+print "$ratio ($found\/$total) genes with expressed ALTs were found by StringTie without annotation\n";
 
 
 sub process {
@@ -35,14 +39,13 @@ sub process {
     if($transcriptID=~/ALT\d+_(\S+)/) { $transcriptID=$1 }
     if($found) { ++$totalFound }
     else { ++$totalNotFound }
-    next if $seen{$transcriptID};
-    if($found) { ++$uniqueFound }
-    else { ++$uniqueNotFound }
-    $seen{$transcriptID}=1;
-    next if $geneSeen{$geneID};
-    if($found) { ++$geneFound }
-    else { ++$geneNotFound }
-    $geneSeen{$geneID}=1;
+    #print "gene=$geneID\t\ttranscript=$transcriptID\n";
+    $allTranscripts{$transcriptID}=1;
+    $allGenes{$geneID}=1;
+    if($found) {
+      $transcriptFound{$transcriptID}=1;
+      $geneFound{$geneID}=1;
+    }
   }
   close(IN);
 }

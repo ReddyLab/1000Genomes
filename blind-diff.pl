@@ -50,7 +50,7 @@ for(my $i=0 ; $i<$n ; ++$i) {
   my $key=hash($transcript);
   #print "alt key: [$key]\n";
   my $found=0+$blind{$key};
-  my $gene=$transcript->getGeneId();
+  my $gene=$transcript->getSubstrate(); #$transcript->getGeneId();
   print "$gene\t$refID\t$found\n";
 }
 
