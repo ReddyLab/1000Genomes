@@ -28,14 +28,14 @@ my %blind;
 my $reader=new GffTranscriptReader();
 my $transcripts=$reader->loadGFF($BLIND_GFF);
 my $n=@$transcripts;
-print "n=$n\n";
+#print "n=$n\n";
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $refID=getRefID($transcript);
-  print "refID=$refID\.\n";
+  #print "refID=$refID\.\n";
   next if $refID=~/\S/;
   my $key=hash($transcript);
-  print "blind key: [$key]\n";
+  #print "blind key: [$key]\n";
   $blind{$key}=1;
 }
 
@@ -48,6 +48,7 @@ for(my $i=0 ; $i<$n ; ++$i) {
   my $refID=getRefID($transcript);
   next unless $refID=~/ALT/;
   my $key=hash($transcript);
+  #print "alt key: [$key]\n";
   my $found=0+$blind{$key};
   print "$refID\t$found\n";
 }
@@ -64,12 +65,23 @@ sub getRefID {
 
 sub hash {
   my ($transcript)=@_;
-  my $h="";
   my $substrate=$transcript->getSubstrate();
+  my $h="$substrate ";
   my $exons=$transcript->getRawExons();
-  foreach my $exon (@$exons) {
+  my $strand=$transcript->getStrand();
+  my $n=@$exons;
+  for(my $i=0 ; $i<$n ; ++$i) {
+    my $exon=$exons->[$i];
     my $begin=$exon->getBegin(); my $end=$exon->getEnd();
-    $h.="$begin\-$end ";
+    if($i==0) {
+      if($strand eq "+") { $h.="$end " }
+      else { $h.="$begin " }
+    }
+    elsif($i==$n-1) {
+      if($strand eq "+") { $h.="$begin " }
+      else { $h.="$end " }
+    }
+    else { $h.="$begin\-$end " }
   }
   return $h;
 }
