@@ -21,6 +21,6 @@ foreach my $subdir (@dirs) {
 $slurm->nice(500);
 $slurm->mem(3000);
 $slurm->setQueue("new,all");
-$slurm->writeArrayScript($SLURMS,"FPKM","",800);
+$slurm->writeArrayScript($SLURMS,"FPKM","",890);
 
 
