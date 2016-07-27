@@ -14,8 +14,8 @@ foreach my $subdir (@dirs) {
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
   next unless -e "$dir/RNA/stringtie.gff";
-  $slurm->addCommand("$PROGRAM $dir/1.gff $dir/2.gff $dir/RNA/tab.txt > $dir/fpkm-real.txt");
-  $slurm->addCommand("$PROGRAM $dir/random-1.gff $dir/random-2.gff $dir/RNA/sim/tab.txt > $dir/fpkm-sim.txt");
+  $slurm->addCommand("$PROGRAM $dir/1.gff $dir/2.gff $dir/1.blacklist $dir/2.blacklist $dir/RNA/tab.txt > $dir/fpkm-real.txt");
+  $slurm->addCommand("$PROGRAM $dir/random-1.gff $dir/random-2.gff $dir/random-1.blacklist $dir/random-2.blacklist $dir/RNA/sim/tab.txt > $dir/fpkm-sim.txt");
 }
 
 $slurm->nice(500);
