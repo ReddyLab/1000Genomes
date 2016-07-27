@@ -3,13 +3,18 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <in1.gff> <in2.gff> <blacklist1> <blacklist2> <in.tab.txt>\n" unless @ARGV==5;
-my ($GFF1,$GFF2,$BLACKLIST1,$BLACKLIST2,$TAB)=@ARGV;
+die "$name <in1.gff> <in2.gff> <blacklist1> <blacklist2> <NMD1> <NMD2> <in.tab.txt>\n" unless @ARGV==7;
+my ($GFF1,$GFF2,$BLACKLIST1,$BLACKLIST2,$NMD1,$NMD2,$TAB)=@ARGV;
+
+# Load list of genes expressed in these cells
+loadExpressed("/home/bmajoros/1000G/assembly/expressed.txt");
 
 # Load the blacklists
-my %blacklist;
+my (%blacklist,%expressed);
 loadBlacklist($BLACKLIST1,\%blacklist);
 loadBlacklist($BLACKLIST2,\%blacklist);
+loadNMD($NMD1,\%blacklist,"ALT");
+loadNMD($NMD2,\%blacklist,"ALT");
 
 # Process the GFF file
 my %FPKM;
@@ -23,10 +28,10 @@ while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
   my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM)=@fields;
   next unless $transcript=~/\S\S\S\d+_([^\"]+)/;
-  my $id="$1\_$allele";
+  next unless $expressed{$1};
+  my $id="$transcript\_$allele";
   next if $blacklist{$id};
-  # $FPKM{"$transcript\_$allele"}=$FPKM;
-  $FPKM{$id}+=$FPKM;
+  $FPKM{$id}=$FPKM;
 }
 close(IN);
 
@@ -46,10 +51,12 @@ sub loadGFF {
   my ($filename,$hash)=@_;
   open(IN,$filename) || die "can't open $filename";
   while(<IN>) {
-    #if(/transcript_id\s+"(\S\S\S\d+_[^\"]+)"/) { $hash->{$1}=0 }
-    if(/transcript_id\s+"\S\S\S\d+_([^\"]+)"/) {
+    if(/transcript_id\s+"(\S\S\S\d+_[^\"]+)"/) { 
+    #if(/transcript_id\s+"\S\S\S\d+_([^\"]+)"/) {
       my $id=$1;
       next if $blacklist{$id};
+      $id=~/\S\S\S\d+_([^\_]+)/ || die $id;
+      next unless $expressed{$1};
       $hash->{$id}=0;
     }
   }
@@ -63,10 +70,40 @@ sub loadBlacklist {
     chomp; my @fields=split; next unless @fields>=6;
     my ($indiv,$allele,$chr,$gene,$transcript,$ALT)=@fields;
     $ALT=~/\S\S\S\d+_(\S+)/ || die $ALT;
-    $ALT=$1;
+    #$ALT=$1;
     my $id="$ALT\_$allele";
     #print "black: [$id]\n";
     $hash->{$id}=1;
   }
   close(IN);
 }
+
+sub loadNMD {
+  my ($filename,$hash,$prefix)=@_;
+  open(IN,$filename) || die $filename;
+  while(<IN>) {
+    chomp; my @fields=split; next unless @fields>=7;
+    my ($indiv,$allele,$chr,$gene,$transcript,$ALT,$status)=@fields;
+    $ALT=~/\S\S\S(\d+_\S+)/ || die $ALT;
+    my $id="$prefix$1\_$allele";
+    if($status eq "NMD") { $hash->{$id}=1 }
+  }
+  close(IN);
+}
+
+sub loadExpressed {
+  my ($filename)=@_;
+  open(IN,$filename) || die $filename;
+  while(<IN>) {
+    chomp; my @fields=split; next unless @fields>=4;
+    my ($gene,$transcript,$mean,$N)=@fields;
+    if($transcript=~/ALT\d+_(\S+)/) { $transcript=$1 }
+    $expressed{$transcript}=1;
+  }
+  close(IN);
+}
+
+
+
+
+

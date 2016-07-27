@@ -23,22 +23,22 @@ while(1) {
   my $chr=$refTrans->getAttribute("substrate");
   my $geneID=$root->getAttribute("gene-ID");
   my $transcriptID=$root->getAttribute("transcript-ID");
-  next if $seen{$transcriptID};
+  #next if $seen{$transcriptID};
   my $transcripts=$alts->findDescendents("transcript");
   my $n=@$transcripts;
-  my $result;
   for(my $i=0 ; $i<$n ; ++$i) {
     my $transcript=$transcripts->[$i];
     my $ALT_ID="ALT$i\_$transcriptID";
+    my $result="OK";
     my $fate=$transcript->findDescendent("fate");
-    if($fate->hasDescendentOrDatum("NMD")) { $result="NMD" }
-    else { $result="OK" }
+    if($fate && $fate->hasDescendentOrDatum("NMD")) { $result="NMD" }
     print OUT "$indiv\t$hap\t$chr\t$geneID\t$transcriptID\t$ALT_ID\t$result\n";
   }
   $seen{$transcriptID}=1;
 }
 close(OUT);
-print "[done]\n";
+
+print STDERR "[done]\n";
 
 
 
