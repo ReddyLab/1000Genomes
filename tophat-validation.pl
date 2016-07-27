@@ -25,6 +25,12 @@ for(my $i=0 ; $i<$n ; ++$i) {
   my $parentID=$2;
   my $parent=$transcriptHash->{$parentID};
   die $parentID unless $parent;
+  my $geneID=$transcript->getGeneId();
+  my $geneIntrons=$introns->{$geneID};
+  if(!$geneIntrons) { $geneIntrons=[] }
+  if($transcript->numExons()<$parent->numExons())
+    { exonSkipping($transcript,$parent,$geneIntrons) }
+  else { crypticSplicing($transcript,$parent,$geneIntrons) }
 }
 
 # Terminate
@@ -34,6 +40,24 @@ print STDERR "[done]\n";
 
 #########################################################################
 #########################################################################
+
+sub exonSkipping {
+  my ($child,$parent)=@_;
+  my $numChildExons=$child->numExons(); my $numParentExons=$parent->numExons();
+  die "$numChildExons vs $numParentExons"
+    unless $numChildExons==$numParentExons-1;
+
+}
+
+
+sub crypticSplicing {
+  my ($child,$parent)=@_;
+  my $numChildExons=$child->numExons(); my $numParentExons=$parent->numExons();
+  die "$numChildExons vs $numParentExons"
+    unless $numChildExons==$numParentExons;
+
+}
+
 
 sub hashTranscriptIDs {
   my ($transcripts)=@_;
@@ -50,7 +74,7 @@ sub hashTranscriptIDs {
 
 sub parseTophat {
   my ($filename)=@_;
-  my $introns=[];
+  my $introns={};
   open(IN,$filename) || die "Can't open $filename";
   <IN>; # header
   while(<IN>) {
@@ -59,12 +83,8 @@ sub parseTophat {
       @fields;
     $overhangs=~/(\d+),(\d+)/ || die $overhangs;
     my $donor=$begin+$1; my $acceptor=$end-$2;
-    my $record=
-      {
-       gene=>$gene,
-       donor=>$donor,
-       acceptor=>$acceptor
-      };
+    my $record=[$donor,$acceptor];
+    push @{$introns->{$gene}},$record;
   }
   close(IN);
 }
