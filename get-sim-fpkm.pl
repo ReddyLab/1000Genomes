@@ -34,6 +34,7 @@ for(my $i=0 ; $i<$n ; ++$i) {
   print "$transcript\t$fpkm\n";
 }
 
+print STDERR "[done]\n";
 
 sub loadGFF {
   my ($filename,$hash)=@_;
