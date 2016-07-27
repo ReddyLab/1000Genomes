@@ -42,16 +42,38 @@ print STDERR "[done]\n";
 #########################################################################
 
 sub exonSkipping {
-  my ($child,$parent)=@_;
+  my ($child,$parent,$junctions)=@_;
   my $numChildExons=$child->numExons(); my $numParentExons=$parent->numExons();
   die "$numChildExons vs $numParentExons"
     unless $numChildExons==$numParentExons-1;
-
+  for(my $i=0 ; $i<$numParentExons ; ++$i) {
+    my $exon=$parent->getIthExon($i);
+    my $begin=$exon->getBegin(); my $end=$exon->getEnd();
+    my $childExon=$child->getIthExon($i);
+    if($childExon->getBegin()==$begin && $childExon->getEnd()==$end) { next }
+    if($i<1 || $i>=$numChildExons) { die "$i vs. $numChildExons" }
+    my $strand=$child->getStrand();
+    my ($intronBegin,$intronEnd);
+    if($strand eq "+") {
+      $intronBegin=$child->getIthExon($i-1)->getEnd();
+      $intronEnd=$child->getIthExon($i)->getBegin();
+    }
+    else { # strand eq "-"
+      $intronBegin=$child->getIthExon($i)->getEnd();
+      $intronEnd=$child->getIthExon($i-1)->getBegin();
+    }
+    foreach my $junction (@$junctions) {
+      my ($begin,$end)=@$junction;
+      if($begin==$intronBegin && $end==$intronEnd) {
+	print "found $strand $begin $end\n";
+      }
+    }
+  }
 }
 
 
 sub crypticSplicing {
-  my ($child,$parent)=@_;
+  my ($child,$parent,$junctions)=@_;
   my $numChildExons=$child->numExons(); my $numParentExons=$parent->numExons();
   die "$numChildExons vs $numParentExons"
     unless $numChildExons==$numParentExons;
@@ -87,6 +109,7 @@ sub parseTophat {
     push @{$introns->{$gene}},$record;
   }
   close(IN);
+  return $introns;
 }
 
 
