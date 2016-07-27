@@ -14,13 +14,15 @@ foreach my $subdir (@dirs) {
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
   next unless -e "$dir/RNA/stringtie.gff";
-  $slurm->addCommand("$PROGRAM $dir/1.gff $dir/2.gff $dir/1.blacklist $dir/2.blacklist $dir/1.alts-with-nmd $dir/2.alts-with-nmd $dir/RNA/tab.txt ALT > $dir/fpkm-real-3.txt");
-  $slurm->addCommand("$PROGRAM $dir/random-1.gff $dir/random-2.gff $dir/random-1.blacklist $dir/random-2.blacklist $dir/random-1.alts-with-nmd $dir/random-2.alts-with-nmd $dir/RNA/sim/tab.txt SIM > $dir/fpkm-sim-3.txt");
+  $slurm->addCommand("cd $dir; $PROGRAM 1.gff 1 RNA/junctions.bed ALT 1.blacklist 1.alts-with-nmd > 1.tophat-validation");
+  $slurm->addCommand("cd $dir; $PROGRAM 2.gff 2 RNA/junctions.bed ALT 2.blacklist 2.alts-with-nmd > 2.tophat-validation");
+  $slurm->addCommand("cd $dir; $PROGRAM random-1.gff 1 RNA/sim/junctions.bed SIM random-1.blacklist random-1.alts-with-nmd > random-1.tophat-validation");
+  $slurm->addCommand("cd $dir; $PROGRAM random-2.gff 2 RNA/sim/junctions.bed SIM random-2.blacklist random-2.alts-with-nmd > random-2.tophat-validation");
 }
 
 $slurm->nice(500);
 $slurm->mem(3000);
 $slurm->setQueue("new,all");
-$slurm->writeArrayScript($SLURMS,"FPKM","",890);
+$slurm->writeArrayScript($SLURMS,"VALID","",890);
 
 

@@ -24,7 +24,7 @@ my $transcriptHash=hashTranscriptIDs($transcripts);
 # Process all ALT/SIM structures
 my %seen;
 my $n=@$transcripts;
-my $sampleSize=0; my $numFound=0;
+my $sampleSize=0; my $numFound=0; my $totalSampleSize; my $supported;
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $id=$transcript->getTranscriptId();
@@ -42,12 +42,15 @@ for(my $i=0 ; $i<$n ; ++$i) {
   if($transcript->numExons()<$parent->numExons())
     { $found=exonSkipping($transcript,$parent,$geneIntrons) }
   else { $found=crypticSplicing($transcript,$parent,$geneIntrons) }
-  if($found<0) { next }
-  ++$sampleSize;
+  if($found<0) { ++$supported; ++$totalSampleSize; next }
+  ++$sampleSize; ++$totalSampleSize;
+  if($found>0) { ++$supported }
   $numFound+=$found;
 }
 my $readsPerJunction=$numFound/$sampleSize;
 print "readsPerJunction=$readsPerJunction ($numFound / $sampleSize)\n";
+my $percentSupported=$supported/$totalSampleSize;
+print "supported isoforms: $percentSupported ($supported / $totalSampleSize)\n";
 
 # Terminate
 print STDERR "[done]\n";
@@ -93,7 +96,7 @@ sub exonSkipping {
 	my $key="$geneID $begin $end";
 	if($seen{$key}) { return -1 }
 	$seen{$key}=1;
-	print "SKIPPING $transcriptID $strand $begin $end $reads\n";
+	#print "SKIPPING $transcriptID $strand $begin $end $reads\n";
 	return $reads;
       }
     }
@@ -146,7 +149,7 @@ sub crypticSplicing {
 	my $key="$geneID $begin $end";
 	if($seen{$key}) { return -1 }
 	$seen{$key}=1;
-	print "CRYPTIC $transcriptID $strand $begin $end $reads\n";
+	#print "CRYPTIC $transcriptID $strand $begin $end $reads\n";
 	return $reads;
       }
     }
