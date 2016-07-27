@@ -22,6 +22,7 @@ coalesceExons($transcripts);
 my $transcriptHash=hashTranscriptIDs($transcripts);
 
 # Process all ALT/SIM structures
+my %seen;
 my $n=@$transcripts;
 my $sampleSize=0; my $numFound=0;
 for(my $i=0 ; $i<$n ; ++$i) {
@@ -41,6 +42,7 @@ for(my $i=0 ; $i<$n ; ++$i) {
   if($transcript->numExons()<$parent->numExons())
     { $found=exonSkipping($transcript,$parent,$geneIntrons) }
   else { $found=crypticSplicing($transcript,$parent,$geneIntrons) }
+  if($found<0) { next }
   ++$sampleSize;
   $numFound+=$found;
 }
@@ -87,6 +89,10 @@ sub exonSkipping {
       my ($begin,$end,$reads)=@$junction;
       if($begin==$intronBegin && $end==$intronEnd) {
 	my $transcriptID=$child->getTranscriptId();
+	my $geneID=$child->getGeneId();
+	my $key="$geneID $begin $end";
+	if($seen{$key}) { return -1 }
+	$seen{$key}=1;
 	print "SKIPPING $transcriptID $strand $begin $end $reads\n";
 	return $reads;
       }
@@ -136,6 +142,10 @@ sub crypticSplicing {
       my ($begin,$end,$reads)=@$junction;
       if($begin==$intronBegin && $end==$intronEnd) {
 	my $transcriptID=$child->getTranscriptId();
+	my $geneID=$child->getGeneId();
+	my $key="$geneID $begin $end";
+	if($seen{$key}) { return -1 }
+	$seen{$key}=1;
 	print "CRYPTIC $transcriptID $strand $begin $end $reads\n";
 	return $reads;
       }
