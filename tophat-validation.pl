@@ -44,7 +44,8 @@ for(my $i=0 ; $i<$n ; ++$i) {
   ++$sampleSize;
   $numFound+=$found;
 }
-print "$numFound out of $sampleSize\n";
+my $readsPerJunction=$numFound/$sampleSize;
+print "readsPerJunction=$readsPerJunction ($numFound / $sampleSize)\n";
 
 # Terminate
 print STDERR "[done]\n";
@@ -83,11 +84,11 @@ sub exonSkipping {
       $intronEnd=$child->getIthExon($i-1)->getBegin();
     }
     foreach my $junction (@$junctions) {
-      my ($begin,$end)=@$junction;
+      my ($begin,$end,$reads)=@$junction;
       if($begin==$intronBegin && $end==$intronEnd) {
 	my $transcriptID=$child->getTranscriptId();
-	print "SKIPPING $transcriptID $strand $begin $end\n";
-	return 1;
+	print "SKIPPING $transcriptID $strand $begin $end $reads\n";
+	return $reads;
       }
     }
     last;
@@ -132,11 +133,11 @@ sub crypticSplicing {
 	$intronEnd=$child->getIthExon($i-1)->getBegin(); }
     }
     foreach my $junction (@$junctions) {
-      my ($begin,$end)=@$junction;
+      my ($begin,$end,$reads)=@$junction;
       if($begin==$intronBegin && $end==$intronEnd) {
 	my $transcriptID=$child->getTranscriptId();
-	print "CRYPTIC $transcriptID $strand $begin $end\n";
-	return 1;
+	print "CRYPTIC $transcriptID $strand $begin $end $reads\n";
+	return $reads;
       }
     }
     last;
@@ -169,7 +170,7 @@ sub parseTophat {
       @fields;
     $overhangs=~/(\d+),(\d+)/ || die $overhangs;
     my $donor=$begin+$1; my $acceptor=$end-$2;
-    my $record=[$donor,$acceptor];
+    my $record=[$donor,$acceptor,$reads];
     push @{$introns->{$gene}},$record;
   }
   close(IN);
