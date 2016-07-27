@@ -16,10 +16,24 @@ close(IN);
 
 # Process the tab.txt file
 open(IN,$TAB) || die "can't open $TAB";
+<IN>; # header
 while(<IN>) {
-  
+  chomp; my @fields=split; next unless @fields>=7;
+  my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM)=@fields;
+  next unless $transcript=~/\S\S\S\d+_[^\"]+/;
+  $FPKM{$transcript}=$FPKM;
 }
 close(IN);
+
+# Dump table to output
+my @keys=keys %FPKM;
+@keys=sort {$FPKM{$a} <=> $FPKM{$b}} @keys;
+my $n=@keys;
+for(my $i=0 ; $i<$n ; ++$i) {
+  my $transcript=$keys[$i];
+  my $fpkm=$FPKM{$transcript};
+  print "$transcript\t$fpkm\n";
+}
 
 
 
