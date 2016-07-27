@@ -3,16 +3,13 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <in.gff> <in.tab.txt>\n" unless @ARGV==2;
-my ($GFF,$TAB)=@ARGV;
+die "$name <in1.gff> <in2.gff> <in.tab.txt>\n" unless @ARGV==3;
+my ($GFF1,$GFF2,$TAB)=@ARGV;
 
 # Process the GFF file
 my %FPKM;
-open(IN,$GFF) || die "can't open $GFF";
-while(<IN>) {
-  if(/transcript_id\s+"\S\S\S\d+_[^\"]+"/) { $FPKM{$1}=0 }
-}
-close(IN);
+loadGFF($GFF1,\%FPKM);
+loadGFF($GFF2,\%FPKM);
 
 # Process the tab.txt file
 open(IN,$TAB) || die "can't open $TAB";
@@ -20,8 +17,10 @@ open(IN,$TAB) || die "can't open $TAB";
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
   my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM)=@fields;
-  next unless $transcript=~/\S\S\S\d+_[^\"]+/;
-  $FPKM{$transcript}=$FPKM;
+  next unless $transcript=~/\S\S\S\d+_([^\"]+)/;
+  my $id="$1\_$allele";
+  # $FPKM{"$transcript\_$allele"}=$FPKM;
+  $FPKM{$id}+=$FPKM;
 }
 close(IN);
 
@@ -36,4 +35,12 @@ for(my $i=0 ; $i<$n ; ++$i) {
 }
 
 
-
+sub loadGFF {
+  my ($filename,$hash)=@_;
+  open(IN,$filename) || die "can't open $filename";
+  while(<IN>) {
+    #if(/transcript_id\s+"(\S\S\S\d+_[^\"]+)"/) { $hash->{$1}=0 }
+    if(/transcript_id\s+"\S\S\S\d+_([^\"]+)"/) { $hash->{$1}=0 }
+  }
+  close(IN);
+}
