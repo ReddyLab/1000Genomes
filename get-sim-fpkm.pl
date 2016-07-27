@@ -3,7 +3,7 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <in1.gff> <in2.gff> <blacklist1> <blacklist2> <NMD1> <NMD2> <in.tab.txt> $prefix\n" unless @ARGV==8;
+die "$name <in1.gff> <in2.gff> <blacklist1> <blacklist2> <NMD1> <NMD2> <in.tab.txt> <prefix:ALT|SIM>\n" unless @ARGV==8;
 my ($GFF1,$GFF2,$BLACKLIST1,$BLACKLIST2,$NMD1,$NMD2,$TAB,$PREFIX)=@ARGV;
 
 # Load list of genes expressed in these cells
@@ -89,7 +89,7 @@ sub loadNMD {
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=7;
     my ($indiv,$allele,$chr,$gene,$transcript,$ALT,$status)=@fields;
-    $ALT=~/\S\S\S(\d+_\S+)/ || die $ALT;
+    $ALT=~/\S\S\S(\d+_\S+)/ || die $ALT; # The prefix may be wrong...that's ok
     my $id="$prefix$1\_$allele";
     if($status eq "NMD") { $hash->{$id}=1 }
   }
