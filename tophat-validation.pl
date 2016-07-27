@@ -42,7 +42,8 @@ for(my $i=0 ; $i<$n ; ++$i) {
   if($transcript->numExons()<$parent->numExons())
     { $found=exonSkipping($transcript,$parent,$geneIntrons) }
   else { $found=crypticSplicing($transcript,$parent,$geneIntrons) }
-  if($found<0) { ++$supported; ++$totalSampleSize; next }
+  if($found==-1) { ++$supported; ++$totalSampleSize; next }
+  elsif($found==-2) { next }
   ++$sampleSize; ++$totalSampleSize;
   if($found>0) { ++$supported }
   $numFound+=$found;
@@ -63,21 +64,19 @@ print STDERR "[done]\n";
 sub exonSkipping {
   my ($child,$parent,$junctions)=@_;
   my $numChildExons=$child->numExons(); my $numParentExons=$parent->numExons();
-  die "$numChildExons vs $numParentExons"
-    unless $numChildExons==$numParentExons-1;
+  #die "$numChildExons vs $numParentExons" unless $numChildExons==$numParentExons-1;
+  if($numChildExons!=$numParentExons-1) { return -2 }
   for(my $i=0 ; $i<$numParentExons ; ++$i) {
-    if($i>=$numChildExons) {
-      my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
-      die "skipped exon not found\n$numParentExons exons vs. $numChildExons exons\nparent:\n$parentGff\nchild:\n$childGff";
-    }
+    if($i>=$numChildExons) { return -2 }
+      #my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
+      #die "skipped exon not found\n$numParentExons exons vs. $numChildExons exons\nparent:\n$parentGff\nchild:\n$childGff"; }
     my $exon=$parent->getIthExon($i);
     my $begin=$exon->getBegin(); my $end=$exon->getEnd();
     my $childExon=$child->getIthExon($i);
     if($childExon->getBegin()==$begin && $childExon->getEnd()==$end) { next }
-    if($i<1 || $i>=$numChildExons) {
-      my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
-      die "i=$i vs. numChildExons=$numChildExons\nPARENT:\n$parentGff\nCHILD:\n$childGff\n"
-    }
+    if($i<1 || $i>=$numChildExons) { return -2 }
+      #my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
+      #die "i=$i vs. numChildExons=$numChildExons\nPARENT:\n$parentGff\nCHILD:\n$childGff\n" }
     my $strand=$child->getStrand();
     my ($intronBegin,$intronEnd);
     if($strand eq "+") {
@@ -109,7 +108,7 @@ sub exonSkipping {
 sub crypticSplicing {
   my ($child,$parent,$junctions)=@_;
   my $numChildExons=$child->numExons(); my $numParentExons=$parent->numExons();
-  if($numChildExons>$numParentExons) { return }
+  if($numChildExons>$numParentExons) { return -2 }
     #my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
     #die "unequal num exons: $numChildExons vs $numParentExons\nPARENT:\n$parentGff\nCHILD:\n$childGff\n"; }
   for(my $i=0 ; $i<$numParentExons ; ++$i) {
@@ -120,7 +119,7 @@ sub crypticSplicing {
     my $begin=$exon->getBegin(); my $end=$exon->getEnd();
     my $childExon=$child->getIthExon($i);
     if($childExon->getBegin()==$begin && $childExon->getEnd()==$end) { next }
-    if($i<1 || $i>=$numChildExons) { next }
+    if($i<1 || $i>=$numChildExons) { return -2 }
       #my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
       #die "i=$i vs. numChildExons=$numChildExons\nPARENT:\n$parentGff\nCHILD:\n$childGff\n" }
     my $strand=$child->getStrand();
