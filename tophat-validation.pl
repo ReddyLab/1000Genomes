@@ -13,6 +13,7 @@ my $introns=parseTophat($junctionsFile);
 # Process the GFF
 my $reader=new GffTranscriptReader();
 my $transcripts=$reader->loadGFF($gffFile);
+my $transcriptHash=hashTranscriptIDs($transripts);
 
 
 print STDERR "[done]\n";
@@ -21,6 +22,20 @@ print STDERR "[done]\n";
 
 #########################################################################
 #########################################################################
+
+sub hashTranscriptIDs {
+  my ($transcripts)=@_;
+  my $hash={};
+  my $n=@$transcripts;
+  for(my $i=0 ; $i<$n ; ++$i) {
+    my $transcript=$transcripts->[$i];
+    my $id=$transcript->getTranscriptId();
+    $hash->{$id}=$transcript;
+  }
+  return $hash;
+}
+
+
 sub parseTophat {
   my ($filename)=@_;
   my $introns=[];
