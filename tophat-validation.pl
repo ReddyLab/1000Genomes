@@ -1,9 +1,26 @@
 #!/usr/bin/perl
 use strict;
+use ProgramName;
+use GffTranscriptReader;
+
+my $name=ProgramName::get();
+die "$name <in.gff> <junctions.bed>\n" unless @ARGV==2;
+my ($gffFile,$junctionsFile)=@ARGV;
+
+# Load the TopHat junctions file
+my $introns=parseTophat($junctionsFile);
+
+# Process the GFF
+my $reader=new GffTranscriptReader();
+my $transcripts=$reader->loadGFF($gffFile);
+
+
+print STDERR "[done]\n";
 
 
 
-
+#########################################################################
+#########################################################################
 sub parseTophat {
   my ($filename)=@_;
   my $introns=[];
