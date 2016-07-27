@@ -47,6 +47,10 @@ sub exonSkipping {
   die "$numChildExons vs $numParentExons"
     unless $numChildExons==$numParentExons-1;
   for(my $i=0 ; $i<$numParentExons ; ++$i) {
+    if($i>=$numChildExons) {
+      my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
+      die "skipped exon not found\nparent:\n$parentGff\nchild:\n$childGff";
+    }
     my $exon=$parent->getIthExon($i);
     my $begin=$exon->getBegin(); my $end=$exon->getEnd();
     my $childExon=$child->getIthExon($i);
