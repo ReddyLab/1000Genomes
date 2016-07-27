@@ -61,7 +61,7 @@ sub load {
     chomp; my @fields=split; next unless @fields>=2;
     my ($transcript,$fpkm)=@fields;
 
-    next unless $fpkm>0; ###
+    #next unless $fpkm>0; ###
 
     push @$array,$fpkm;
   }

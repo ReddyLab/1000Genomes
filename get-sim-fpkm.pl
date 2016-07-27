@@ -3,8 +3,8 @@ use strict;
 use ProgramName;
 
 my $name=ProgramName::get();
-die "$name <in1.gff> <in2.gff> <blacklist1> <blacklist2> <NMD1> <NMD2> <in.tab.txt>\n" unless @ARGV==7;
-my ($GFF1,$GFF2,$BLACKLIST1,$BLACKLIST2,$NMD1,$NMD2,$TAB)=@ARGV;
+die "$name <in1.gff> <in2.gff> <blacklist1> <blacklist2> <NMD1> <NMD2> <in.tab.txt> $prefix\n" unless @ARGV==8;
+my ($GFF1,$GFF2,$BLACKLIST1,$BLACKLIST2,$NMD1,$NMD2,$TAB,$PREFIX)=@ARGV;
 
 # Load list of genes expressed in these cells
 loadExpressed("/home/bmajoros/1000G/assembly/expressed.txt");
@@ -13,8 +13,8 @@ loadExpressed("/home/bmajoros/1000G/assembly/expressed.txt");
 my (%blacklist,%expressed);
 loadBlacklist($BLACKLIST1,\%blacklist);
 loadBlacklist($BLACKLIST2,\%blacklist);
-loadNMD($NMD1,\%blacklist,"ALT");
-loadNMD($NMD2,\%blacklist,"ALT");
+loadNMD($NMD1,\%blacklist,$PREFIX);
+loadNMD($NMD2,\%blacklist,$PREFIX);
 
 # Process the GFF file
 my %FPKM;
@@ -27,8 +27,8 @@ open(IN,$TAB) || die "can't open $TAB";
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
   my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM)=@fields;
-  next unless $transcript=~/\S\S\S\d+_([^\"]+)/;
-  next unless $expressed{$1};
+  next unless $transcript=~/(\S\S\S)\d+_([^\"]+)/;
+  next unless $1 eq $PREFIX;
   my $id="$transcript\_$allele";
   next if $blacklist{$id};
   $FPKM{$id}=$FPKM;
@@ -55,8 +55,13 @@ sub loadGFF {
     #if(/transcript_id\s+"\S\S\S\d+_([^\"]+)"/) {
       my $id=$1;
       next if $blacklist{$id};
-      $id=~/\S\S\S\d+_([^\_]+)/ || die $id;
-      next unless $expressed{$1};
+      $id=~/(\S\S\S)\d+_([^\_]+)/ || die $id;
+
+      #my $debug=0+$expressed{$2};###
+      #print "expressed:\t$2\t$debug\n";###
+
+      next unless $1 eq $PREFIX;
+      next unless $expressed{$2};
       $hash->{$id}=0;
     }
   }
