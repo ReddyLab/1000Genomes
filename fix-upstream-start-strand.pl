@@ -29,7 +29,10 @@ while(1) {
 	if($transcript->getAttribute("strand") ne $parentStrand) {
 	  print STDERR "correcting child to match strand $parentStrand\n";
 	  my $L=$root->getAttribute("alt-length");
-	  
+	  my $strandNode=$transcript->findChild("strand");
+	  $strandNode->setIthElem(0,$parentStrand);
+	  fixExons($transcript,"exons",$L,$parentStrand);
+	  fixExons($transcript,"UTR",$L,$parentStrand);
 	}
       }
     }
@@ -40,6 +43,22 @@ while(1) {
 print STDERR "[done]\n";
 
 
+
+
+#####################################################################
+sub fixExons {
+  my ($transcript,$label,$L,$strand)=@_;
+  my $exons=$transcript->findChild($label);
+  if(!$exons) { return }
+  my $numExons=$exons->numElements();
+  for(my $i=0 ; $i<$numExons ; ++$i) {
+    # (single-exon 12966 13065 0 + 0))
+    my $exon=$exons->getIthElem($i);
+    $exon->setIthElem(0,$L-$exon->getIthElem(0));
+    $exon->setIthElem(1,$L-$exon->getIthElem(1));
+    $exon->setIthElem(3,$strand);
+  }
+}
 
 
 
