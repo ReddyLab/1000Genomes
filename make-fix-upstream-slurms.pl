@@ -14,10 +14,8 @@ foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
-  $writer->addCommand("cd $dir ; $PROGRAM 1.essex > 1-fixed.essex");
-  $writer->addCommand("cd $dir ; $PROGRAM 2.essex > 1-fixed.essex");
-  $writer->addCommand("cd $dir ; $PROGRAM 1-filtered.essex > 1-filtered-fixed.essex");
-  $writer->addCommand("cd $dir ; $PROGRAM 2-filtered.essex > 2-filtered-fixed.essex");
+  $writer->addCommand("cd $dir ; $PROGRAM 1.essex > 1-fixed.essex ; $PROGRAM 2.essex > 2-fixed.essex");
+  $writer->addCommand("cd $dir ; $PROGRAM 1-filtered.essex > 1-filtered-fixed.essex ; $PROGRAM 2-filtered.essex > 2-filtered-fixed.essex");
 }
 #$writer->mem(5000);
 $writer->setQueue("new,all");
