@@ -54,8 +54,9 @@ sub fixExons {
   for(my $i=0 ; $i<$numExons ; ++$i) {
     # (single-exon 12966 13065 0 + 0))
     my $exon=$exons->getIthElem($i);
-    $exon->setIthElem(0,$L-$exon->getIthElem(0));
-    $exon->setIthElem(1,$L-$exon->getIthElem(1));
+    my $begin=$exon->getIthElem(0); my $end=$exon->getIthElem(1);
+    $exon->setIthElem(0,$L-$end);
+    $exon->setIthElem(1,$L-$begin);
     $exon->setIthElem(3,$strand);
   }
 }
