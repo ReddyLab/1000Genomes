@@ -3,7 +3,7 @@
 resolution <- 0.01;
 infile1 <- "neg-supported.txt";
 infile2 <- "pos-supported.txt";
-x <- "Proportion of isoforms supported";
+x <- "Proportion of isoforms supported by at least one read";
 y <- "Relative frequency";
 outfile <- "support.pdf"
 
