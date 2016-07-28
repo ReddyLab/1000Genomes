@@ -16,8 +16,22 @@ while(1) {
   my $statusString=$status->getIthElem(0);
   if($statusString eq "splicing-changes") {
     my $altNode=$status->findChild("alternate-structures");
-    if($altNode) {
-      
+    if($altNode && $altNode->hasDescendentOrDatum("new-upstream-start-codon")){
+      my $numTranscripts=$altNode->numElements();
+      for(my $i=0 ; $i<$numTranscripts ; ++$i) {
+	my $transcript=$altNode->getIthElem($i);
+	next unless $transcript->getTag() eq "transcript";
+	next unless
+	  $transcript->hasDescendentOrDatum("new-upstream-start-codon");
+	my $parentStrand=
+	  $root->pathQuery("report/reference-transcript/strand")
+	    ->getIthElem(0);
+	if($transcript->getAttribute("strand") ne $parentStrand) {
+	  print STDERR "correcting child to match strand $parentStrand\n";
+	  my $L=$root->getAttribute("alt-length");
+	  
+	}
+      }
     }
   }
   $root->print(\*STDOUT);
