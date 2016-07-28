@@ -37,6 +37,10 @@ while(1) {
       }
     }
   }
+  my $array=$root->findDescendents("source");
+  foreach my $source (@$array) {
+    if($source->getIthElem(0) eq "FBI") { $source->setIthElem(0,"ICE") }
+  }
   $root->print(\*STDOUT);
 }
 
