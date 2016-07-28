@@ -110,7 +110,7 @@ print "$proteinDiffers genes had a mapped transcript whose protein changed\n";
 my $newStart=keys %newStart;
 print "$newStart genes had a new upstream start codon\n";
 my $newStartNMD=keys %newStartNMD;
-print "$newStart genes had a new upstream start codon predicted to cause NMD\n";
+print "$newStartNMD genes had a new upstream start codon predicted to cause NMD\n";
 
 # Distance of stop codon to EJC when there's NMD
 my @genes=keys %EJC;

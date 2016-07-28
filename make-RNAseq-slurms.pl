@@ -58,11 +58,6 @@ echo \\[done\\]
 ");
 }
 
-#SBATCH --mem $MEMORY
-#SBATCH --cpus-per-task=$CPUs
-#SBATCH -p new,all
-#SBATCH --nice=500
-
 $slurm->nice(500);
 $slurm->mem($MEMORY);
 $slurm->threads($CPUs);

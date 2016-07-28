@@ -17,7 +17,7 @@ foreach my $indiv (@indivs) {
 }
 
 my (@errors,@bad,@NMD,@PTC,@ATG,@splicing,@frameshift,@valid,@donor,
-    @acceptor,@protein);
+    @acceptor,@protein,@newStart,@newStartNMD);
 sub process
 {
   my ($infile)=@_;
@@ -36,6 +36,9 @@ sub process
     if(/(\d+) genes had a broken acceptor site/) { push @acceptor,$1 }
     if(/(\d+) genes had a mapped transcript whose protein changed/)
       { push @protein,$1 }
+    if(/(\d+) genes had a new upstream start codon/) { push @newStart,$1 }
+    if(/(\d+) genes had a new upstream start codon predicted to cause NMD/)
+      { push @newStartNMD,$1 }
   }
   close(IN);
 }
@@ -50,6 +53,8 @@ report(\@valid,"genes with a valid annotation");
 report(\@donor,"genes with a broken donor");
 report(\@acceptor,"genes with a broken acceptor");
 report(\@protein,"mapped transcripts whose proteins changed");
+report(\@newStart," genes with new upstream start codon");
+report(\@newStartNMD," genes with new upstream start codon causing NMD");
 
 sub report
 {
