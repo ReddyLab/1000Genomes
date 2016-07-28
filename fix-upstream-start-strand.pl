@@ -27,7 +27,7 @@ while(1) {
 	  $root->pathQuery("report/reference-transcript/strand")
 	    ->getIthElem(0);
 	if($transcript->getAttribute("strand") ne $parentStrand) {
-	  print STDERR "correcting child to match strand $parentStrand\n";
+	  #print STDERR "correcting child to match strand $parentStrand\n";
 	  my $L=$root->getAttribute("alt-length");
 	  my $strandNode=$transcript->findChild("strand");
 	  $strandNode->setIthElem(0,$parentStrand);
