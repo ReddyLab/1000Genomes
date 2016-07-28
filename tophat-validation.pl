@@ -64,19 +64,14 @@ print STDERR "[done]\n";
 sub exonSkipping {
   my ($child,$parent,$junctions)=@_;
   my $numChildExons=$child->numExons(); my $numParentExons=$parent->numExons();
-  #die "$numChildExons vs $numParentExons" unless $numChildExons==$numParentExons-1;
   if($numChildExons!=$numParentExons-1) { return -2 }
   for(my $i=0 ; $i<$numParentExons ; ++$i) {
     if($i>=$numChildExons) { return -2 }
-      #my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
-      #die "skipped exon not found\n$numParentExons exons vs. $numChildExons exons\nparent:\n$parentGff\nchild:\n$childGff"; }
     my $exon=$parent->getIthExon($i);
     my $begin=$exon->getBegin(); my $end=$exon->getEnd();
     my $childExon=$child->getIthExon($i);
     if($childExon->getBegin()==$begin && $childExon->getEnd()==$end) { next }
     if($i<1 || $i>=$numChildExons) { return -2 }
-      #my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
-      #die "i=$i vs. numChildExons=$numChildExons\nPARENT:\n$parentGff\nCHILD:\n$childGff\n" }
     my $strand=$child->getStrand();
     my ($intronBegin,$intronEnd);
     if($strand eq "+") {
@@ -95,7 +90,6 @@ sub exonSkipping {
 	my $key="$geneID $begin $end";
 	if($seen{$key}) { return -1 }
 	$seen{$key}=1;
-	#print "SKIPPING $transcriptID $strand $begin $end $reads\n";
 	return $reads;
       }
     }
@@ -109,19 +103,12 @@ sub crypticSplicing {
   my ($child,$parent,$junctions)=@_;
   my $numChildExons=$child->numExons(); my $numParentExons=$parent->numExons();
   if($numChildExons>$numParentExons) { return -2 }
-    #my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
-    #die "unequal num exons: $numChildExons vs $numParentExons\nPARENT:\n$parentGff\nCHILD:\n$childGff\n"; }
   for(my $i=0 ; $i<$numParentExons ; ++$i) {
-    #if($i>=$numChildExons) {
-    #  my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
-    #  die "skipped exon not found\n$numParentExons exons vs. $numChildExons exons\nparent:\n$parentGff\nchild:\n$childGff"; }
     my $exon=$parent->getIthExon($i);
     my $begin=$exon->getBegin(); my $end=$exon->getEnd();
     my $childExon=$child->getIthExon($i);
     if($childExon->getBegin()==$begin && $childExon->getEnd()==$end) { next }
     if($i<1 || $i>=$numChildExons) { return -2 }
-      #my $parentGff=$parent->toGff(); my $childGff=$child->toGff();
-      #die "i=$i vs. numChildExons=$numChildExons\nPARENT:\n$parentGff\nCHILD:\n$childGff\n" }
     my $strand=$child->getStrand();
     my ($intronBegin,$intronEnd);
     if($strand eq "+") {
@@ -148,7 +135,6 @@ sub crypticSplicing {
 	my $key="$geneID $begin $end";
 	if($seen{$key}) { return -1 }
 	$seen{$key}=1;
-	#print "CRYPTIC $transcriptID $strand $begin $end $reads\n";
 	return $reads;
       }
     }
@@ -229,9 +215,7 @@ sub loadBlacklist {
     chomp; my @fields=split; next unless @fields>=6;
     my ($indiv,$allele,$chr,$gene,$transcript,$ALT)=@fields;
     $ALT=~/\S\S\S\d+_(\S+)/ || die $ALT;
-    #$ALT=$1;
     my $id="$ALT\_$allele";
-    #print "black: [$id]\n";
     $hash->{$id}=1;
   }
   close(IN);
