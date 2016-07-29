@@ -41,7 +41,7 @@ module load tophat/2.0.13-gcb01
 
 cat ../1.fasta ../2.fasta > 1and2.fa
 
-cat ../1-new.gff ../2-new.gff > 1and2.gff
+cat ../1.gff ../2.gff > 1and2.gff
 
 bowtie2-build 1and2.fa 1and2
 

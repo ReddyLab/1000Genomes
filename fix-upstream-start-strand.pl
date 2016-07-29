@@ -42,6 +42,7 @@ while(1) {
     if($source->getIthElem(0) eq "FBI") { $source->setIthElem(0,"ICE") }
   }
   $root->print(\*STDOUT);
+  print "\n";
 }
 
 print STDERR "[done]\n";
