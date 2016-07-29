@@ -32,6 +32,10 @@ while(1) {
 	if(!EssexNode::isaNode($child) && ($child eq "nonstop-decay"
 	   || $child eq "no-start-codon"))
 	  { $inactivated=$child }
+	elsif(EssexNode::isaNode($child) && 
+	      $child->getTag() eq "new-upstream-start-codon" &&
+	      $child->hasDescendentOrDatum("NMD"))
+	  { $inactivated="NMD"; $why="NEWSTART" }
       }
       if(!$inactivated) {
 	my $differ=$status->findChild("protein-differs");
