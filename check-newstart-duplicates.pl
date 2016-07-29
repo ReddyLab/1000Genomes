@@ -29,8 +29,8 @@ sub process {
     my $parentId=$1;
     my $transcript=$hash->{$id}; die unless $transcript;
     my $parent=$hash->{$parentId};
-    if($parent) { print "$id found\n" }
-    else { print "$id NOT FOUND ******\n" }
+    #if($parent) { print "$id found\n" }
+    #else { print "$id NOT FOUND ******\n" }
     if($parent) { ++$found }
     ++$total;
   }
