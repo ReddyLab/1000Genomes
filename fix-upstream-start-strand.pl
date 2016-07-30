@@ -14,6 +14,10 @@ while(1) {
   my $status=$root->findChild("status");
   if(!$status) { die "no status node" }
   my $statusString=$status->getIthElem(0);
+  #if($statusString eq "mapped") {
+  #  my $newStart=$status->findChild("new-upstream-start-codon");
+  #  if($newStart) { $newStart->changeTag("putative-upstream-start-codon") }
+  #}
   if($statusString eq "splicing-changes") {
     my $altNode=$status->findChild("alternate-structures");
     if($altNode && $altNode->hasDescendentOrDatum("new-upstream-start-codon")){

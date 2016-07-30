@@ -16,7 +16,7 @@ my $log2=log(2);
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
-my $NMD_TRANSCRIPTS="$ASSEMBLY/nmd-transcripts.txt";
+my $NMD_TRANSCRIPTS="$ASSEMBLY/nmd-transcripts-new.txt";
 my %xy; # genes on X/Y chromosomes
 my %expressed; # transcripts expressed in LCLs
 my %nmdTranscripts; # transcripts having NMD in at least one individual
