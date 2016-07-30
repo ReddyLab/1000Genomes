@@ -44,4 +44,6 @@ foreach my $indiv (@keys) {
   print "$indiv\t$count\n";
 }
 
+print STDERR "[done]\n";
+
 

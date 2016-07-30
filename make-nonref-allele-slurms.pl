@@ -7,12 +7,13 @@ my $ASSEMBLY="$THOUSAND/assembly";
 my $SLURM_DIR="$ASSEMBLY/nonref-allele-slurms";
 my $VCF="$THOUSAND/vcf";
 my $PROGRAM="$THOUSAND/src/get-nonref-allele-counts.pl";
+my $OUTDIR="$ASSEMBLY/allele-counts";
 
 my $writer=new SlurmWriter();
 my @VCF=`ls $VCF`;
 foreach my $file (@VCF) {
   chomp $file;
-  next unless $file=~/ALL\.chr([^\.]+)\..*vcf.gz/;
+  next unless $file=~/ALL\.chr([^\.]+)\..*vcf.gz$/;
   my $chr=$1;
   next if $chr eq "X" || $chr eq "Y";
   my $path="$VCF/$file";
@@ -20,7 +21,7 @@ foreach my $file (@VCF) {
   $writer->addCommand("$PROGRAM $path > $outfile");
 }
 $writer->mem(5000);
-$writer->setQueue("new,all");
+$writer->setQueue("all");
 $writer->writeArrayScript($SLURM_DIR,"VCF",$SLURM_DIR,500);
 
 
