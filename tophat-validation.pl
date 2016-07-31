@@ -4,8 +4,8 @@ use ProgramName;
 use GffTranscriptReader;
 
 my $name=ProgramName::get();
-die "$name <in.gff> <allele> <junctions.bed> <prefix=ALT|SIM> <blacklist> <nmd-list>\n" unless @ARGV==6;
-my ($gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLIST,$NMD)=@ARGV;
+die "$name <indiv> <in.gff> <allele> <junctions.bed> <prefix=ALT|SIM> <blacklist> <nmd-list>\n" unless @ARGV==7;
+my ($indiv,$gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLIST,$NMD)=@ARGV;
 
 # Load blacklist (ALTs or SIMs that happen to match an existing isoform)
 my %blacklist;
@@ -25,6 +25,7 @@ my $transcriptHash=hashTranscriptIDs($transcripts);
 my %seen;
 my $n=@$transcripts;
 my $sampleSize=0; my $numFound=0; my $totalSampleSize; my $supported;
+my $supportedCryptic=0; my $supportedSkipping=0;
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $id=$transcript->getTranscriptId();
@@ -52,6 +53,8 @@ my $readsPerJunction=$numFound/$sampleSize;
 print "readsPerJunction=$readsPerJunction ($numFound / $sampleSize)\n";
 my $percentSupported=$supported/$totalSampleSize;
 print "supported isoforms: $percentSupported ($supported / $totalSampleSize)\n";
+print "supported cryptic:\t$supportedCryptic\n";
+print "supported skipping:\t$supportedSkipping\n";
 
 # Terminate
 print STDERR "[done]\n";
@@ -90,6 +93,7 @@ sub exonSkipping {
 	my $key="$geneID $begin $end";
 	if($seen{$key}) { return -1 }
 	$seen{$key}=1;
+	++$supportedSkipping;
 	return $reads;
       }
     }
@@ -135,6 +139,7 @@ sub crypticSplicing {
 	my $key="$geneID $begin $end";
 	if($seen{$key}) { return -1 }
 	$seen{$key}=1;
+	++$supportedCryptic;
 	return $reads;
       }
     }
