@@ -186,6 +186,14 @@ sub coalesceExons {
   my $n=@$transcripts;
   for(my $i=0 ; $i<$n ; ++$i) {
     my $transcript=$transcripts->[$i];
+    $transcript->{exons}=$transcript->getRawExons();
+    $transcript->{UTR}=[];
+  }
+  return;
+  ###
+
+  for(my $i=0 ; $i<$n ; ++$i) {
+    my $transcript=$transcripts->[$i];
     my $strand=$transcript->getStrand();
     my $exons=$transcript->{exons};
     my $UTR=$transcript->{UTR};

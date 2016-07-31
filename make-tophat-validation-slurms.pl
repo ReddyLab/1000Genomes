@@ -23,6 +23,6 @@ foreach my $subdir (@dirs) {
 $slurm->nice(500);
 $slurm->mem(3000);
 $slurm->setQueue("new,all");
-$slurm->writeArrayScript($SLURMS,"VALID","",890);
+$slurm->writeArrayScript($SLURMS,"VALID","",1780);
 
 
