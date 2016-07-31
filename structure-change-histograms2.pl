@@ -2,7 +2,7 @@
 use strict;
 use ProgramName;
 
-my $name=ProgramName::get(;
+my $name=ProgramName::get();
 die "$name <infile>\n" unless @ARGV==1;
 my ($INFILE)=@ARGV;
 
@@ -15,8 +15,8 @@ while(<IN>) {
   chomp;
   if(/supported cryptic:\s(\d+)/) { $cryptic=$1 }
   elsif(/supported skipping:\s+(\d+)/) {
-    $skipping=$2;
-    my $ratio=$cryptic/$skipping;
+    my $skipping=$1;
+    my $ratio=($cryptic+1)/($skipping+1);
     print "$ratio\n";
   }
 }
