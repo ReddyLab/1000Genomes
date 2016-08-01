@@ -26,6 +26,7 @@ my %seen;
 my $n=@$transcripts;
 my $sampleSize=0; my $numFound=0; my $totalSampleSize; my $supported;
 my $supportedCryptic=0; my $supportedSkipping=0;
+my $crypticChecked=0; my $skippingChecked=0;
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $id=$transcript->getTranscriptId();
@@ -40,9 +41,14 @@ for(my $i=0 ; $i<$n ; ++$i) {
   my $geneIntrons=$introns->{$geneID};
   if(!$geneIntrons) { $geneIntrons=[] }
   my $found;
-  if($transcript->numExons()<$parent->numExons())
-    { $found=exonSkipping($transcript,$parent,$geneIntrons) }
-  else { $found=crypticSplicing($transcript,$parent,$geneIntrons) }
+  if($transcript->numExons()<$parent->numExons()) {
+    $found=exonSkipping($transcript,$parent,$geneIntrons);
+    if($found>=0) { ++$skippingChecked }
+  }
+  else {
+    $found=crypticSplicing($transcript,$parent,$geneIntrons);
+    if($found>=0) { ++$crypticChecked }
+  }
   if($found==-1) { ++$supported; ++$totalSampleSize; next }
   elsif($found==-2) { next }
   ++$sampleSize; ++$totalSampleSize;
@@ -51,10 +57,12 @@ for(my $i=0 ; $i<$n ; ++$i) {
 }
 my $readsPerJunction=$numFound/$sampleSize;
 print "readsPerJunction=$readsPerJunction ($numFound / $sampleSize)\n";
+$supported=$supportedCryptic+$supportedSkipping;
+$totalSampleSize=$crypticChecked+$skippingChecked;
 my $percentSupported=$supported/$totalSampleSize;
 print "supported isoforms: $percentSupported ($supported / $totalSampleSize)\n";
-print "supported cryptic:\t$supportedCryptic\n";
-print "supported skipping:\t$supportedSkipping\n";
+print "supported cryptic:\t$supportedCryptic\t$crypticChecked\n";
+print "supported skipping:\t$supportedSkipping\t$skippingChecked\n";
 
 # Terminate
 print STDERR "[done]\n";

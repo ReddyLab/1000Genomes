@@ -33,7 +33,11 @@ while(1) {
       my $id=$transcript->getAttribute("ID");
       $id="SIM$i\_$id";
       my $key="$hap $id";
-      next if($blacklist{$key});
+
+      ###
+#      next if($blacklist{$key});
+      ###
+
       my $structChange=$transcript->findChild("structure-change");
       my $numElem=$structChange->numElements();
       for(my $i=0 ; $i<$numElem ; ++$i) {
