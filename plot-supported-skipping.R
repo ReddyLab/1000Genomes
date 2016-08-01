@@ -17,5 +17,5 @@ h2 <- hist(data2$V1,breaks=seq(0,0.5,resolution),plot=F);
 #h1$density = h1$counts/sum(h1$counts);
 #h2$density = h2$counts/sum(h2$counts);
 plot(h1,col=rgb(0.1,0.1,0.1,1/4),xlim=c(0,0.4),xlab=x,ylab=y,freq=F,main="Simulated exon-skipping isoforms supported by\nat least one spliced read");
-plot(h2,col=rgb(0.1,0.1,0.1,1/4),xlim=c(0,0.4),xlab=x,ylab=y,freq=F,main="ICE exon-skipping isoforms supported by\bat least one spliced read");
+plot(h2,col=rgb(0.1,0.1,0.1,1/4),xlim=c(0,0.4),xlab=x,ylab=y,freq=F,main="ICE exon-skipping isoforms supported by\nat least one spliced read");
 dev.off();
