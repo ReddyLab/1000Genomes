@@ -1,26 +1,22 @@
 #!/usr/bin/Rscript --vanilla
 
-args <- commandArgs(TRUE)
-if(length(args)!=7) {
-  cat("usage: infile.txt color min-x max-x num-bins x-label outfile.pdf\n");
-  q(status=1)
-}
 infile <- "broken-rvis-percentile.txt"
+#infile <- "broken-rvis-percentile10.txt"
+outfile <- "RVIS.pdf"
+#outfile <- "RVIS10.pdf"
 c <- rgb(0.1,0.1,0.1,1/4)
 minX <- 0
-maxX <- 10
-nbreaks <- 10
+maxX <- 100
+resolution <- 10
 xlabel <- "RVIS percentile"
-outfile <- "RVIS.pdf"
+ylabel <- "Number of genes"
 title <- "Distribution of RVIS percentiles"
 
 pdf(outfile);
 data <- read.table(infile);
-if(nbreaks>0) {
-  hist(data$V1,xlim=c(minX,maxX),xlab=xlabel,col=c,breaks=nbreaks,main=title);
-} else {
-  hist(data$V1,xlim=c(minX,maxX),xlab=xlabel,col=c,main=title);
-}
+#h <- hist(data$V2,breaks=seq(minX,maxX,resolution),plot=F);
+h <- hist(data$V2,breaks=seq(minX,maxX,resolution),col=rgb(0.1,0.1,0.1,1/4),main=title,xlab=xlabel,ylab=ylabel);
+#plot(h,col=rgb(0.1,0.1,0.1,1/4),xlim=c(0,maxX),xlab=xlabel,ylab=ylabel,freq=F,main=title);
 dev.off();
 
 

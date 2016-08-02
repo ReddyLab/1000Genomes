@@ -1,9 +1,13 @@
 #!/usr/bin/perl
 use strict;
+use ProgramName;
 $|=1;
 
+my $name=ProgramName::get();
+die "$name <MIN_COUNT>\n" unless @ARGV==1;
+my ($MIN_COUNT)=@ARGV;
+
 my $HOMOZYGOTES_ONLY=1;
-my $MIN_COUNT=1;
 my $RVIS="/home/bmajoros/intolerance/RVIS/RVIS.txt";
 #my $RVIS="/home/bmajoros/intolerance/RVIS/ncRVIS-parsed.txt";
 my $BROKEN="/home/bmajoros/1000G/assembly/broken.txt";
