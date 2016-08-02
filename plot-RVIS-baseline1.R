@@ -1,6 +1,7 @@
 #!/usr/bin/Rscript --vanilla
 
-infile <- "/home/bmajoros/intolerance/RVIS/RVIS.txt";
+infile <- "broken-rvis-percentile.txt"
+#infile <- "broken-rvis-percentile10.txt"
 outfile <- "RVIS.pdf"
 #outfile <- "RVIS10.pdf"
 c <- rgb(0.1,0.1,0.1,1/4)

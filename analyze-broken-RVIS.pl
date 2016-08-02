@@ -82,5 +82,6 @@ foreach my $gene (@genes) {
   next unless $count>=$MIN_COUNT;
   next unless $rvis=~/\d/;
   print "$count\t$rvis\n";
+  if($rvis<20) { print STDERR "$gene\t$count\t$rvis\n" }
 }
 
