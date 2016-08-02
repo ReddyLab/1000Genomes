@@ -4,8 +4,10 @@ use ProgramName;
 use GffTranscriptReader;
 
 my $name=ProgramName::get();
-die "$name <indiv> <in.gff> <allele> <junctions.bed> <prefix=ALT|SIM> <blacklist> <nmd-list>\n" unless @ARGV==7;
-my ($indiv,$gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLIST,$NMD)=@ARGV;
+die "$name <indiv> <in.gff> <allele> <junctions.bed> <prefix=ALT|SIM> <blacklist> <nmd-list> <out-readcounts>\n" unless @ARGV==8;
+my ($indiv,$gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLIST,$NMD,$READS_FILE)=@ARGV;
+
+open(READS,">$READS_FILE") || die $READS_FILE;
 
 # Load blacklist (ALTs or SIMs that happen to match an existing isoform)
 my %blacklist;
@@ -51,10 +53,14 @@ for(my $i=0 ; $i<$n ; ++$i) {
   }
   if($found==-1) { ++$supported; ++$totalSampleSize; next }
   elsif($found==-2) { next }
+  else { print READS "$found\n" }
   ++$sampleSize; ++$totalSampleSize;
   if($found>0) { ++$supported }
   $numFound+=$found;
 }
+close(READS);
+
+# Compute summary stats
 my $readsPerJunction=$numFound/$sampleSize;
 print "readsPerJunction=$readsPerJunction ($numFound / $sampleSize)\n";
 $supported=$supportedCryptic+$supportedSkipping;
