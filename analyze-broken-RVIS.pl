@@ -2,8 +2,10 @@
 use strict;
 $|=1;
 
-my $MIN_COUNT=10;
+my $HOMOZYGOTES_ONLY=1;
+my $MIN_COUNT=1;
 my $RVIS="/home/bmajoros/intolerance/RVIS/RVIS.txt";
+#my $RVIS="/home/bmajoros/intolerance/RVIS/ncRVIS-parsed.txt";
 my $BROKEN="/home/bmajoros/1000G/assembly/broken.txt";
 my $NAMES="/home/bmajoros/ensembl/gene-names/combined.txt";
 
@@ -60,7 +62,7 @@ foreach my $gene (@genes) {
   foreach my $indiv (@indivs) {
     my $hash=$alleles->{$indiv};
     my @keys=keys %$hash;
-    if(@keys==2) {
+    if($HOMOZYGOTES_ONLY && @keys==2 || !$HOMOZYGOTES_ONLY && @keys>0) {
       my $rvis=$RVIS{$gene};
       next unless defined $rvis;
       ++$counts{$gene};
@@ -74,6 +76,7 @@ foreach my $gene (@genes) {
   my $rvis=$RVIS{$gene};
   die unless defined $rvis;
   next unless $count>=$MIN_COUNT;
+  next unless $rvis=~/\d/;
   print "$count\t$rvis\n";
 }
 
