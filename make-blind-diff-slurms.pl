@@ -7,6 +7,7 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 my $SLURMS="$THOUSAND/assembly/blind-diff-slurms";
 my $PROGRAM="$THOUSAND/src/blind-diff.pl";
+my $PROGRAM="$THOUSAND/src/blind-diff-structure.pl";
 
 my $slurm=new SlurmWriter;
 my @dirs=`ls $COMBINED`;
@@ -15,7 +16,9 @@ foreach my $subdir (@dirs) {
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
   next unless -e "$dir/RNA/stringtie.gff";
-  $slurm->addCommand("$PROGRAM $dir > $dir/diff.txt");
+  #my $outfile="$dir/diff.txt";
+  #$slurm->addCommand("$PROGRAM $dir > $outfile");
+  $slurm->addCommand("$PROGRAM $dir cryptic-site > $dir/diff-cryptic.txt ; $PROGRAM $dir exon-skipping > $dir/diff-skipping.txt");
 }
 
 $slurm->nice(500);
