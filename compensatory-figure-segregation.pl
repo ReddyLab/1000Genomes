@@ -31,6 +31,14 @@ for(my $i=0 ; $i<@rs ; ++$i) {
 
 sub coseg {
   my ($A1,$A2)=@_;
-  
+  my $sum=0;
+  my $L=@$A1;
+  for(my $i=0 ; $i<$L ; ++$i) {
+    my $pair1=$A1->[$i]; my $pair2=$A2->[$i];
+    my $alt1=$pair1->[0] || $pair1->[1];
+    my $alt1=$pair1->[0] || $pair1->[1];
+  }
+  my $score=$sum/$L;
+  return $score;
 }
 
