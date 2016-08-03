@@ -25,12 +25,13 @@ my $reader=new FastaReader($FASTA);
 while(1) {
   my ($def,$seq)=$reader->nextSequence();
   last unless $def;
-  $def=~/>([\s_]+)/ || die;
+  $def=~/>([^\s_]+)/ || die;
   my $substrate=$1;
-  my $GC=$seq=~s/([GC]+)/$1/g;
-  my $ACGT=$seq=~s/([ACGT]+)/$1/g;
-  my $gc=int($GC/$ACGT*10);
-print "GC = $gc\n";
+  my $GC=$seq=~s/([GC])/$1/g;
+  my $ACGT=$seq=~s/([ACGT])/$1/g;
+  #my $gc=int($GC/$ACGT*10);
+  my $gc=int($GC/$ACGT*20);
+  #print "gc=$gc   GC=$GC    ACGT=$ACGT\n";
   my $transcripts=$bySubstrate{$substrate};
   foreach my $transcript (@$transcripts) {
     push @{$byGC{$gc}},$transcript;
