@@ -3,6 +3,9 @@ use strict;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
+my $OUTFILE="$THOUSAND/assembly/sensitivity-histogram.txt";
+
+open(OUT,">$OUTFILE") || die $OUTFILE;
 
 my ($totalFound,$totalNotFound,%transcriptFound,%allTranscripts,
     %geneFound,%allGenes);
@@ -15,6 +18,8 @@ foreach my $subdir (@dirs) {
   next unless -e $diffFile;
   process($diffFile);
 }
+close(OUT);
+
 my $total=$totalFound+$totalNotFound;
 my $ratio=$totalFound/$total;
 print "$ratio ($totalFound\/$total) expressed ALTs were found by StringTie without annotation\n";
@@ -33,6 +38,7 @@ print "$ratio ($found\/$total) genes with expressed ALTs were found by StringTie
 sub process {
   my ($infile)=@_;
   open(IN,$infile) || die "can't open $infile";
+  my $numFound=0; my $total=0;
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=3;
     my ($geneID,$transcriptID,$found)=@fields;
@@ -45,8 +51,12 @@ sub process {
     if($found) {
       $transcriptFound{$transcriptID}=1;
       $geneFound{$geneID}=1;
+      ++$numFound;
     }
+    ++$total;
   }
+  my $sensitivity=$numFound/$total;
+  print OUT "$sensitivity\n";
   close(IN);
 }
 
