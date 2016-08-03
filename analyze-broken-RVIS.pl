@@ -4,13 +4,12 @@ use ProgramName;
 $|=1;
 
 my $name=ProgramName::get();
-die "$name <MIN_COUNT>\n" unless @ARGV==1;
-my ($MIN_COUNT)=@ARGV;
+die "$name <MIN_COUNT> <homozygotes_only:0/1> <broken.txt>\n" unless @ARGV==3;
+my ($MIN_COUNT,$HOMOZYGOTES_ONLY,$BROKEN)=@ARGV;
 
-my $HOMOZYGOTES_ONLY=1;
 my $RVIS="/home/bmajoros/intolerance/RVIS/RVIS.txt";
 #my $RVIS="/home/bmajoros/intolerance/RVIS/ncRVIS-parsed.txt";
-my $BROKEN="/home/bmajoros/1000G/assembly/broken.txt";
+#my $BROKEN="/home/bmajoros/1000G/assembly/broken.txt";
 my $NAMES="/home/bmajoros/ensembl/gene-names/combined.txt";
 
 my %toEnsembl;
@@ -33,19 +32,6 @@ while(<IN>) {
   $RVIS{$ensembl}=$percentile;
 }
 close(IN);
-
-#my %counts;
-#open(IN,$BROKEN) || die $BROKEN;
-#while(<IN>) {
-#  chomp; my @fields=split; next unless @fields>=5;
-#  my ($indiv,$allele,$gene,$transcript,$chr)=@fields;
-#  next if $chr eq "chrX" || $chr eq "chrY";
-#  if($gene=~/(\S+)\./) { $gene=$1 }
-#  my $rvis=$RVIS{$gene};
-#  next unless defined $rvis;
-#  ++$counts{$gene};
-#}
-#close(IN);
 
 my %alleles;
 open(IN,$BROKEN) || die $BROKEN;
@@ -82,6 +68,6 @@ foreach my $gene (@genes) {
   next unless $count>=$MIN_COUNT;
   next unless $rvis=~/\d/;
   print "$count\t$rvis\n";
-  if($rvis<20) { print STDERR "$gene\t$count\t$rvis\n" }
+  #if($rvis<20) { print STDERR "$gene\t$count\t$rvis\n" }
 }
 

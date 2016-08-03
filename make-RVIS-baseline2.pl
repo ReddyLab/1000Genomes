@@ -16,7 +16,7 @@ for(my $i=0 ; $i<$numTranscripts ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $numExons=$transcript->numExons();
   push @{$byNumExons{$numExons}},$transcript;
-  $numExons{$transcript->getTransriptId()}=$numExons;
+  $numExons{$transcript->getTranscriptId()}=$numExons;
 }
 
 # Substitute broken genes for randomly selected ones with the desired trait
@@ -27,11 +27,11 @@ while(<IN>) {
   my $numExons=$numExons{$transcriptID};
   my $array=$byNumExons{$numExons};
   my $n=$array ? @$array : 0;
-  print "n=$n\n";
   next unless $n>0;
   my $random=$array->[int(rand($n))];
   my $transID=$random->getTranscriptId();
-  my $geneID=$random->getGeneId(;
+  my $geneID=$random->getGeneId();
+  my $chr=$random->getSubstrate();
   print "$indiv\t$allele\t$geneID\t$transID\t$chr\n";
 }
 close(IN);
