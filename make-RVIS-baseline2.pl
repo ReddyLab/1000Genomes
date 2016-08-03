@@ -27,10 +27,12 @@ while(<IN>) {
   my $numExons=$numExons{$transcriptID};
   my $array=$byNumExons{$numExons};
   my $n=$array ? @$array : 0;
+  print "n=$n\n";
   next unless $n>0;
   my $random=$array->[int(rand($n))];
-  my $id=$random->getTranscriptId();
-  print "$indiv\t$allele\t$gene\t$id\t$chr\n";
+  my $transID=$random->getTranscriptId();
+  my $geneID=$random->getGeneId(;
+  print "$indiv\t$allele\t$geneID\t$transID\t$chr\n";
 }
 close(IN);
 
