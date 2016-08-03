@@ -7,28 +7,20 @@ my $name=ProgramName::get();
 die "$name </path/to/individual>\n" unless @ARGV==1;
 my ($path)=@ARGV;
 
-#my $BLIND_TAB="$path/RNA/blind/tab.txt";
 my $BLIND_GFF="$path/RNA/blind/stringtie-blind.gff";
-#my $TAB="$path/RNA/tab.txt";
 my $GFF="$path/RNA/stringtie.gff";
+my $INPUT_GFF1="$path/1.gff";
+my $INPUT_GFF2="$path/2.gff";
 
-# Load $TAB
-#my %ALT;
-#open(IN,$TAB) || die "can't open $TAB\n";
-#<IN>; # header
-#while(<IN>) {
-#  chomp; my @fields=split; next unless @fields>=7;
-#  my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM)=@fields;
-#  if($transcript=~/ALT/) { $ALT{$transcript}->{fpkm}=$FPKM }
-#}
-#close(IN);
+# Count how many ALT transcripts were provided to StringTie
+my $reader=new GffTranscriptReader();
+my $total=countALT($reader,$INPUT_GFF1)+countALT($reader,$INPUT_GFF2);
+print "TOTAL=$total\n";
 
 # Load $BLIND_GFF
 my %blind;
-my $reader=new GffTranscriptReader();
 my $transcripts=$reader->loadGFF($BLIND_GFF);
 my $n=@$transcripts;
-#print "n=$n\n";
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $refID=getRefID($transcript);
@@ -88,3 +80,15 @@ sub hash {
 }
 
 
+sub countALT {
+  my ($reader,$infile)=@_;
+  my $transcripts=$reader->loadGFF($infile);
+  my $n=@$transcripts;
+  my $count=0;
+  for(my $i=0 ; $i<$n ; ++$i) {
+    my $transcript=$transcripts->[$i];
+    my $refID=getRefID($transcript);
+    if($refID=~/ALT/) { ++$count }
+  }
+  return $count;
+}
