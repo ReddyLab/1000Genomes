@@ -16,6 +16,7 @@ my $INPUT_GFF2="$path/2.gff";
 my $reader=new GffTranscriptReader();
 my $total=countALT($reader,$INPUT_GFF1)+countALT($reader,$INPUT_GFF2);
 print "TOTAL=$total\n";
+#exit;
 
 # Load $BLIND_GFF
 my %blind;
@@ -87,7 +88,7 @@ sub countALT {
   my $count=0;
   for(my $i=0 ; $i<$n ; ++$i) {
     my $transcript=$transcripts->[$i];
-    my $refID=getRefID($transcript);
+    my $refID=$transcript->getTranscriptId();
     if($refID=~/ALT/) { ++$count }
   }
   return $count;

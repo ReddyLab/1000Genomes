@@ -3,9 +3,11 @@ use strict;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
-my $OUTFILE="$THOUSAND/assembly/sensitivity-histogram.txt";
+my $OUTFILE1="$THOUSAND/assembly/sensitivity-histogram.txt";
+my $OUTFILE2="$THOUSAND/assembly/proposal-histogram.txt";
 
-open(OUT,">$OUTFILE") || die $OUTFILE;
+open(SENS,">$OUTFILE1") || die $OUTFILE1;
+open(PROP,">$OUTFILE2") || die $OUTFILE2;
 
 my ($totalFound,$totalNotFound,%transcriptFound,%allTranscripts,
     %geneFound,%allGenes);
@@ -18,7 +20,8 @@ foreach my $subdir (@dirs) {
   next unless -e $diffFile;
   process($diffFile);
 }
-close(OUT);
+close(SENS);
+close(PROP);
 
 my $total=$totalFound+$totalNotFound;
 my $ratio=$totalFound/$total;
@@ -38,14 +41,14 @@ print "$ratio ($found\/$total) genes with expressed ALTs were found by StringTie
 sub process {
   my ($infile)=@_;
   open(IN,$infile) || die "can't open $infile";
-  my $numFound=0; my $total=0;
+  my $numFound=0; my $total=0; my $proposed;
   while(<IN>) {
+    if(/TOTAL=(\d+)/) { $proposed=$1; next}
     chomp; my @fields=split; next unless @fields>=3;
     my ($geneID,$transcriptID,$found)=@fields;
     if($transcriptID=~/ALT\d+_(\S+)/) { $transcriptID=$1 }
     if($found) { ++$totalFound }
     else { ++$totalNotFound }
-    #print "gene=$geneID\t\ttranscript=$transcriptID\n";
     $allTranscripts{$transcriptID}=1;
     $allGenes{$geneID}=1;
     if($found) {
@@ -55,8 +58,10 @@ sub process {
     }
     ++$total;
   }
-  my $sensitivity=$numFound/$total;
-  print OUT "$sensitivity\n";
+  my $sensitivity=$numFound/$proposed;
+  my $proposalRatio=$total/$proposed;
+  print SENS "$sensitivity\n";
+  print PROP "$proposalRatio\n";
   close(IN);
 }
 
