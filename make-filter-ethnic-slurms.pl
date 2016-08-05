@@ -24,7 +24,7 @@ foreach my $subdir (@dirs) {
 #SBATCH -p all
 #
 cd $SLURM_DIR
-/home/bmajoros/FBI/essex-filter.pl $dir/1.essex $dir/1-filtered.essex
+/home/bmajoros/ICE/essex-filter.pl $dir/1.essex $dir/1-filtered.essex
 ";
   close(OUT);
   ++$slurmID;

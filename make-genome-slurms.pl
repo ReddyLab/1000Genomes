@@ -23,7 +23,7 @@ module load kentUtils/v302-gcb01
 
 cd $FASTA
 
-/home/bmajoros/FBI/make-personal-genomes.pl /home/bmajoros/1000G/FBI/model/fbi.0-43.config /home/bmajoros/1000G/assembly/gene-set/genes$i.gff /home/bmajoros/1000G/assembly/fasta/$i
+/home/bmajoros/ICE/make-personal-genomes.pl /home/bmajoros/1000G/ICE/model/ice.0-43.config /home/bmajoros/1000G/assembly/gene-set/genes$i.gff /home/bmajoros/1000G/assembly/fasta/$i
 
 ";
   close(OUT);

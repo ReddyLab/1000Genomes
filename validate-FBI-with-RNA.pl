@@ -24,9 +24,9 @@ my @dirs=`ls $COMBINED`;
 foreach my $indiv (@dirs) {
   chomp $indiv;
   next unless $indiv=~/^HG\d+$/ || $indiv=~/^NA\d+$/;
-  my $fbi1="$COMBINED/$indiv/1-inactivated.txt";
-  my $fbi2="$COMBINED/$indiv/2-inactivated.txt";
-  my $missing=getHomozygotes($fbi1,$fbi2);
+  my $ice1="$COMBINED/$indiv/1-inactivated.txt";
+  my $ice2="$COMBINED/$indiv/2-inactivated.txt";
+  my $missing=getHomozygotes($ice1,$ice2);
   foreach my $rec (@$missing) {
     my $gene=$rec->{gene}; my $transcript=$rec->{transcript};
     my $fate=$rec->{fate}; my $why=$rec->{why};

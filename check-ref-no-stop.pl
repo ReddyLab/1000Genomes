@@ -8,7 +8,7 @@ use Translation;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $GENOME_DIR="$THOUSAND/assembly/combined/HG00096";
-my $FBI_FILE="$GENOME_DIR/out.fbi";
+my $ICE_FILE="$GENOME_DIR/out.ice";
 my $TWO_BIT="/data/reddylab/Reference_Data/hg19.2bit";
 my $ENSEMBL="/home/bmajoros/ensembl/coding-and-noncoding.gff";
 my $tempFile=TempFilename::generate();
@@ -19,9 +19,9 @@ $stopCodons{"TGA"}=$stopCodons{"TAG"}=$stopCodons{"TAA"}=1;
 my $gffReader=new GffTranscriptReader();
 my $byTranscriptID=$gffReader->loadTranscriptIdHash($ENSEMBL);
 
-# Process the FBI output file
+# Process the ICE output file
 my ($notFound,$sampleSize);
-my $parser=new EssexParser($FBI_FILE);
+my $parser=new EssexParser($ICE_FILE);
 while(1) {
   my $report=$parser->nextElem(); last unless $report;
   my $status=$report->findChild("status"); next unless $status;

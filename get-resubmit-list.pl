@@ -6,7 +6,7 @@ my %running;
 my @list=`squeue -u bmajoros`;
 foreach my $line (@list) {
   chomp $line;
-  next unless($line=~/FBI(\d+)/);
+  next unless($line=~/ICE(\d+)/);
   $running{$1}=1;
 }
 

@@ -5,7 +5,7 @@ use FastaReader;
 use FastaWriter;
 
 # This script weakens splice sites by changing the bases flanking the
-# actual splice site.  This is used to test FBI.
+# actual splice site.  This is used to test ICE.
 
 my $MAX_SEQ=10000;
 my $THOUSAND="/home/bmajoros/1000G";

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-my $DIR="/home/bmajoros/1000G/assembly/fbi-slurms";
+my $DIR="/home/bmajoros/1000G/assembly/ice-slurms";
 my @files=`ls $DIR/*.output`;
 foreach my $file (@files) {
   chomp $file;

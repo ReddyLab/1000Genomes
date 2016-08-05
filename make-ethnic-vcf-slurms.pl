@@ -7,7 +7,7 @@ my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined-ethnic";
 my $SLURM_DIR="$ASSEMBLY/slurms/ethnic-vcf-slurms";
 my $VCF="/home/bmajoros/1000G/vcf";
-my $PROGRAM="/home/bmajoros/FBI/vcf-population";
+my $PROGRAM="/home/bmajoros/ICE/vcf-population";
 my $POPULATIONS="$ASSEMBLY/populations.txt";
 
 my $writer=new SlurmWriter;

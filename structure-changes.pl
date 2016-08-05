@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 use ProgramName;
 $|=1;
 
@@ -15,12 +15,12 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
   last unless $root;
-  my $fbi=new EssexFBI($root);
-  my $transcriptID=$fbi->getTranscriptID();
+  my $ice=new EssexICE($root);
+  my $transcriptID=$ice->getTranscriptID();
   next if $seen{$transcriptID};
   $seen{$transcriptID}=1;
-  my $geneID=$fbi->getGeneID();
-  my $status=$fbi->getStatusString();
+  my $geneID=$ice->getGeneID();
+  my $status=$ice->getStatusString();
   if($status eq "splicing-changes") {
     my $altStructs=$root->pathQuery("report/status/alternate-structures");
     my $numTrans=$altStructs->numElements();
@@ -38,7 +38,7 @@ while(1) {
       }
     }
   }
-  undef $root; undef $fbi;
+  undef $root; undef $ice;
 }
 close(OUT);
 

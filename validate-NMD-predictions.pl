@@ -3,7 +3,7 @@ use strict;
 use ProgramName;
 use GffTranscriptReader;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 
 my $NMD_PARM=50;
 
@@ -47,7 +47,7 @@ sub parseEssex
   while(1) {
     my $elem=$parser->nextElem();
     last unless $elem;
-    my $report=new EssexFBI($elem);
+    my $report=new EssexICE($elem);
     my $transcriptID=$report->getTranscriptID();
     my $substrate=$report->getSubstrate();
     $substrate=~/_(\d)/ || die $substrate;

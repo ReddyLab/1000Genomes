@@ -3,7 +3,7 @@ use strict;
 use ProgramName;
 use GffTranscriptReader;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 
 my $name=ProgramName::get();
 die "$name <path-to-indiv>\n" unless @ARGV==1;
@@ -11,12 +11,12 @@ my ($dir)=@ARGV;
 my $STRINGTIE="$dir/RNA/stringtie.gff";
 
 my $rna=parseRNA($STRINGTIE);
-my $fbiNovel=0; my $validatedNovel=0; my $notReallyBroken=0;
+my $iceNovel=0; my $validatedNovel=0; my $notReallyBroken=0;
 parseEssex("$dir/1.essex");
 parseEssex("$dir/2.essex");
 
-print "$validatedNovel out of $fbiNovel were validated by RNA\n";
-print "$notReallyBroken transcripts FBI said were broken were found in RNA\n";
+print "$validatedNovel out of $iceNovel were validated by RNA\n";
+print "$notReallyBroken transcripts ICE said were broken were found in RNA\n";
 
 
 #============================================
@@ -26,7 +26,7 @@ sub parseEssex
   my $parser=new EssexParser($infile);
   while(1) {
     my $elem=$parser->nextElem(); last unless $elem;
-    my $report=new EssexFBI($elem);
+    my $report=new EssexICE($elem);
     my $substrate=$report->getSubstrate();
     my $transcriptID=$report->getTranscriptID();
     next unless $report->hasBrokenSpliceSite(); # broken, not just weakened!
@@ -48,7 +48,7 @@ sub parseEssex
 #no -- i need to first tabulate a list of all genes expressed in *any* indiv?
 
       next unless $geneIsExpressed;
-      ++$fbiNovel;
+      ++$iceNovel;
       my @rnaStructs=values %{$rna->{$substrate}}; my $rna;
       print "=========================================\n";
       foreach my $rnaStruct (@rnaStructs)
@@ -57,7 +57,7 @@ sub parseEssex
       if($found) { ++$validatedNovel }
       #die "found" if $found; ### debugging
       if(!$found) {
-	print "FBI PREDICTION:\n";
+	print "ICE PREDICTION:\n";
 	print $transcript->toGff(); print "\n";
 	print "RNA:\n";
 	print $rna->toGff(); print "\n";

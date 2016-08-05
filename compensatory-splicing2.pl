@@ -2,7 +2,7 @@
 use strict;
 use ProgramName;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 use FastaReader;
 use Translation;
 
@@ -21,7 +21,7 @@ my $parser=new EssexParser($essex);
 while(1) {
   my $elem=$parser->nextElem();
   last unless $elem;
-  my $report=new EssexFBI($elem);
+  my $report=new EssexICE($elem);
   next unless $report->getStatusString() eq "splicing-changes";
   #next if $elem->findDescendent("premature-stop");
   my $array=$elem->findDescendents("transcript");

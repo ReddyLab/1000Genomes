@@ -10,7 +10,7 @@ OBSOLETE?
 use strict;
 use ProgramName;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 
 my $name=ProgramName::get();
 die "$name <indiv-ID> <infile.essex>\n" unless @ARGV==2;
@@ -25,7 +25,7 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $elem=$parser->nextElem();
   last unless $elem;
-  my $report=new EssexFBI($elem);
+  my $report=new EssexICE($elem);
   next unless $report->getStatusString() eq "mapped";
   my $status=$elem->findChild("status");
   next unless $status;

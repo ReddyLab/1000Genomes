@@ -47,8 +47,8 @@ cd $dir/RNA
 
 mkdir -p ref
 
-/home/bmajoros/FBI/essex-to-ref-gff.pl ../1.essex ref/ref1.gff
-/home/bmajoros/FBI/essex-to-ref-gff.pl ../2.essex ref/ref2.gff
+/home/bmajoros/ICE/essex-to-ref-gff.pl ../1.essex ref/ref1.gff
+/home/bmajoros/ICE/essex-to-ref-gff.pl ../2.essex ref/ref2.gff
 
 ";
   close(OUT);

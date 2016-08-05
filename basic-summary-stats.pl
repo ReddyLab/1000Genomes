@@ -2,7 +2,7 @@
 use strict;
 use ProgramName;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 $|=1;
 
 my $name=ProgramName::get();
@@ -16,11 +16,11 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
   last unless $root;
-  my $fbi=new EssexFBI($root);
-  my $transcriptID=$fbi->getTranscriptID();
-  my $geneID=$fbi->getGeneID();
+  my $ice=new EssexICE($root);
+  my $transcriptID=$ice->getTranscriptID();
+  my $geneID=$ice->getGeneID();
   my $status=$root->findChild("status");
-  my $statusString=$fbi->getStatusString();
+  my $statusString=$ice->getStatusString();
   if($statusString eq "mapped") { # mapped: includes too-many-vcf-errors
     ++$annotationOK{$geneID};
     if($status->hasDescendentOrDatum("too-many-vcf-errors")) {

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 use ProgramName;
 $|=1;
 
@@ -32,7 +32,7 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
   last unless $root;
-  #my $fbi=new EssexFBI($root);
+  #my $ice=new EssexICE($root);
   my $transcriptID=$root->getAttribute("transcript-ID");
   my $status=$root->findDescendent("status");
   next unless $status;

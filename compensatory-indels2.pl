@@ -2,7 +2,7 @@
 use strict;
 use ProgramName;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 $|=1;
 
 my $slurm=$ENV{"SLURM_JOB_ID"};
@@ -22,7 +22,7 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $elem=$parser->nextElem();
   last unless $elem;
-  my $report=new EssexFBI($elem);
+  my $report=new EssexICE($elem);
   next unless $report->getStatusString() eq "mapped";
   my $status=$elem->findChild("status");
   next unless $status;

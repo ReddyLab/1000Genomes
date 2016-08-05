@@ -2,7 +2,7 @@
 use strict;
 use ProgramName;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 $|=1;
 
 my $name=ProgramName::get();
@@ -18,15 +18,15 @@ while(1) {
   my $status=$root->findChild("status");
   #next if $status->hasDescendentOrDatum("bad-annotation");
   #next if $status->hasDescendentOrDatum("too-many-vcf-errors");
-  my $fbi=new EssexFBI($root);
-  my $ALTs=$fbi->getAltTranscripts();
+  my $ice=new EssexICE($root);
+  my $ALTs=$ice->getAltTranscripts();
   next unless @$ALTs>0;
-  my $refTranscript=$fbi->getRefTranscript();
-  my $transcriptID=$fbi->getTranscriptID();
+  my $refTranscript=$ice->getRefTranscript();
+  my $transcriptID=$ice->getTranscriptID();
   #next if $seen{$transcriptID};
   my $chr=$refTranscript->getSubstrate();
-  my $geneID=$fbi->getGeneID();
-  my $mappedTranscript=$fbi->getMappedTranscript();
+  my $geneID=$ice->getGeneID();
+  my $mappedTranscript=$ice->getMappedTranscript();
   my $key=hash($mappedTranscript);
   $mappedHash{$key}=$transcriptID;
   my $hits=$altHash{$key};

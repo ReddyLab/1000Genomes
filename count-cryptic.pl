@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 use ProgramName;
 
 my $name=ProgramName::get();
@@ -12,7 +12,7 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $elem=$parser->nextElem();
   last unless $elem;
-  my $report=new EssexFBI($elem);
+  my $report=new EssexICE($elem);
   next unless$report->hasBrokenSpliceSite();
   next unless $elem->findDescendent("alternate-structures");
   my $array=$report->getAltTranscripts();

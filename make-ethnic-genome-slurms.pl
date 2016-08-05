@@ -22,7 +22,7 @@ module load htslib/1.2.1-gcb01
 module load kentUtils/v302-gcb01
 cd $FASTA
 
-/home/bmajoros/FBI/major-allele-genome.pl $THOUSAND/FBI/model/fbi.0-43.config $ASSEMBLY/gene-set/genes$i.gff $FASTA/$i $ASSEMBLY/pops.txt $ASSEMBLY/populations.txt
+/home/bmajoros/ICE/major-allele-genome.pl $THOUSAND/ICE/model/ice.0-43.config $ASSEMBLY/gene-set/genes$i.gff $FASTA/$i $ASSEMBLY/pops.txt $ASSEMBLY/populations.txt
 
 ";
   close(OUT);

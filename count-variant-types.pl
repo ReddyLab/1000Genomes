@@ -2,7 +2,7 @@
 use strict;
 use ProgramName;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 
 my $name=ProgramName::get();
 die "$name <in.essex>\n" unless @ARGV==1;
@@ -12,7 +12,7 @@ my ($sampleSize,%counts,%sumSquares);
 my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem(); last unless $root;
-  my $fbi=new EssexFBI($root);
+  my $ice=new EssexICE($root);
   my $transcript=$root->findDescendent("mapped-transcript");
   next unless $transcript;
   ++$sampleSize;

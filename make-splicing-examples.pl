@@ -4,7 +4,7 @@ use GffTranscriptReader;
 use FastaReader;
 use FastaWriter;
 
-# This script breaks the splice consensus to test FBI
+# This script breaks the splice consensus to test ICE
 
 my $MAX_SEQ=10000;
 my $THOUSAND="/home/bmajoros/1000G";

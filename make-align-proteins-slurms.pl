@@ -19,7 +19,7 @@ foreach my $subdir (@dirs) {
 #$writer->mem(5000);
 $writer->setQueue("all");
 #$writer->nice(500);
-#$writer->writeScripts($NUM_JOBS,$SLURM_DIR,"FBI",$SLURM_DIR);
+#$writer->writeScripts($NUM_JOBS,$SLURM_DIR,"ICE",$SLURM_DIR);
 $writer->writeArrayScript($SLURM_DIR,"ALIGN",$SLURM_DIR,1000);
 
 

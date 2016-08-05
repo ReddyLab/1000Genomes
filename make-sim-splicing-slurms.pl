@@ -16,8 +16,8 @@ foreach my $subdir (@dirs) {
   my $dir="$COMBINED/$subdir";
   my $RNA="$dir/RNA";
   next unless -e $RNA;
-  $writer->addCommand("cd $dir ; /home/bmajoros/FBI/fbi-random.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/1.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/random-1.essex");
-  $writer->addCommand("cd $dir ; /home/bmajoros/FBI/fbi-random.pl /home/bmajoros/1000G/FBI/model $REF_FASTA $dir/2.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/random-2.essex");
+  $writer->addCommand("cd $dir ; /home/bmajoros/ICE/ice-random.pl /home/bmajoros/1000G/ICE/model $REF_FASTA $dir/1.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/random-1.essex");
+  $writer->addCommand("cd $dir ; /home/bmajoros/ICE/ice-random.pl /home/bmajoros/1000G/ICE/model $REF_FASTA $dir/2.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/random-2.essex");
 }
 $writer->mem(5000);
 $writer->setQueue("new");

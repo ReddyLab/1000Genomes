@@ -2,7 +2,7 @@
 use strict;
 use ProgramName;
 use EssexParser;
-use EssexFBI;
+use EssexICE;
 $|=1;
 
 my $name=ProgramName::get();
@@ -16,19 +16,19 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
   last unless $root;
-  my $fbi=new EssexFBI($root);
-  my $transcriptID=$fbi->getTranscriptID();
-  my $geneID=$fbi->getGeneID();
+  my $ice=new EssexICE($root);
+  my $transcriptID=$ice->getTranscriptID();
+  my $geneID=$ice->getGeneID();
   my $type=$root->findChild("reference-transcript")->getAttribute("type");
   if($type eq "protein-coding") { $codingGenes{$geneID}=1 }
   else { $noncodingGenes{$geneID}=1 }
   my $status=$root->findChild("status");
-  my $statusString=$fbi->getStatusString();
+  my $statusString=$ice->getStatusString();
   if($statusString eq "mapped") { # mapped: includes too-many-vcf-errors
     if($status->hasDescendentOrDatum("too-many-vcf-errors")) { next }
-    if($fbi->mappedNMD(50) || $fbi->mappedNoStart() || $fbi->mappedNonstop()
-       || $fbi->lossOfCoding() ||
-       $fbi->proteinDiffers() && $fbi->getProteinMatch()<50)
+    if($ice->mappedNMD(50) || $ice->mappedNoStart() || $ice->mappedNonstop()
+       || $ice->lossOfCoding() ||
+       $ice->proteinDiffers() && $ice->getProteinMatch()<50)
       { ++$LOF{$geneID}->{$transcriptID} }
     else { ++$noLOF{$geneID}->{$transcriptID} }
   }
@@ -36,7 +36,7 @@ while(1) {
     if($statusString eq "splicing-changes") {
       ++$splicingChanges{$geneID};
       ++$splicingChangesTranscript{$transcriptID};
-      if($fbi->allAltStructuresLOF()) {
+      if($ice->allAltStructuresLOF()) {
 	$splicingChangesLOF{$transcriptID}=1;
 	++$LOF{$geneID}->{$transcriptID}; }
       else { ++$noLOF{$geneID}->{$transcriptID} }
