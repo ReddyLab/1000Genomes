@@ -1,6 +1,7 @@
 #!/usr/bin/Rscript --vanilla
 
-infile <- "/home/bmajoros/intolerance/RVIS/RVIS.txt";
+#infile <- "/home/bmajoros/intolerance/RVIS/RVIS.txt";
+infile <- "broken-rvis-percentile.txt"
 outfile <- "RVIS.pdf"
 #outfile <- "RVIS10.pdf"
 c <- rgb(0.1,0.1,0.1,1/4)
@@ -9,7 +10,7 @@ maxX <- 100
 resolution <- 10
 xlabel <- "RVIS percentile"
 ylabel <- "Number of genes"
-title <- "Distribution of RVIS percentiles"
+title <- "Variant intolerance percentiles for inactivated genes"
 
 pdf(outfile);
 data <- read.table(infile);
