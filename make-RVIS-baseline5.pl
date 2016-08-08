@@ -5,7 +5,7 @@ use GffTranscriptReader;
 use FastaReader;
 $|=1;
 
-my $BROKEN="/home/bmajoros/1000G/assembly/broken.txt";
+my $BROKEN="/home/bmajoros/1000G/assembly/inactivated.txt";
 my $GFF="/home/bmajoros/1000G/assembly/local-genes.gff";
 my $FASTA="/home/bmajoros/1000G/assembly/combined/ref/1.fasta";
 
@@ -42,8 +42,8 @@ while(1) {
 # Substitute broken genes for randomly selected ones with the desired trait
 open(IN,$BROKEN) || die $BROKEN;
 while(<IN>) {
-  chomp; my @fields=split; next unless @fields>=5;
-  my ($indiv,$allele,$gene,$transcriptID,$chr)=@fields;
+  chomp; my @fields=split; next unless @fields>=4;
+  my ($indiv,$allele,$gene,$transcriptID)=@fields;
   my $gc=$gc{$transcriptID};
   my $array=$byGC{$gc};
   my $n=$array ? @$array : 0;

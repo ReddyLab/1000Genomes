@@ -4,7 +4,7 @@ use ProgramName;
 $|=1;
 
 my $name=ProgramName::get();
-die "$name <MIN_COUNT> <homozygotes_only:0/1> <broken.txt>\n" unless @ARGV==3;
+die "$name <MIN_COUNT> <homozygotes_only:0/1> <inactivated.txt>\n" unless @ARGV==3;
 my ($MIN_COUNT,$HOMOZYGOTES_ONLY,$BROKEN)=@ARGV;
 
 my $RVIS="/home/bmajoros/intolerance/RVIS/RVIS.txt";
@@ -36,9 +36,9 @@ close(IN);
 my %alleles;
 open(IN,$BROKEN) || die $BROKEN;
 while(<IN>) {
-  chomp; my @fields=split; next unless @fields>=5;
-  my ($indiv,$allele,$gene,$transcript,$chr)=@fields;
-  next if $chr eq "chrX" || $chr eq "chrY";
+  chomp; my @fields=split; next unless @fields>=4;
+  my ($indiv,$allele,$gene,$transcript)=@fields;
+  #next if $chr eq "chrX" || $chr eq "chrY";
   if($gene=~/(\S+)\./) { $gene=$1 }
   $alleles{$gene}->{$indiv}->{$allele}=1;
 }
@@ -60,6 +60,7 @@ foreach my $gene (@genes) {
   }
 }
 
+open(CARSON,">carson.txt");
 my @genes=keys %counts;
 foreach my $gene (@genes) {
   my $count=$counts{$gene};
@@ -68,6 +69,7 @@ foreach my $gene (@genes) {
   next unless $count>=$MIN_COUNT;
   next unless $rvis=~/\d/;
   print "$count\t$rvis\n";
-  #if($rvis<20) { print STDERR "$gene\t$count\t$rvis\n" }
+  if($rvis<20) { print CARSON "$gene\t$count\t$rvis\n" }
 }
+close(CARSON);
 
