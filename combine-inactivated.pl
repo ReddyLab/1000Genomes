@@ -4,8 +4,6 @@ use strict;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
-my %xy; # genes on X/Y chromosomes
-loadXY("$ASSEMBLY/xy.txt",\%xy);
 
 my @dirs=`ls $COMBINED`;
 foreach my $indiv (@dirs) {
@@ -22,7 +20,7 @@ sub process {
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=4;
     my ($gene,$transcript,$what,$why)=@fields;
-    print "$indiv\t$allele\t$gene\t$transcript";
+    print "$indiv\t$allele\t$gene\t$transcript\n";
   }
   close(IN);
 }
@@ -30,5 +28,11 @@ sub process {
 
 
 
+#======================================================================
+#======================================================================
+#=====================================================
+#=====================================================
+#=====================================================
+#=====================================================
 
 
