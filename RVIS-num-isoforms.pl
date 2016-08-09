@@ -14,6 +14,7 @@ my $numGenes=@$allGenes;
 for(my $i=0 ; $i<$numGenes ; ++$i) {
   my $gene=$allGenes->[$i];
   my $id=$gene->getId();
+  if($id=~/(\S+)\./) { $id=$1 }
   $geneHash{$id}=$gene;
   my $numTrans=$gene->getNumTranscripts();
   print BG "$numTrans\n";
