@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 use strict;
 use ProgramName;
+use SummaryStats;
 $|=1;
 
 my $name=ProgramName::get();
-die "$name <MIN_COUNT> <homozygotes_only:0/1> <inactivated.txt>\n"
-  unless @ARGV==3;
-my ($MIN_COUNT,$HOMOZYGOTES_ONLY,$BROKEN)=@ARGV;
+die "$name <MIN_COUNT> <homozygotes_only:0/1> <genes.txt> <background.out>\n"
+  unless @ARGV==4;
+my ($MIN_COUNT,$HOMOZYGOTES_ONLY,$GENES,$OUT_BG)=@ARGV;
 
 my $RVIS="/home/bmajoros/intolerance/subRVIS/subRVIS.txt";
 my $NAMES="/home/bmajoros/ensembl/gene-names/combined.txt";
@@ -26,46 +27,35 @@ while(<IN>) {
   chomp; my @fields=split; next unless @fields>=8;
   my ($triplet,$gene,$subGERP,$genicRVIS,$subRVIS,$count,$mrt,$coverage)
     =@fields;
-  my $ensembl=$toEnsembl{$id};
+  my $ensembl=$toEnsembl{$gene};
   next unless $ensembl;
   push @{$RVIS{$ensembl}},$subRVIS;
 }
 close(IN);
 
-my %alleles;
-open(IN,$BROKEN) || die $BROKEN;
+my (%alleles,$n);
+open(IN,$GENES) || die $GENES;
 while(<IN>) {
-  chomp; my @fields=split; next unless @fields>=4;
-  my ($indiv,$allele,$gene,$transcript)=@fields;
-  #next if $chr eq "chrX" || $chr eq "chrY";
+  chomp; my @fields=split; next unless @fields>=1;
+  my ($gene)=@fields;
   if($gene=~/(\S+)\./) { $gene=$1 }
-  $alleles{$gene}->{$indiv}->{$allele}=1;
+  my $array=$RVIS{$gene};
+  next unless defined $array;
+  my ($mean,$SD,$min,$max)=SummaryStats::summaryStats($array);
+  print "$SD\n";
+  ++$n;
 }
 close(IN);
 
-my %counts;
-my @genes=keys %alleles;
-foreach my $gene (@genes) {
-  my $alleles=$alleles{$gene};
-  my @indivs=keys %$alleles;
-  foreach my $indiv (@indivs) {
-    my $hash=$alleles->{$indiv};
-    my @keys=keys %$hash;
-    if($HOMOZYGOTES_ONLY && @keys==2 || !$HOMOZYGOTES_ONLY && @keys>0) {
-      my $rvis=$RVIS{$gene};
-      next unless defined $rvis;
-      ++$counts{$gene};
-    }
-  }
-}
-
-my @genes=keys %counts;
-foreach my $gene (@genes) {
-  my $count=$counts{$gene};
+open(OUT,">$OUT_BG") || die $OUT_BG;
+my @keys=keys %RVIS;
+my $numKeys=@keys;
+for(my $i=0 ; $i<$numKeys ; ++$i) {
+  my $gene=$keys[$i];
   my $array=$RVIS{$gene};
-  die unless defined $array;
+  next unless @$array>1;
   my ($mean,$SD,$min,$max)=SummaryStats::summaryStats($array);
-  next unless $count>=$MIN_COUNT;
-  print "$count\t$SD\n";
+  print OUT "$SD\n";
 }
+close(OUT);
 
