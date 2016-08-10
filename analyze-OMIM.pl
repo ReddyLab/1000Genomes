@@ -5,8 +5,7 @@ use SummaryStats;
 $|=1;
 
 my $name=ProgramName::get();
-die "$name <inactivated-genes.txt> <background.out>\n"
-  unless @ARGV==4;
+die "$name <inactivated-genes.txt> <background.out>\n" unless @ARGV==2;
 my ($GENES,$OUT_BG)=@ARGV;
 
 my $OMIM="/home/bmajoros/intolerance/OMIM/disease-genes.txt";
@@ -42,7 +41,7 @@ while(<IN>) {
   ++$sampleSize;
 }
 close(IN);
-print "$hits\n";
+print "$hits out of $sampleSize\n";
 
 open(OUT,">$OUT_BG") || die $OUT_BG;
 my @keys=keys %toEnsembl;
@@ -50,7 +49,7 @@ my $numKeys=@keys;
 for(my $i=0 ; $i<1000 ; ++$i) {
   my $hits=0;
   for(my $j=0 ; $j<$sampleSize ; ++$j) {
-    my $gene=$keys[$i];
+    my $gene=$keys[int(rand($numKeys))];
     my $ensembl=$toEnsembl{$gene};
     if($OMIM{$ensembl}) { ++$hits }
   }
