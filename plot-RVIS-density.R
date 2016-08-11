@@ -1,10 +1,11 @@
 #!/usr/bin/Rscript --vanilla
 
 #infile <- "/home/bmajoros/intolerance/RVIS/RVIS.txt";
+#infile <- "broken-rvis-percentile.txt"
 infile <- "broken-rvis-percentile.txt"
-outfile <- "RVIS.pdf"
+#outfile <- "RVIS.pdf"
+outfile <- "RVIS-density.pdf"
 #outfile <- "RVIS10.pdf"
-c <- rgb(0.1,0.1,0.1,1/4)
 minX <- 0
 maxX <- 100
 resolution <- 10
@@ -14,8 +15,8 @@ title <- "Variant intolerance percentiles for inactivated genes"
 
 pdf(outfile);
 data <- read.table(infile);
-#h <- hist(data$V2,breaks=seq(minX,maxX,resolution),plot=F);
-h <- hist(data$V2,breaks=seq(minX,maxX,resolution),col=rgb(0.1,0.1,0.1,1/4),main=title,xlab=xlabel,ylab=ylabel);
+h <- density(data$V2);
+plot(h,main=title,xlab=xlabel,ylab=ylabel);
 #plot(h,col=rgb(0.1,0.1,0.1,1/4),xlim=c(0,maxX),xlab=xlabel,ylab=ylabel,freq=F,main=title);
 dev.off();
 
