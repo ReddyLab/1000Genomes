@@ -7,7 +7,7 @@ int.hist = function(x,ylab="Frequency",...) {
 
 #====
 
-outfile <- "support-cryptic-blind-density.pdf"
+outfile <- "figure4.pdf"
 
 pdf(outfile);
 par(mfrow=c(3,1))
@@ -81,7 +81,7 @@ legend("topright",legend=c("Simulated","Predicted"),
 infile1 <- "random-readcounts-pos.txt";
 infile2 <- "readcounts-pos.txt";
 x <- "Log10(reads per junction)";
-y <- "Frequency";
+y <- "Density";
 data1 <- log10(read.table(infile1));
 data2 <- log10(read.table(infile2));
 min1 <- min(data1$V1); max1 <- max(data1$V1);
