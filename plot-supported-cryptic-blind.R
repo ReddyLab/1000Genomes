@@ -75,6 +75,26 @@ legend("topright",legend=c("Simulated","Predicted"),
        lty=c(1,1),lwd=c(2,2),col=c("blue","red"));
 
 #====
+
+#infile1 <- "random-readcounts.txt";
+#infile2 <- "readcounts.txt";
+infile1 <- "random-readcounts-pos.txt";
+infile2 <- "readcounts-pos.txt";
+x <- "Log10(reads per junction)";
+y <- "Frequency";
+data1 <- log10(read.table(infile1));
+data2 <- log10(read.table(infile2));
+min1 <- min(data1$V1); max1 <- max(data1$V1);
+min2 <- min(data2$V1); max2 <- max(data2$V1);
+minX <- min(min1,min2); maxX <- max(max1,max2);
+h1 <- density(data1$V1);
+h2 <- density(data2$V1);
+plot(h1,col="blue",xlim=c(0,maxX),xlab=x,ylab=y,main="",lwd=2);
+lines(h2,col="red",lwd=2);
+legend("topright",legend=c("Simulated","Predicted"),
+       lty=c(1,1),lwd=c(2,2),col=c("blue","red"));
+
+#===
 dev.off();
 
 
