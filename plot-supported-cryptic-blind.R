@@ -16,7 +16,7 @@ infile <- "alt-struct-counts.txt";
 x <- "Number of alternate structures predicted";
 y <- "Frequency"
 data <- read.table(infile);
-h1 <- int.hist(data$V1,col="white");
+h1 <- int.hist(data$V1,col="white",xlab=x,ylab=y);
 minX <- min(data$V1); maxX <- max(data$V1);
 #plot(h1,xlab=x,ylab=y,xlim=c(minX,maxX),main="");
 
