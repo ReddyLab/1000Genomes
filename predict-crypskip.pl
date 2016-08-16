@@ -59,26 +59,31 @@ for(my $i=0 ; $i<$n ; ++$i) {
   my $found;
   if($transcript->numExons()<$parent->numExons()) {
     $found=exonSkipping($transcript,$parent,$geneIntrons);
-    if($found>=0) { ++$skippingChecked }
   }
   else {
     $found=crypticSplicing($transcript,$parent,$geneIntrons);
   }
   if($found==-1) { next }
   elsif($found==-2) { next }
-  else { $crypSkip->{$baseID}->{$id}->{found}=$found }
+  else { $crypSkip{$baseID}->{$id}->{found}=$found }
 }
 close(READS);
 
 # Compute summary stats
-my $readsPerJunction=$numFound/$sampleSize;
-print "readsPerJunction=$readsPerJunction ($numFound / $sampleSize)\n";
-$supported=$supportedCryptic+$supportedSkipping;
-$totalSampleSize=$crypticChecked+$skippingChecked;
-my $percentSupported=$supported/$totalSampleSize;
-print "supported isoforms: $percentSupported ($supported / $totalSampleSize)\n";
-print "supported cryptic:\t$supportedCryptic\t$crypticChecked\n";
-print "supported skipping:\t$supportedSkipping\t$skippingChecked\n";
+my @transcriptIDs=keys %crypSkip;
+my $numTranscripts=@transcriptIDs;
+for(my $i=0 ; $i<$numTranscripts ; ++$i) {
+  my $transcriptID=$transcriptIDs[$i];
+  my $hash=$crypSkip{$transcriptID};
+  my @alts=keys %$hash;
+  my $numCryptic=0; my $numSkipping=0;
+  foreach my $alt (@alts) {
+    my $rec=$hash->{$alt};
+    if($rec->{type} eq "cryptic-site") { ++$numCryptic }
+    else { ++$numSkipping }
+  }
+  print "$numCryptic\t$numSkipping\n";
+}
 
 # Terminate
 print STDERR "[done]\n";
