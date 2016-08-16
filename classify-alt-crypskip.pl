@@ -2,6 +2,7 @@
 use strict;
 use ProgramName;
 use EssexParser;
+use Transcript;
 $|=1;
 
 my $name=ProgramName::get();
@@ -57,7 +58,6 @@ sub findSkippedExon {
   foreach my $exon (@$mappedExons) {
     my ($begin,$end)=($exon->getBegin(),$exon->getEnd());
     if(!$hash{"$begin $end"}) { return $exon }
-    print "OK!\n";
   }
   die "no skipped exon found";
 }
