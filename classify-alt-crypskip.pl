@@ -31,9 +31,37 @@ while(1) {
       my $distance=abs($crypticPos-$brokenPos);
       print "$altID\t$change\t$distance\n";
     }
-    else { print "$altID\t$change\n" }
+    else {
+      my $mappedTranscript=$root->pathQuery("report/mapped-transcript");
+      die unless $mappedTranscript;
+      my $skippedExon=findSkippedExon($mappedTranscript,$transcript);
+      my $L=$skippedExon->getLength();
+      print "$altID\t$change\t$L\n";
+    }
     ++$altNum;
   }
 }
+
+
+sub findSkippedExon {
+  my ($mappedTranscriptNode,$altTranscriptNode)=@_;
+  my $mappedTranscript=new Transcript($mappedTranscriptNode);
+  my $altTranscript=new Transcript($altTranscriptNode);
+  my $mappedExons=$mappedTranscript->getRawExons();
+  my $altExons=$altTranscript->getRawExons();
+  my %hash;
+  foreach my $exon (@$altExons) {
+    my ($begin,$end)=($exon->getBegin(),$exon->getEnd());
+    $hash{"$begin $end"}=1;
+  }
+  foreach my $exon (@$mappedExons) {
+    my ($begin,$end)=($exon->getBegin(),$exon->getEnd());
+    if(!$hash{"$begin $end"}) { return $exon }
+    print "OK!\n";
+  }
+  die "no skipped exon found";
+}
+
+
 
 
