@@ -76,13 +76,19 @@ for(my $i=0 ; $i<$numTranscripts ; ++$i) {
   my $transcriptID=$transcriptIDs[$i];
   my $hash=$crypSkip{$transcriptID};
   my @alts=keys %$hash;
-  my $numCryptic=0; my $numSkipping=0;
+  my $numCryptic=0; my $numSkipping=0; my $crypticFound=0; my $skippingFound=0;
   foreach my $alt (@alts) {
     my $rec=$hash->{$alt};
-    if($rec->{type} eq "cryptic-site") { ++$numCryptic }
-    else { ++$numSkipping }
+    if($rec->{type} eq "cryptic-site") {
+      ++$numCryptic;
+      if($rec->{found}) { ++$crypticFound }
+    }
+    else {
+      ++$numSkipping;
+      if($rec->{found}) { ++$skippingFound }
+    }
   }
-  print "$numCryptic\t$numSkipping\n";
+  print "$numCryptic\t$numSkipping\t$crypticFound\t$skippingFound\n";
 }
 
 # Terminate

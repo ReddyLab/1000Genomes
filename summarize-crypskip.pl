@@ -28,15 +28,17 @@ sub process {
   my ($infile)=@_;
   open(IN,$infile) || die $infile;
   while(<IN>) {
-    chomp; my @fields=split; next unless @fields>=2;
-    my ($cryptic,$skipping)=@fields;
-    if($cryptic>0) {
-      if($skipping>0) {	++$CS }
-      else { ++Cs }
+    chomp; my @fields=split; next unless @fields>=4;
+    my ($cryptic,$skipping,$crypticFound,$skippingFound)=@fields;
+    print "cryptic=$cryptic => $crypticFound  skipping=$skipping => $skippingFound\n";
+    next unless $cryptic>0 && $skipping>0;
+    if($crypticFound>0) {
+      if($skippingFound>0) {	++$CS }
+      else { ++$Cs }
     }
     else {
-      if($skipping>0) {	++$cS }
-      else { ++cs }
+      if($skippingFound>0) {	++$cS }
+      else { ++$cs }
     }
   }
   close(IN);
