@@ -28,9 +28,10 @@ while(1) {
 	{ $brokenSiteNode=$root->pathQuery("report/status/broken-acceptor") }
       my $brokenPos=$brokenSiteNode->getIthElem(0);
       my $crypticSiteNode=$transcript->findChild("cryptic-site");
+      my $siteType=$crypticSiteNode->getIthElem(0);
       my $crypticPos=$crypticSiteNode->getIthElem(1);
-      my $distance=abs($crypticPos-$brokenPos);
-      print "$altID\t$change\t$distance\n";
+      my $distance=$crypticPos-$brokenPos;
+      print "$altID\t$change\t$distance\t$siteType\n";
     }
     else {
       my $mappedTranscript=$root->pathQuery("report/mapped-transcript");
@@ -42,6 +43,7 @@ while(1) {
     ++$altNum;
   }
 }
+print STDERR "[done]\n";
 
 
 sub findSkippedExon {
