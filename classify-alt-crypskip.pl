@@ -22,6 +22,7 @@ while(1) {
   foreach my $transcript (@$altStructs) {
     my $altID="ALT$altNum\_$transcriptID\_$hap";
     my $change=$transcript->getAttribute("structure-change");
+    my $mappedTranscript=$root->pathQuery("report/mapped-transcript");
     if($change eq "cryptic-site") {
       my $brokenSiteNode=$root->pathQuery("report/status/broken-donor");
       if(!$brokenSiteNode)
@@ -30,11 +31,11 @@ while(1) {
       my $crypticSiteNode=$transcript->findChild("cryptic-site");
       my $siteType=$crypticSiteNode->getIthElem(0);
       my $crypticPos=$crypticSiteNode->getIthElem(1);
-      my $distance=$crypticPos-$brokenPos;
-      print "$altID\t$change\t$distance\t$siteType\n";
+      my $distance=$brokenPos-$crypticPos;
+      my $originalExonLen=getExonLen($mappedTranscript,$brokenPos);
+      print "$altID\t$change\t$distance\t$siteType\t$originalExonLen\n";
     }
     else {
-      my $mappedTranscript=$root->pathQuery("report/mapped-transcript");
       die unless $mappedTranscript;
       my $skippedExon=findSkippedExon($mappedTranscript,$transcript);
       my $L=$skippedExon->getLength();
@@ -45,6 +46,18 @@ while(1) {
 }
 print STDERR "[done]\n";
 
+sub getExonLen {
+  my ($transcriptNode,$splicePos)=@_;
+  my $transcript=new Transcript($transcriptNode);
+  my $exons=$transcript->getRawExons();
+  my %hash;
+  foreach my $exon (@$exons) {
+    my ($begin,$end)=($exon->getBegin(),$exon->getEnd());
+    if($begin==$splicePos || $end==$splicePos)
+      { return $end-$begin }
+  }
+  die "can't find exon";
+}
 
 sub findSkippedExon {
   my ($mappedTranscriptNode,$altTranscriptNode)=@_;
