@@ -19,6 +19,7 @@ while(1) {
   my $altStructs=$altStructsNode->findChildren("transcript");
   my $altNum=0;
   my $transcriptID=$root->getAttribute("transcript-ID");
+  my $geneID=$root->getAttribute("gene-ID");
   foreach my $transcript (@$altStructs) {
     my $altID="ALT$altNum\_$transcriptID\_$hap";
     my $change=$transcript->getAttribute("structure-change");
@@ -32,14 +33,14 @@ while(1) {
       my $siteType=$crypticSiteNode->getIthElem(0);
       my $crypticPos=$crypticSiteNode->getIthElem(1);
       my $distance=$brokenPos-$crypticPos;
-      my $originalExonLen=getExonLen($mappedTranscript,$brokenPos);
-      print "$altID\t$change\t$distance\t$siteType\t$originalExonLen\n";
+      my $originalExonLen=getExonLen($mappedTranscript,$brokenPos,$siteType);
+      print "$geneID\t$altID\t$change\t$distance\t$siteType\t$originalExonLen\n";
     }
     else {
       die unless $mappedTranscript;
       my $skippedExon=findSkippedExon($mappedTranscript,$transcript);
       my $L=$skippedExon->getLength();
-      print "$altID\t$change\t$L\n";
+      print "$geneID\t$altID\t$change\t$L\n";
     }
     ++$altNum;
   }
@@ -47,8 +48,11 @@ while(1) {
 print STDERR "[done]\n";
 
 sub getExonLen {
-  my ($transcriptNode,$splicePos)=@_;
+  my ($transcriptNode,$splicePos,$siteType)=@_;
   my $transcript=new Transcript($transcriptNode);
+  my $strand=$transcript->getStrand();
+  if($strand eq "+" && $siteType eq "acceptor" ||
+     $strand eq "-" && $siteType eq "donor") { $splicePos+=2 }
   my $exons=$transcript->getRawExons();
   my %hash;
   foreach my $exon (@$exons) {
@@ -56,7 +60,8 @@ sub getExonLen {
     if($begin==$splicePos || $end==$splicePos)
       { return $end-$begin }
   }
-  die "can't find exon";
+  my $gff=$transcript->toGff();
+  die "can't find exon: $strand $siteType $splicePos\n$gff";
 }
 
 sub findSkippedExon {
