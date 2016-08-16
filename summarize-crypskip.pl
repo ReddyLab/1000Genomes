@@ -18,6 +18,11 @@ foreach my $indiv (@dirs) {
 print "CS=$CS Cs=$Cs cS=$cS cs=$cs\n";
 System("fisher-exact-test.R $CS $Cs $cS $cs");
 
+sub System {
+  my ($cmd)=@_;
+  print "$cmd\n";
+  system($cmd);
+}
 
 sub process {
   my ($infile)=@_;
