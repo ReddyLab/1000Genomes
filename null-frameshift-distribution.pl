@@ -2,7 +2,8 @@
 use strict;
 use GffTranscriptReader;
 
-my $GFF="/home/bmajoros/ensembl/protein-coding.gff";
+#my $GFF="/home/bmajoros/ensembl/protein-coding.gff";
+my $GFF="/home/bmajoros/1000G/assembly/local-genes.gff";
 
 my $reader=new GffTranscriptReader();
 my $array=$reader->loadGFF($GFF);
