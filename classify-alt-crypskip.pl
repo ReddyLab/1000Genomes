@@ -13,6 +13,10 @@ my $parser=new EssexParser($infile);
 while(1) {
   my $root=$parser->nextElem();
   last unless $root;
+  my $statusNode=$root->findChild("status");
+  my $numBroken=@{$statusNode->findChildren("broken-acceptor")};
+  $numBroken+=@{$statusNode->findChildren("broken-donor")};
+  next unless $numBroken==1;
   my $altStructsNode=
     $root->pathQuery("report/status/alternate-structures");
   next unless $altStructsNode;
