@@ -54,12 +54,12 @@ sub process {
     if($found) {
       $transcriptFound{$transcriptID}=1;
       $geneFound{$geneID}=1;
-      ++$numFound;
+      ++$numFound; # how many it found blindly
     }
-    ++$total;
+    ++$total; # how many it found when informed
   }
-  my $sensitivity=$numFound/$proposed;
-  my $proposalRatio=$total/$proposed;
+  my $sensitivity=$numFound/$proposed; # blind
+  my $proposalRatio=$total/$proposed; # informed
   print SENS "$sensitivity\n";
   print PROP "$proposalRatio\n";
   close(IN);

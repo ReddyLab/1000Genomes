@@ -32,7 +32,8 @@ sub process {
     my ($cryptic,$skipping,$crypticFound,$skippingFound)=@fields;
     #print "cryptic=$cryptic => $crypticFound  skipping=$skipping => $skippingFound\n";
     next unless $skipping>0;
-    if($crypticFound>0) {
+    #if($crypticFound>0) {
+    if($cryptic>0) {
       if($skippingFound>0) {	++$CS }
       else { ++$Cs }
     }
