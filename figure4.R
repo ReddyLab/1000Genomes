@@ -24,7 +24,7 @@ minX <- min(data$V1); maxX <- max(data$V1);
 
 resolution <- 0.01;
 infile1 <- "supported-cryptic-blind.txt";
-infile2 <- "supported-cryptic.txt";
+infile2 <- "supported-cryptic2.txt";
 x <- "Proportion of cryptic-site isoforms supported by at least one spliced read";
 y <- "Density"
 data1 <- read.table(infile1);
@@ -59,7 +59,7 @@ legend("topright",legend=c("Blind","Informed"),
 #====
 
 infile1 <- "supported-cryptic-sim.txt";
-infile2 <- "supported-cryptic.txt";
+infile2 <- "supported-cryptic2.txt";
 x <- "Proportion of cryptic-site isoforms supported by at least one read";
 y <- "Density";
 data1 <- read.table(infile1);

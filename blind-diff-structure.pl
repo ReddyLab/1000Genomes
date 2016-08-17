@@ -4,6 +4,8 @@ use ProgramName;
 use GffTranscriptReader;
 
 my $STRUCTURE_CHANGES="/home/bmajoros/1000G/assembly/structure-changes.txt";
+my $MIN_FPKM=1;
+my $EXPRESSED="/home/bmajoros/1000G/assembly/expressed.txt";
 
 my $name=ProgramName::get();
 die "$name </path/to/individual> <cryptic-site|exon-skipping>\n"
@@ -14,6 +16,18 @@ my $BLIND_GFF="$path/RNA/blind/stringtie-blind.gff";
 my $GFF="$path/RNA/stringtie.gff";
 my $INPUT_GFF1="$path/1.gff";
 my $INPUT_GFF2="$path/2.gff";
+
+# Load list of transcripts expressed in this cell type
+my %expressed;
+open(IN,$EXPRESSED) || die $EXPRESSED;
+while(<IN>) {
+  chomp; my @fields=split; next unless @fields>=4;
+  my ($gene,$transcript,$meanFPKM,$sampleSize)=@fields;
+  next unless $meanFPKM>=$MIN_FPKM;
+  if($transcript=~/\S\S\S\d+_(\S+)/) {$transcript=$1}
+  $expressed{$transcript}=1;
+}
+close(IN);
 
 # Load list of structure changes
 my %changes;
@@ -101,6 +115,9 @@ sub countALT {
     my $transcript=$transcripts->[$i];
     my $refID=$transcript->getTranscriptId();
     next unless $changes{$refID} eq $CHANGE;
+    $refID=~/\S\S\S\d+_(\S+)_\d+/ || die $refID;
+    my $baseID=$1;
+    next unless $expressed{$baseID};
     if($refID=~/ALT/) { ++$count }
   }
   return $count;
