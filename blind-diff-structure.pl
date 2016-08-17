@@ -64,6 +64,9 @@ my $n=@$transcripts;
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $refID=getRefID($transcript);
+  $refID=~/\S\S\S\d+_(\S+)_\d+/ || die $refID;
+  my $baseID=$1;
+  next unless $expressed{$baseID};
   next unless $refID=~/ALT/;
   next unless $changes{$refID} eq $CHANGE;
   my $key=hash($transcript);
