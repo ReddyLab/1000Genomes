@@ -47,12 +47,15 @@ my $crypticChecked=0; my $skippingChecked=0;
 for(my $i=0 ; $i<$n ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $id=$transcript->getTranscriptId();
+  next if $blacklist{$id};
   next unless $id=~/(\S\S\S)\d+_(\S+)/;
   next unless $1 eq $PREFIX;
-  next if $blacklist{$id};
   my $parentID=$2;
   my $parent=$transcriptHash->{$parentID};
   die $parentID unless $parent;
+  my $baseNoHap=$parentID;
+  if($baseNoHap=~/(\S+)_\d+/) { $baseNoHap=$1 }
+  next unless $expressed{$baseNoHap};
   next unless $parent->getStrand() eq $transcript->getStrand();
   my $geneID=$transcript->getGeneId();
   my $geneIntrons=$introns->{$geneID};
