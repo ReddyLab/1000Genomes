@@ -16,7 +16,7 @@ open(IN,$EXPRESSED) || die $EXPRESSED;
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=4;
   my ($gene,$transcript,$meanFPKM,$sampleSize)=@fields;
-  next unless $meanFPKM>=$minFPKM;
+  next unless $meanFPKM>=$MIN_FPKM;
   if($transcript=~/\S\S\S\d+_(\S+)/) {$transcript=$1}
   $expressed{$transcript}=1;
 }
