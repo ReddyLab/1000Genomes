@@ -42,7 +42,9 @@ while(<IN>) {
   my $array=$RVIS{$gene};
   next unless defined $array;
   my ($mean,$SD,$min,$max)=SummaryStats::summaryStats($array);
-  print "$SD\n";
+  my $CV=abs($SD/$mean);
+  #print "$SD\n";
+  print "$CV\n";
   ++$n;
 }
 close(IN);
@@ -55,7 +57,10 @@ for(my $i=0 ; $i<$numKeys ; ++$i) {
   my $array=$RVIS{$gene};
   next unless @$array>1;
   my ($mean,$SD,$min,$max)=SummaryStats::summaryStats($array);
-  print OUT "$SD\n";
+  next unless $mean>0;
+  my $CV=abs($SD/$mean);
+  #print OUT "$SD\n";
+  print OUT "$CV\n";
 }
 close(OUT);
 
