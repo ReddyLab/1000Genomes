@@ -3,13 +3,28 @@ use strict;
 use ProgramName;
 use GffTranscriptReader;
 
+my $MIN_FPKM=0.01;
+my $EXPRESSED="/home/bmajoros/1000G/assembly/expressed.txt";
+
 my $name=ProgramName::get();
 die "$name <indiv> <in.gff> <allele> <junctions.bed> <prefix=ALT|SIM> <blacklist> <nmd-list> <out-readcounts>\n" unless @ARGV==8;
 my ($indiv,$gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLIST,$NMD,$READS_FILE)=@ARGV;
+my $crypSkipFile="/home/bmajoros/1000G/assembly/combined/$indiv/$allele.crypskip";
+
+# Load list of transcripts expressed in this cell type
+my %expressed;
+open(IN,$EXPRESSED) || die $EXPRESSED;
+while(<IN>) {
+  chomp; my @fields=split; next unless @fields>=4;
+  my ($gene,$transcript,$meanFPKM,$sampleSize)=@fields;
+  next unless $meanFPKM>=$MIN_FPKM;
+  if($transcript=~/\S\S\S\d+_(\S+)/) {$transcript=$1}
+  $expressed{$transcript}=1;
+}
+close(IN);
 
 # Load info about which isoforms use exon skipping vs. cryptic site activation
 my %crypSkip;
-my $crypSkipFile="/home/bmajoros/1000G/assembly/combined/$indiv/$allele.crypskip";
 open(IN,$crypSkipFile) || die $crypSkipFile;
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=4;
@@ -48,8 +63,11 @@ for(my $i=0 ; $i<$n ; ++$i) {
   next unless $id=~/(\S\S\S)\d+_(\S+)/;
   next unless $1 eq $PREFIX;
   my $baseID=$2;
-  next if $blacklist{$id};
   my $parentID=$2;
+  my $baseNoHap=$baseID;
+  if($baseID=~/(\S+)_\d+/) { $baseNoHap=$1 }
+  next unless $expressed{$baseNoHap};
+  next if $blacklist{$id};
   my $parent=$transcriptHash->{$parentID};
   die $parentID unless $parent;
   next unless $parent->getStrand() eq $transcript->getStrand();

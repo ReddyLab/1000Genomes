@@ -3,9 +3,24 @@ use strict;
 use ProgramName;
 use GffTranscriptReader;
 
+my $MIN_FPKM=1;
+my $EXPRESSED="/home/bmajoros/1000G/assembly/expressed.txt";
+
 my $name=ProgramName::get();
 die "$name <indiv> <in.gff> <allele> <junctions.bed> <prefix=ALT|SIM> <blacklist> <nmd-list> <out-readcounts>\n" unless @ARGV==8;
 my ($indiv,$gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLIST,$NMD,$READS_FILE)=@ARGV;
+
+# Load list of transcripts expressed in this cell type
+my %expressed;
+open(IN,$EXPRESSED) || die $EXPRESSED;
+while(<IN>) {
+  chomp; my @fields=split; next unless @fields>=4;
+  my ($gene,$transcript,$meanFPKM,$sampleSize)=@fields;
+  next unless $meanFPKM>=$minFPKM;
+  if($transcript=~/\S\S\S\d+_(\S+)/) {$transcript=$1}
+  $expressed{$transcript}=1;
+}
+close(IN);
 
 open(READS,">$READS_FILE") || die $READS_FILE;
 

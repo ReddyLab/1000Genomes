@@ -16,7 +16,7 @@ foreach my $indiv (@dirs) {
 }
 
 print "CS=$CS Cs=$Cs cS=$cS cs=$cs\n";
-System("fisher-exact-test.R $CS $Cs $cS $cs");
+System("fisher-exact-test.R $cs $cS $Cs $CS");
 
 sub System {
   my ($cmd)=@_;
@@ -30,8 +30,8 @@ sub process {
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=4;
     my ($cryptic,$skipping,$crypticFound,$skippingFound)=@fields;
-    print "cryptic=$cryptic => $crypticFound  skipping=$skipping => $skippingFound\n";
-    next unless $cryptic>0 && $skipping>0;
+    #print "cryptic=$cryptic => $crypticFound  skipping=$skipping => $skippingFound\n";
+    next unless $skipping>0;
     if($crypticFound>0) {
       if($skippingFound>0) {	++$CS }
       else { ++$Cs }
