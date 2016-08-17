@@ -38,6 +38,8 @@ while(<IN>) {
 }
 close(IN);
 
+open(READS,">$READS_FILE") || die $READS_FILE;
+
 # Load blacklist (ALTs or SIMs that happen to match an existing isoform)
 my %blacklist;
 loadBlacklist($BLACKLIST,\%blacklist);
@@ -83,9 +85,9 @@ for(my $i=0 ; $i<$n ; ++$i) {
   elsif($found==-2) { next }
   else { $crypSkip{$baseID}->{$id}->{found}=$found }
 }
+close(READS);
 
 # Compute summary stats
-open(READS,">$READS_FILE") || die $READS_FILE;
 my @transcriptIDs=keys %crypSkip;
 my $numTranscripts=@transcriptIDs;
 for(my $i=0 ; $i<$numTranscripts ; ++$i) {
@@ -97,12 +99,7 @@ for(my $i=0 ; $i<$numTranscripts ; ++$i) {
     my $rec=$hash->{$alt};
     if($rec->{type} eq "cryptic-site") {
       ++$numCryptic;
-      if($rec->{found}) {
-	my $reads=$rec->{found};
-	my $dist=$rec->{distance};
-	print READS "$dist\t$reads\n";
-	++$crypticFound;
-      }
+      if($rec->{found}) { ++$crypticFound }
     }
     else {
       ++$numSkipping;
@@ -111,7 +108,6 @@ for(my $i=0 ; $i<$numTranscripts ; ++$i) {
   }
   print "$numCryptic\t$numSkipping\t$crypticFound\t$skippingFound\n";
 }
-close(READS);
 
 # Terminate
 print STDERR "[done]\n";
