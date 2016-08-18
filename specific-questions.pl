@@ -5,6 +5,8 @@ use EssexParser;
 use EssexICE;
 $|=1;
 
+my $MIN_PERCENT_MATCH=95;
+
 my $name=ProgramName::get();
 die "$name <in.essex>\n" unless @ARGV==1;
 my ($infile)=@ARGV;
@@ -17,6 +19,8 @@ while(1) {
   my $root=$parser->nextElem();
   last unless $root;
   my $ice=new EssexICE($root);
+  $ice->{minPercentMatch}=$MIN_PERCENT_MATCH;
+  $ice->{maxMismatches}=10;
   my $transcriptID=$ice->getTranscriptID();
   my $geneID=$ice->getGeneID();
   my $type=$root->findChild("reference-transcript")->getAttribute("type");
@@ -28,7 +32,7 @@ while(1) {
     if($status->hasDescendentOrDatum("too-many-vcf-errors")) { next }
     if($ice->mappedNMD(50) || $ice->mappedNoStart() || $ice->mappedNonstop()
        || $ice->lossOfCoding() ||
-       $ice->proteinDiffers() && $ice->getProteinMatch()<50)
+       $ice->proteinDiffers() && $ice->getProteinMatch()<$MIN_PERCENT_MATCH)
       { ++$LOF{$geneID}->{$transcriptID} }
     else { ++$noLOF{$geneID}->{$transcriptID} }
   }
