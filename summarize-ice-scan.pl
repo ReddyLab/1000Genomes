@@ -4,7 +4,7 @@ use strict;
 my $THOUSAND="/home/bmajoros/1000G/assembly";
 my $INFILE="$THOUSAND/scan/ice-scan.txt";
 
-my (%seen,$sites,$sitesOK);
+my (%seen,$sites,$sitesOK,%genes,%genesOK);
 open(IN,$INFILE) || die $INFILE;
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=3;
@@ -14,11 +14,17 @@ while(<IN>) {
   $seen{$key}=1;
   ++$sites;
   $sitesOK+=$ok;
+  ++$genes{$gene};
+  if($ok) { ++$genesOK{$gene} }
 }
 close(IN);
 
-my $r=$sitesOK/$sites*100;
-print "$sitesOK / $sites = $r\n";
+my $numGenes=keys %genes;
+my $numGenesOK=keys %genesOK;
+my $r=int($numGenesOK/$numGenes*1000+5/9)/10;
+print "genes: $numGenesOK / $numGenes = $r %\n";
 
+my $r=int($sitesOK/$sites*1000+5/9)/10;
+print "sites: $sitesOK / $sites = $r %\n";
 
 
