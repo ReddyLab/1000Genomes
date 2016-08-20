@@ -107,6 +107,9 @@ sub process
 
     }
     elsif(/exon/) { # compensatory frameshifts
+      my $length=$fields[4];
+      next if $length>30;
+      #die $_ unless $length>0;
       my $geneID=$fields[2];
       $indivsWithFrameshifts{$indiv}->{$geneID}=1;
       $indivsWithCompensatory{$indiv}->{$geneID}=1;
@@ -115,8 +118,6 @@ sub process
       my $transcriptID=$fields[3];
       $transcriptsWithFrameshifts{$transcriptID}=1;
       $transcriptsWithCompensatory{$transcriptID}->{$indiv}=1;
-      my $length=$fields[4];
-      #die $_ unless $length>0;
       $fields[5]=~/^(\d+)/ || die $fields[5];
       my $variantID="$geneID\@$1";
       if($lengths{$variantID}==0 ||
