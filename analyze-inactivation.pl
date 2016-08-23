@@ -10,6 +10,7 @@ my %xy; # genes on X/Y chromosomes
 loadXY("$ASSEMBLY/xy.txt",\%xy);
 
 # Process input files
+open(BOTH,">homo-het-counts.txt");
 my (@hetCounts,@homoCounts,%counts);
 my @dirs=`ls $COMBINED`;
 foreach my $indiv (@dirs) {
@@ -23,7 +24,10 @@ foreach my $indiv (@dirs) {
     { if($genes2->{$key}) {++$numHomo} else {++$numHet} }
   foreach my $key (@keys2) { if(!$genes1->{$key}) {++$numHet} }
   push @hetCounts,$numHet; push @homoCounts,$numHomo;
+  my $both=$numHet+$numHomo;
+  print BOTH "$both\n";
 }
+close(BOTH);
 
 # Report het/homo stats
 my ($meanHet,$sdHet,$minHet,$maxHet)=

@@ -48,8 +48,8 @@ foreach my $indiv (@indivsWithCompensatory) {
   my $count=keys %{$indivsWithCompensatory{$indiv}};
   push @counts,$count;
 }
-my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats(\@counts);
-print "each indiv had compensatory indels in $mean +- $stddev genes\n";
+my ($mean,$stddev,$min,$max,$median)=SummaryStats::roundedSummaryStats(\@counts);
+print "each indiv had compensatory indels in $mean +- $stddev genes (median=$median)\n";
 
 # Frameshifts per individual
 my @counts; my @indivsWithFrameshifts=keys %indivsWithFrameshifts;
@@ -57,8 +57,8 @@ foreach my $indiv (@indivsWithFrameshifts) {
   my $count=keys %{$indivsWithFrameshifts{$indiv}};
   push @counts,$count;
 }
-my ($mean,$stddev,$min,$max)=SummaryStats::roundedSummaryStats(\@counts);
-print "each indiv had frameshifts in $mean +- $stddev genes\n";
+my ($mean,$stddev,$min,$max,$median)=SummaryStats::roundedSummaryStats(\@counts);
+print "each indiv had frameshifts in $mean +- $stddev genes (median=$median)\n";
 
 # Genes/transcripts/individuals with compensatory frameshifts
 my $numGenesWithCompensatory=@genesWithCompensatory;

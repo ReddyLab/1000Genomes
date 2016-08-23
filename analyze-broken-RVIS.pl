@@ -52,7 +52,8 @@ foreach my $gene (@genes) {
   foreach my $indiv (@indivs) {
     my $hash=$alleles->{$indiv};
     my @keys=keys %$hash;
-    if($HOMOZYGOTES_ONLY && @keys==2 || !$HOMOZYGOTES_ONLY && @keys>0) {
+    #if($HOMOZYGOTES_ONLY && @keys==2 || !$HOMOZYGOTES_ONLY && @keys>0) {
+    if($HOMOZYGOTES_ONLY && @keys==2 || !$HOMOZYGOTES_ONLY && @keys==1) {
       my $rvis=$RVIS{$gene};
       next unless defined $rvis;
       ++$counts{$gene};
