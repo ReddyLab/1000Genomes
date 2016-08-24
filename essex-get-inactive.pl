@@ -32,10 +32,6 @@ while(1) {
 	if(!EssexNode::isaNode($child) && ($child eq "nonstop-decay"
 	   || $child eq "no-start-codon"))
 	  { $inactivated=$child }
-	elsif(EssexNode::isaNode($child) && 
-	      $child->getTag() eq "new-upstream-start-codon" &&
-	      $child->hasDescendentOrDatum("NMD"))
-	  { $inactivated="NMD"; $why="NEWSTART" }
       }
       if(!$inactivated) {
 	my $differ=$status->findChild("protein-differs");
@@ -59,27 +55,6 @@ while(1) {
     if($status->findChild("broken-donor")) { $why="broken-donor" }
     elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
     $inactivated="no-start-codon";
-  }
-  elsif($code eq "splicing-changes" && ($status->findChild("broken-donor") ||
-	$status->findChild("broken-acceptor"))) {
-    $why="splicing-changes";
-    if($status->findChild("broken-donor")) { $why="broken-donor" }
-    elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
-    my $ref=$report->findChild("reference-transcript");
-    my $refType=$ref->getAttribute("type");
-    my $alts=$status->findChild("alternate-structures");
-    if($alts) {
-      my $fates=$alts->findDescendents("fate");
-      if($fates) {
-	foreach my $fate (@$fates) {
-	  last if $inactivated; ### keeps the first only!
-	  my $state=$fate->getIthElem(0);
-	  if($state eq "NMD") { $inactivated="NMD" }
-	  elsif($state eq "noncoding" && $refType eq "protein-coding")
-	    { $inactivated="loss-of-coding-potential" }
-	}
-      }
-    }
   }
   if($inactivated) {
     my $transID=$report->getAttribute("transcript-ID");
