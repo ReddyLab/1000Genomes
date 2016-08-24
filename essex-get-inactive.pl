@@ -63,18 +63,15 @@ while(1) {
     if($status->findChild("broken-donor")) { $why="broken-donor" }
     elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
     my $alts=$status->findChild("alternate-structures");
-    my $allNMD=1;
     if($alts) {
       my $fates=$alts->findDescendents("fate");
       if($fates) {
 	foreach my $fate (@$fates) {
 	  my $state=$fate->getIthElem(0);
-	  if($state ne "NMD") { $allNMD=0 }
-	  if($state eq "NMD") { $inactivated="NMD" } ### at least one
+	  if($state eq "NMD") { $inactivated="NMD" }
 	}
       }
     }
-    if($allNMD) { $inactivated="NMD" }
   }
   if($inactivated) {
     my $transID=$report->getAttribute("transcript-ID");
