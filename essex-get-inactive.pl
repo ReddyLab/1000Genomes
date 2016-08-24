@@ -70,6 +70,7 @@ while(1) {
 	foreach my $fate (@$fates) {
 	  my $state=$fate->getIthElem(0);
 	  if($state ne "NMD") { $allNMD=0 }
+	  if($state eq "NMD") { $inactivated="NMD" } ### at least one
 	}
       }
     }
