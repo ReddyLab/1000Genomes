@@ -10,6 +10,7 @@ my %xy; # genes on X/Y chromosomes
 loadXY("$ASSEMBLY/xy.txt",\%xy);
 
 # Process input files
+open(NMD,">nmd-proportions.txt") || die;
 open(BOTH,">homo-het-counts.txt");
 my (@hetCounts,@homoCounts,%counts);
 my @dirs=`ls $COMBINED`;
@@ -27,7 +28,7 @@ foreach my $indiv (@dirs) {
   my $both=$numHet+$numHomo;
   print BOTH "$both\n";
 }
-close(BOTH);
+close(BOTH); close(NMD);
 
 # Report het/homo stats
 my ($meanHet,$sdHet,$minHet,$maxHet)=
@@ -72,14 +73,19 @@ sub process
   my ($filename)=@_;
   my $brokenGenes={};
   open(IN,$filename) || die "can't open file: $filename\n";
+  my $total=0; my $nmd=0;
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=4;
     my ($gene,$transcript,$type,$why)=@fields;
     next if($xy{$gene});
     $brokenGenes->{$gene}=1;
     ++$counts{$type}->{$why};
+    ++$total;
+    if($type eq "NMD") { ++$nmd }
   }
   close(IN);
+  my $proportion=$nmd/$total;
+  print NMD "$proportion\t$nmd\t$total\n";
   return $brokenGenes;
 }
 #=====================================================

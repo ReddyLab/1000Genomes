@@ -2,7 +2,7 @@
 
 infile <- "effect-sizes-log-het.txt";
 c <- rgb(0.1,0.1,0.1,1/4);
-minX <- -12;
+minX <- -7;
 maxX <- 2;
 nbreaks <- 50;
 xlabel <- "Log2 effect size"
