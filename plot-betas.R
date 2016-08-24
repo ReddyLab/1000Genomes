@@ -7,7 +7,7 @@ x <- "FPKM threshold"
 y <- "Mean FPKM proportion"
 title <- "Reduction in expression as a function of FPKM threshold"
 minX <- 0
-maxX <- 20
+maxX <- 15
 minY <- 0
 maxY <- 1
 

@@ -16,8 +16,8 @@ my @dirs=`ls $COMBINED`;
 foreach my $indiv (@dirs) {
   chomp $indiv;
   next unless $indiv=~/HG\d+/ || $indiv=~/NA\d+/;
-  my $genes1=process("$COMBINED/$indiv/1-inactivated.txt");
-  my $genes2=process("$COMBINED/$indiv/2-inactivated.txt");
+  my $genes1=process("$COMBINED/$indiv/1-inactivated-withsplicing2.txt");
+  my $genes2=process("$COMBINED/$indiv/2-inactivated-withsplicing2.txt");
   my @keys1=keys %$genes1; my @keys2=keys %$genes2;
   my $numHet=0; my $numHomo=0;
   foreach my $key (@keys1) 
