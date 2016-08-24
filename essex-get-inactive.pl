@@ -57,22 +57,22 @@ while(1) {
     elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
     $inactivated="no-start-codon";
   }
-  elsif($code eq "splicing-changes" && ($status->findChild("broken-donor") ||
-        $status->findChild("broken-acceptor"))) {
-    $why="splicing-changes";
-    if($status->findChild("broken-donor")) { $why="broken-donor" }
-    elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
-    my $alts=$status->findChild("alternate-structures");
-    if($alts) {
-      my $fates=$alts->findDescendents("fate");
-      if($fates) {
-	foreach my $fate (@$fates) {
-	  my $state=$fate->getIthElem(0);
-	  if($state eq "NMD") { $inactivated="NMD" }
-	}
-      }
-    }
-  }
+#  elsif($code eq "splicing-changes" && ($status->findChild("broken-donor") ||
+#        $status->findChild("broken-acceptor"))) {
+#    $why="splicing-changes";
+#    if($status->findChild("broken-donor")) { $why="broken-donor" }
+#    elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
+#    my $alts=$status->findChild("alternate-structures");
+#    if($alts) {
+#      my $fates=$alts->findDescendents("fate");
+#      if($fates) {
+#	foreach my $fate (@$fates) {
+#	  my $state=$fate->getIthElem(0);
+#	  if($state eq "NMD") { $inactivated="NMD" }
+#	}
+#      }
+#    }
+#  }
   if($inactivated) {
     my $transID=$report->getAttribute("transcript-ID");
     my $geneID=$report->getAttribute("gene-ID");
