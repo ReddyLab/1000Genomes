@@ -1,5 +1,10 @@
 #!/usr/bin/perl
 use strict;
+use ProgramName;
+
+my $name=ProgramName::get();
+die "$name <nmd-transcripts.txt>\n" unless @ARGV==1;
+my ($NMD_TRANSCRIPTS)=@ARGV;
 
 # Globals
 my $MIN_SAMPLE_SIZE=30;
@@ -10,7 +15,7 @@ my $log2=log(2);
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
-my $NMD_TRANSCRIPTS="$ASSEMBLY/nmd-transcripts.txt";
+#my $NMD_TRANSCRIPTS="$ASSEMBLY/nmd-transcripts.txt";
 my %xy; # genes on X/Y chromosomes
 my %expressed; # transcripts expressed in LCLs
 my %nmdTranscripts; # transcripts having NMD in at least one individual

@@ -2,6 +2,7 @@
 $|=1;
 use strict;
 use EssexParser;
+use EssexICE;
 use ProgramName;
 
 my $MIN_PERCENT_MATCH=50;
@@ -55,6 +56,24 @@ while(1) {
     if($status->findChild("broken-donor")) { $why="broken-donor" }
     elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
     $inactivated="no-start-codon";
+  }
+  elsif($code eq "splicing-changes" && ($status->findChild("broken-donor") ||
+        $status->findChild("broken-acceptor"))) {
+    $why="splicing-changes";
+    if($status->findChild("broken-donor")) { $why="broken-donor" }
+    elsif($status->findChild("broken-acceptor")) { $why="broken-acceptor" }
+    my $alts=$status->findChild("alternate-structures");
+    my $allNMD=1;
+    if($alts) {
+      my $fates=$alts->findDescendents("fate");
+      if($fates) {
+	foreach my $fate (@$fates) {
+	  my $state=$fate->getIthElem(0);
+	  if($state ne "NMD") { $allNMD=0 }
+	}
+      }
+    }
+    if($allNMD) { $inactivated="NMD" }
   }
   if($inactivated) {
     my $transID=$report->getAttribute("transcript-ID");
