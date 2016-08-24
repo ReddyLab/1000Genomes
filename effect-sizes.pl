@@ -24,7 +24,7 @@ loadXY("$ASSEMBLY/xy.txt",\%xy);
 loadExpressed("$ASSEMBLY/expressed.txt",\%expressed);
 
 # Process each individual
-my (%FPKMnmd,%FPKMwild,%Nnmd,%Nwild);
+my (%FPKMnmd0,%FPKMnmd1,%FPKMwild,%Nnmd0,%Nnmd1,%Nwild);
 my @indivs=`ls $ASSEMBLY/combined`;
 foreach my $indiv (@indivs) {
   chomp $indiv;
@@ -39,22 +39,30 @@ foreach my $indiv (@indivs) {
   updateAlleleCounts("$dir/2-inactivated-withsplicing2.txt",\%alleleCounts);
   processRNA($RNA_FILE,\%alleleCounts,\%xy,\%expressed);
 }
-my @transcripts=keys %FPKMnmd;
-open(EFFECT,">effect-sizes.txt") || die;
-open(LOG,">effect-sizes-log.txt") || die;
+
+my @transcripts=keys %FPKMnmd1; ###
+
+open(EFFECT0,">effect-sizes-homo.txt") || die;
+open(EFFECT1,">effect-sizes-het.txt") || die;
+open(LOG0,">effect-sizes-log-homo.txt") || die;
+open(LOG1,">effect-sizes-log-het.txt") || die;
 foreach my $transcript (@transcripts) {
-  my $numNMD=$Nnmd{$transcript}; my $numWild=$Nwild{$transcript};
-  my $nmd=$FPKMnmd{$transcript}; my $wild=$FPKMwild{$transcript};
-  next unless $numWild>0 && $numNMD>0;
+  my $nmd0=$FPKMnmd0{$transcript}; my $numNMD0=$Nnmd0{$transcript};
+  my $nmd1=$FPKMnmd1{$transcript}; my $numNMD1=$Nnmd1{$transcript};
+  my $wild=$FPKMwild{$transcript}; my $numWild=$Nwild{$transcript};
+  next unless $numWild>0 && $numNMD0>0 && $numNMD1>0;
   #next unless $numWild>=10 && $numNMD>=10;
-  my $meanNMD=$nmd/$numNMD; my $meanWild=$wild/$numWild;
-  my $effect=$meanNMD/$meanWild;
-  my $log=log($effect+$PSEUDOCOUNT)/$log2;
-  print EFFECT "$effect\n";
-  print LOG "$log\n";
+  my $meanNMD0=$nmd0/$numNMD0; my $meanNMD1=$nmd1/$numNMD1;
+  my $meanWild=$wild/$numWild;
+  my $effect0=$meanNMD0/$meanWild;
+  my $effect1=$meanNMD1/$meanWild;
+  my $log0=log($effect0+$PSEUDOCOUNT)/$log2;
+  my $log1=log($effect1+$PSEUDOCOUNT)/$log2;
+  print EFFECT0 "$effect0\n"; print EFFECT1 "$effect1\n";
+  print LOG0 "$log0\n"; print LOG1 "$log1\n";
 }
-close(EFFECT);
-close(LOG);
+close(EFFECT0); close(EFFECT1);
+close(LOG0); close(LOG1);
 
 #======================================================================
 sub processRNA
@@ -70,9 +78,11 @@ sub processRNA
     next unless $mean>0;
     next if $transcript=~/ALT/;
     my $count=2-$alleleCounts->{$transcript};
-    if($count<2) { $FPKMnmd{$transcript}+=$fpkm; ++$Nnmd{$transcript} }
-    #if($count==0) { $FPKMnmd{$transcript}+=$fpkm; ++$Nnmd{$transcript} }
-    if($count==2) { $FPKMwild{$transcript}+=$fpkm; ++$Nwild{$transcript} }
+    #if($count<2) { $FPKMnmd{$transcript}+=$fpkm; ++$Nnmd{$transcript} }
+    if($count==0) { $FPKMnmd0{$transcript}+=$fpkm; ++$Nnmd0{$transcript} }
+    elsif($count==1) { $FPKMnmd1{$transcript}+=$fpkm; ++$Nnmd1{$transcript} }
+    elsif($count==2) { $FPKMwild{$transcript}+=$fpkm; ++$Nwild{$transcript} }
+    else { die }
   }
   close(IN);
 }
