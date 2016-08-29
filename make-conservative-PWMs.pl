@@ -26,10 +26,16 @@ sub process {
     my $cutoff;
     if($mid%2==0) { $cutoff=$scores->[$mid] }
     else { $cutoff=($scores->[int($mid)]+$scores->[int($mid)+1])/2}
-    print "$type\t$isochore\t$cutoff\n";
+    #print "$type\t$isochore\t$cutoff\n";
     my $outfile="$OUTDIR/$type$isochore.model";
+    open(IN,$model) || die $model;
     open(OUT,">$outfile") || die $outfile;
+    for(my $i=0 ; $i<2 ; ++$i) { $_=<IN>; print OUT $_ }
+    <IN>; # ignore the old cutoff
+    print OUT "$cutoff\n";
+    while(<IN>) { print OUT $_}
     close(OUT);
+    close(IN);
     #my $scoresFile="$type$isochore.scores";
     #open(SCORES,">$scoresFile") || die $scoresFile;
     #foreach my $score (@$scores) { print SCORES "$score\n" }
