@@ -34,8 +34,8 @@ foreach my $indiv (@indivs) {
   my $RNA_FILE="$dir/RNA/tab.txt";
   next unless -e $RNA_FILE;
   my %alleleCounts;
-  updateAlleleCounts("$dir/1-inactivated-withsplicing2.txt",\%alleleCounts);
-  updateAlleleCounts("$dir/2-inactivated-withsplicing2.txt",\%alleleCounts);
+  updateAlleleCounts("$dir/1-inactivated.txt",\%alleleCounts);
+  updateAlleleCounts("$dir/2-inactivated.txt",\%alleleCounts);
   processRNA($RNA_FILE,\%alleleCounts,\%xy,\%expressed);
 }
 
