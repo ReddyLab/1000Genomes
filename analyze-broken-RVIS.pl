@@ -61,7 +61,7 @@ foreach my $gene (@genes) {
   }
 }
 
-open(CARSON,">carson.txt");
+#open(CARSON,">carson.txt");
 my @genes=keys %counts;
 foreach my $gene (@genes) {
   my $count=$counts{$gene};
@@ -70,7 +70,7 @@ foreach my $gene (@genes) {
   next unless $count>=$MIN_COUNT;
   next unless $rvis=~/\d/;
   print "$count\t$rvis\n";
-  if($rvis<20) { print CARSON "$gene\t$count\t$rvis\n" }
+  #if($rvis<20) { print CARSON "$gene\t$count\t$rvis\n" }
 }
-close(CARSON);
+#close(CARSON);
 

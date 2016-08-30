@@ -4,7 +4,7 @@ use ProgramName;
 use GffTranscriptReader;
 $|=1;
 
-my $BROKEN="/home/bmajoros/1000G/assembly/inactivated.txt";
+my $BROKEN="/home/bmajoros/1000G/assembly/inactivated2.txt";
 my $GFF="/home/bmajoros/1000G/assembly/local-genes.gff";
 
 my $reader=new GffTranscriptReader;

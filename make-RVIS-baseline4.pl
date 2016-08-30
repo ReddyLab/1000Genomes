@@ -4,7 +4,7 @@ use ProgramName;
 use GffTranscriptReader;
 $|=1;
 
-my $BROKEN="/home/bmajoros/1000G/assembly/inactivated.txt";
+my $BROKEN="/home/bmajoros/1000G/assembly/inactivated2.txt";
 my $GFF="/home/bmajoros/1000G/assembly/local-genes.gff";
 
 my $reader=new GffTranscriptReader;
@@ -16,6 +16,7 @@ for(my $i=0 ; $i<$numTranscripts ; ++$i) {
   my $transcript=$transcripts->[$i];
   my $len=$transcript->getExtent(); next unless $len>0;
   my $loglen=int(log($len)/log(2));
+  $len=$loglen;
   push @{$byLen{$len}},$transcript;
   $len{$transcript->getTranscriptId()}=$len;
 }

@@ -5,7 +5,7 @@ use GffTranscriptReader;
 use FastaReader;
 $|=1;
 
-my $BROKEN="/home/bmajoros/1000G/assembly/inactivated.txt";
+my $BROKEN="/home/bmajoros/1000G/assembly/inactivated2.txt";
 my $GFF="/home/bmajoros/1000G/assembly/local-genes.gff";
 my $FASTA="/home/bmajoros/1000G/assembly/combined/ref/1.fasta";
 
