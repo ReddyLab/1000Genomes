@@ -2,6 +2,8 @@
 use strict;
 use ProgramName;
 
+my $NO_HOMOZYGOTES=0;
+
 my $name=ProgramName::get();
 die "$name <min-FPKM>\n" unless @ARGV==1;
 my ($MIN_FPKM)=@ARGV;
@@ -57,6 +59,8 @@ sub processRNA
     next if $transcript=~/ALT/; # ignore aberrant splicing
     my $count=2-$alleleCounts->{$transcript}; # recode as #functional alleles
     my $log=log($fpkm+$PSEUDOCOUNT)/$log2;
+    if($NO_HOMOZYGOTES && $count==0) { next }
+    if($NO_HOMOZYGOTES) { --$count }
     print "$count,$log,$transcript\n";
   }
   close(IN);

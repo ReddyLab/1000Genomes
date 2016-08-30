@@ -1,8 +1,13 @@
 #!/usr/bin/perl
 use strict;
+use ProgramName;
+
+my $name=ProgramName::get();
+die "$name <ice-scan.txt>\n" unless @ARGV==1;
+my ($INFILE)=@ARGV;
 
 my $THOUSAND="/home/bmajoros/1000G/assembly";
-my $INFILE="$THOUSAND/scan/ice-scan.txt";
+#my $INFILE="$THOUSAND/scan/ice-scan.txt";
 
 my (%seen,$sites,$sitesOK,%genes,%genesOK);
 open(IN,$INFILE) || die $INFILE;

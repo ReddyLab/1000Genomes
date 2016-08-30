@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 use strict;
 
+#my $FP_RATE=0.20;
+my $SENSITIVITY=0.80;
 my $HOME="/home/bmajoros";
 my $RSVP="$HOME/RSVP/isochores";
 my $MODELS="$HOME/1000G/ICE/model";
@@ -16,17 +18,22 @@ process("acceptors");
 sub process {
   my ($type)=@_;
   foreach my $isochore (@ISOCHORES) {
+    #my $fasta="$RSVP/iso$isochore/non-$type$isochore.fasta";
     my $fasta="$RSVP/iso$isochore/$type$isochore.fasta";
     my $model="$MODELS/$type$isochore.model";
-    my $cutoff=-30;
+
+    # Get the scores of the sites
     my $scores=getScores("$SCORER -C $model $type $fasta");
     @$scores=sort {$a <=> $b} @$scores;
     my $N=@$scores;
-    my $mid=$N/2;
-    my $cutoff;
-    if($mid%2==0) { $cutoff=$scores->[$mid] }
-    else { $cutoff=($scores->[int($mid)]+$scores->[int($mid)+1])/2}
-    #print "$type\t$isochore\t$cutoff\n";
+
+    # Pick a cutoff
+    #my $index=int($N*(1-$FP_RATE))+1;
+    my $index=int($N*(1-$SENSITIVITY))+1;
+    my $cutoff=$scores->[$index];
+    print "$type\t$isochore\t$cutoff\n";
+
+    # Re-write the model file with the new cutoff inserted
     my $outfile="$OUTDIR/$type$isochore.model";
     open(IN,$model) || die $model;
     open(OUT,">$outfile") || die $outfile;
