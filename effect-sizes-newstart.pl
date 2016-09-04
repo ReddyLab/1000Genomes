@@ -22,9 +22,10 @@ open(IN,"$ASSEMBLY/lm-nmd-newstart.txt") || die;
 while(<IN>) {
   chomp; my @fields=split/,/,$_; next unless @fields>=3;
   my ($alleles,$fpkm,$transcript)=@fields;
-  if($alleles==0) { $FPKMnmd0{$transcript}+=$fpkm; ++$Nnmd0{$transcript }
-  if($alleles==1) { $FPKMnmd1{$transcript}+=$fpkm; ++$Nnmd1{$transcript }
-  if($alleles==2) { $FPKMwild{$transcript}+=$fpkm; ++$Nwild{$transcript }
+  $fpkm=2**$fpkm;
+  if($alleles==0) { $FPKMnmd0{$transcript}+=$fpkm; ++$Nnmd0{$transcript} }
+  if($alleles==1) { $FPKMnmd1{$transcript}+=$fpkm; ++$Nnmd1{$transcript} }
+  if($alleles==2) { $FPKMwild{$transcript}+=$fpkm; ++$Nwild{$transcript} }
 }
 close(IN);
 my @transcripts=keys %FPKMwild;
