@@ -2,7 +2,7 @@
 use strict;
 
 my $ALLELE_COUNTS="/home/bmajoros/1000G/assembly/allele-counts";
-my $BROKEN="/home/bmajoros/1000G/assembly/broken.txt";
+my $BROKEN="/home/bmajoros/1000G/assembly/inactivated3.txt";
 
 my %distance;
 my @files=`ls $ALLELE_COUNTS`;
@@ -20,8 +20,8 @@ foreach my $file (@files) {
 my %broken;
 open(IN,$BROKEN) || die $BROKEN;
 while(<IN>) {
-  chomp; my @fields=split; next unless @fields>=5;
-  my ($indiv,$allele,$gene,$transcript,$chr)=@fields;
+  chomp; my @fields=split; next unless @fields>=4;
+  my ($indiv,$allele,$gene,$transcript)=@fields;
   $broken{"$indiv\_$allele"}->{$gene}=1;
 }
 
