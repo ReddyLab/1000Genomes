@@ -44,7 +44,15 @@ die "no transcript" unless $transcriptNode;
 my $transcript=new Transcript($transcriptNode);
 my $splicedSeq=$transcript->loadTranascriptSeq(\$aboChunk);
 my $protein=Translation::translate(\$splicedSeq);
-
-
+my $strand=$transcript->getStrand();
+my $numExons=$transcript->numExons();
+print "$indiv\t$hap\t$protein\t$splicedSeq\t$strand\t$numExons\t";
+for(my $i=0 ; $i<$numExons ; ++$i) {
+  my $exon=$transcript->getIthExon($i);
+  my $begin=$exon->getBegin(); my $end=$exon->getEnd();
+  print "$begin\-$end";
+  if($i+1<$numExons) { print "," }
+}
+print "\n";
 
 
