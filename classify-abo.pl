@@ -2,6 +2,7 @@
 use strict;
 
 my $THOUSAND="/home/bmajoros/1000G/assembly";
+my $ETHNICITIES="$THOUSAND/populations.txt";
 my $INFILE="$THOUSAND/abo.txt";
 my $A_ALLELE="MAEVLRTLAGKPKCHALRPMILFLIMLVLVLFGYGVLSPRSLMPGSLERGFCMAVREPDHLQRVSLPRMVYPQPKVLTPCRKDVLVVTPWLAPIVWEGTFNIDILNEQFRLQNTTIGLTVFAIKKYVAFLKLFLETAEKHFMVGHRVHYYVFTDQPAAVPRVTLGTGRQLSVLEVRAYKRWQDVSMRRMEMISDFCERRFLSEVDYLVCVDVDMEFRDHVGVEILTPLFGTLHPGFYGSSREAFTYERRPQSQAYIPKDEGDFYYLGGFFGGSVQEVQRLTRACHQAMMVDQANGIEAVWHDESHLNKYLLRHKPTKVLSPEYLWDQQLLGWPAVLRKLRFTAVPKNHQAVRNP*";
 my $B_ALLELE="MAEVLRTLAGKPKCHALRPMILFLIMLVLVLFGYGVLSPRSLMPGSLERGFCMAVREPDHLQRVSLPRMVYPQPKVLTPCRKDVLVVTPWLAPIVWEGTFNIDILNEQFRLQNTTIGLTVFAIKKYVAFLKLFLETAEKHFMVGHRVHYYVFTDQPAAVPRVTLGTGRQLSVLEVGAYKRWQDVSMRRMEMISDFCERRFLSEVDYLVCVDVDMEFRDHVGVEILTPLFGTLHPSFYGSSREAFTYERRPQSQAYIPKDEGDFYYMGAFFGGSVQEVQRLTRACHQAMMVDQANGIEAVWHDESHLNKYLLRHKPTKVLSPEYLWDQQLLGWPAVLRKLRFTAVPKNHQAVRNP*";
@@ -15,6 +16,15 @@ $ALLELES{$A_ALLELE}="A";
 $ALLELES{$B_ALLELE}="B";
 $ALLELES{$O_ALLELE}="O";
 my $nextAllele=1;
+
+my %ethnicity;
+open(IN,$ETHNICITIES) || die $ETHNICITIES;
+while(<IN>) {
+  chomp; my @fields=split; next unless @fields==2;
+  my ($indiv,$group)=@fields;
+  $ethnicity{$indiv}=$group;
+}
+close(IN);
 
 my %indiv;
 open(IN,$INFILE) || die $INFILE;
@@ -36,6 +46,7 @@ while(<IN>) {
 }
 close(IN);
 
+my %ethnicCounts;
 my @indiv=keys %indiv;
 foreach my $indiv (@indiv) {
   my $numAlleles=keys %{$indiv{$indiv}};
@@ -45,12 +56,29 @@ foreach my $indiv (@indiv) {
   my $allele1=classify($protein1);
   my $allele2=classify($protein2);
   print "$indiv\t$allele1\t$allele2\n";
+  my $ethnicity=$ethnicity{$indiv};
+  if($allele1=~/^(\S)_/) { $allele1=$1 }
+  if($allele2=~/^(\S)_/) { $allele2=$1 }
+  ++$ethnicCounts{$ethnicity}->{$allele1};
+  ++$ethnicCounts{$ethnicity}->{$allele2};
 }
 --$nextA; --$nextB; --$nextO; --$nextAllele;
 print "$nextA alternate A alleles\n";
 print "$nextB alternate B alleles\n";
 print "$nextO alternate O alleles\n";
 print "$nextAllele unknown alleles\n";
+
+my @groups=keys %ethnicCounts;
+foreach my $group (@groups) {
+  print "$group\t";
+  my $alleles=$ethnicCounts{$group};
+  my @keys=keys %$alleles;
+  foreach my $key (@keys) {
+    my $count=$alleles->{$key};
+    print "$key=$count\\t";
+  }
+  print "\n";
+}
 
 #==============================================================
 sub classify {
