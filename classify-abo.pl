@@ -9,6 +9,7 @@ my $O_ALLELE="MAEVLRTLAGKPKCHALRPMILFLIMLVLVLFGYGVLSPRSLMPGSLERGFCMAVREPDHLQRVSL
 my $A_LEN=length($A_ALLELE);
 my $B_LEN=length($B_ALLELE);
 my $O_LEN=length($O_ALLELE);
+my $nextA=1; my $nextB=1; my $nextO=1;
 my %ALLELES;
 $ALLELES{$A_ALLELE}="A";
 $ALLELES{$B_ALLELE}="B";
@@ -45,7 +46,13 @@ foreach my $indiv (@indiv) {
   my $allele2=classify($protein2);
   print "$indiv\t$allele1\t$allele2\n";
 }
+--$nextA; --$nextB; --$nextO; --$nextAllele;
+print "$nextA alternate A alleles\n";
+print "$nextB alternate B alleles\n";
+print "$nextO alternate O alleles\n";
+print "$nextAllele unknown alleles\n";
 
+#==============================================================
 sub classify {
   my ($protein)=@_;
   my $allele=$ALLELES{$protein};
@@ -54,12 +61,14 @@ sub classify {
   if($L==$A_LEN) {
     my $diffsA=compare($protein,$A_ALLELE);
     my $diffsB=compare($protein,$B_ALLELE);
-    if($diffsA<$diffsB) { $allele=$ALLELES{$protein}="A_$diffsA" }
-    else { $allele=$ALLELES{$protein}="B_$diffsB" }
+    if($diffsA<$diffsB)
+      { $allele=$ALLELES{$protein}="A_d$diffsA\_$nextA"; ++$nextA }
+    else { $allele=$ALLELES{$protein}="B_d$diffsB\_$nextB"; ++$nextB }
   }
   elsif($L==$O_LEN) {
     my $diffs=compare($protein,$O_ALLELE);
-    $allele=$ALLELES{$protein}="O_$diffs";
+    $allele=$ALLELES{$protein}="O_d$diffs\_$nextO";
+    ++$nextO;
   }
   else {
     $allele=$ALLELES{$protein}="U_$L\_$nextAllele";
