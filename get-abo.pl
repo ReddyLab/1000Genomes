@@ -17,8 +17,8 @@ my $reader=new FastaReader($fastaFile);
 while(1) {
   my ($def,$seqRef)=$reader->nextSequenceRef();
   last unless $def;
-  $def=~/^>(\S+)/ || $die $def;
-  next unless $id eq $ABO;
+  $def=~/^>(\S+)_/ || die $def;
+  next unless $1 eq $ABO;
   $aboChunk=$$seqRef;
   $reader->close();
   last;
@@ -37,7 +37,7 @@ while(1) {
   last;
 }
 
-my $noncodingToCoding=$root->pathQuery("report/status/noncoding-to-coding");
+my $noncodingToCoding=$aboElem->pathQuery("report/status/noncoding-to-coding");
 die "no noncoding-to-coding" unless $noncodingToCoding;
 my $transcriptNode=$noncodingToCoding->findChild("transcript");
 die "no transcript" unless $transcriptNode;
