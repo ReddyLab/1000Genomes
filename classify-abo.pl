@@ -69,17 +69,27 @@ print "$nextO alternate O alleles\n";
 print "$nextAllele unknown alleles\n";
 
 my @groups=keys %ethnicCounts;
+my %sampleSizes;
+foreach my $group (@groups) {
+  my $alleles=$ethnicCounts{$group};
+  my @keys=keys %$alleles;
+  foreach my $key (@keys) {
+    my $count=$alleles->{$key};
+    $sampleSizes{$group}+=$count;
+  }
+}
 foreach my $group (@groups) {
   print "$group\t";
   my $alleles=$ethnicCounts{$group};
   my @keys=keys %$alleles;
   foreach my $key (@keys) {
     my $count=$alleles->{$key};
-    print "$key=$count\\t";
+    my $percent=int($count/$sampleSizes{$group}*100+5/9);
+    print "$key=$percent\%\t";
   }
   print "\n";
 }
-
+  
 #==============================================================
 sub classify {
   my ($protein)=@_;
