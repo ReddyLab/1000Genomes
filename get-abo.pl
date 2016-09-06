@@ -3,6 +3,8 @@ use strict;
 use ProgramName;
 use EssexParser;
 use FastaReader;
+use Transcript;
+use Translation;
 
 my $ABO="ENSG00000175164.9";
 
@@ -34,4 +36,15 @@ while(1) {
   $aboElem=$root;
   last;
 }
+
+my $noncodingToCoding=$root->pathQuery("report/status/noncoding-to-coding");
+die "no noncoding-to-coding" unless $noncodingToCoding;
+my $transcriptNode=$noncodingToCoding->findChild("transcript");
+die "no transcript" unless $transcriptNode;
+my $transcript=new Transcript($transcriptNode);
+my $splicedSeq=$transcript->loadTranascriptSeq(\$aboChunk);
+my $protein=Translation::translate(\$splicedSeq);
+
+
+
 
