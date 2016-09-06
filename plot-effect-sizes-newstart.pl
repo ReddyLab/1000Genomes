@@ -23,8 +23,9 @@ d1 <- density(data1$V1);
 plot(d1,xlim=c(minX,maxX),xlab=xlabel,main=title,col="blue");
 lines(d0,col="red");
 #lines(d2,col="black");
-abline(v=-0.4,lty=2)
-abline(v=-1,lty=1)
+abline(v=0,lty=1);
+abline(v=-0.4,lty=2,col="blue")
+abline(v=-1,lty=2,col="red")
 dev.off();
 
 
