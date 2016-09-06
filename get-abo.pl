@@ -42,7 +42,7 @@ die "no noncoding-to-coding" unless $noncodingToCoding;
 my $transcriptNode=$noncodingToCoding->findChild("transcript");
 die "no transcript" unless $transcriptNode;
 my $transcript=new Transcript($transcriptNode);
-my $splicedSeq=$transcript->loadTranascriptSeq(\$aboChunk);
+my $splicedSeq=$transcript->loadTranscriptSeq(\$aboChunk);
 my $protein=Translation::translate(\$splicedSeq);
 my $strand=$transcript->getStrand();
 my $numExons=$transcript->numExons();
