@@ -46,7 +46,7 @@ while(<IN>) {
 }
 close(IN);
 
-my %ethnicCounts;
+my (%ethnicCounts,%alleleCounts);
 my @indiv=keys %indiv;
 foreach my $indiv (@indiv) {
   my $numAlleles=keys %{$indiv{$indiv}};
@@ -55,6 +55,7 @@ foreach my $indiv (@indiv) {
   my $protein2=$indiv{$indiv}->{2}->{protein};
   my $allele1=classify($protein1);
   my $allele2=classify($protein2);
+  ++$alleleCounts{$allele1}; ++$alleleCounts{$allele2};
   print "$indiv\t$allele1\t$allele2\n";
   my $ethnicity=$ethnicity{$indiv};
   if($allele1=~/^(\S)_/) { $allele1=$1 }
@@ -67,6 +68,12 @@ print "$nextA alternate A alleles\n";
 print "$nextB alternate B alleles\n";
 print "$nextO alternate O alleles\n";
 print "$nextAllele unknown alleles\n";
+
+my @keys=keys %alleleCounts;
+foreach my $key (@keys) {
+  my $count=$alleleCounts{$key};
+  print "$count\t$key\n";
+}
 
 my @groups=keys %ethnicCounts;
 my %sampleSizes;
@@ -109,7 +116,7 @@ sub classify {
     ++$nextO;
   }
   else {
-    $allele=$ALLELES{$protein}="U_$L\_$nextAllele";
+    $allele=$ALLELES{$protein}="U_L$L\_$nextAllele";
     ++$nextAllele;
   }
   return $allele;
