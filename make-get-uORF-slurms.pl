@@ -18,7 +18,7 @@ foreach my $subdir (@dirs) {
   $writer->addCommand("cd $dir ; $PROGRAM $subdir 1 1-filtered-fixed.essex > 1.uORFs");
   $writer->addCommand("cd $dir ; $PROGRAM $subdir 2 2-filtered-fixed.essex > 2.uORFs");
 }
-$writer->mem(5000);
+#$writer->mem(5000);
 $writer->setQueue("new,all");
 $writer->writeArrayScript($SLURM_DIR,"uORF",$SLURM_DIR,800);
 
