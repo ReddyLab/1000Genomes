@@ -44,4 +44,4 @@ while(1) {
   my $status=$nmd ? "NMD" : "OK";
   print "$indiv\t$hap\t$geneID\t$transcriptID\t$UORFbegin\t$UORFend\t$DORFbegin\t$DORFend\t$altLen\t$status\t$reason\n";
 }
-print "[done]\n";
+print STDERR "[done]\n";
