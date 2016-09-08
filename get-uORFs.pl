@@ -36,11 +36,11 @@ while(1) {
   $downstreamORF->sortExons();
   my ($UORFbegin,$UORFend)=$uORF->getCDSbeginEnd();
   my ($DORFbegin,$DORFend)=$downstreamORF->getCDSbeginEnd();
-  print "$strand\t$UORFbegin\t$UORFend\t$DORFbegin\t$DORFend\n";
   $UORFbegin=$uORF->mapToTranscript($UORFbegin);
   $UORFend=$uORF->mapToTranscript($UORFend-1)+1;
   $DORFbegin=$downstreamORF->mapToTranscript($DORFbegin);
   $DORFend=$downstreamORF->mapToTranscript($DORFend-1)+1;
   my $splicedLength=$downstreamORF->getLength();
-  print "$indiv\t$hap\t$geneID\t$transcriptID\t$UORFbegin\t$UORFend\t$DORFbegin\t$DORFend\n";
+  my $status=$nmd ? "NMD" : "OK";
+  print "$indiv\t$hap\t$geneID\t$transcriptID\t$UORFbegin\t$UORFend\t$DORFbegin\t$DORFend\t$altLen\t$status\n";
 }
