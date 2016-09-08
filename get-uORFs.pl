@@ -4,6 +4,7 @@ use ProgramName;
 use EssexParser;
 use EssexICE;
 use Transcript;
+$|=1;
 
 my $name=ProgramName::get();
 die "$name <indiv> <hap> <in.essex>\n" unless @ARGV==3;
@@ -17,6 +18,7 @@ while(1) {
   next unless $newStartNode;
   my $refNode=$newStartNode->findChild("reference");
   next unless $refNode;
+  my $altLen=$elem->getAttribute("alt-length");
   my $geneID=$elem->getAttribute("gene-ID");
   my $transcriptID=$elem->getAttribute("transcript-ID");
   my $reason=$refNode->getIthElem(0);
@@ -27,17 +29,18 @@ while(1) {
   my $downstreamORF=new Transcript($mappedTranscript);
   my $strand=$downstreamORF->getStrand();
   if($strand eq "-") {
-    $uORF->reverseComplement();
-    $downstreamORF->reverseComplement();
+    $uORF->reverseComplement($altLen);
+    $downstreamORF->reverseComplement($altLen);
   }
   $uORF->sortExons();
   $downstreamORF->sortExons();
   my ($UORFbegin,$UORFend)=$uORF->getCDSbeginEnd();
   my ($DORFbegin,$DORFend)=$downstreamORF->getCDSbeginEnd();
+  print "$strand\t$UORFbegin\t$UORFend\t$DORFbegin\t$DORFend\n";
   $UORFbegin=$uORF->mapToTranscript($UORFbegin);
-  $UORFend=$uORF->mapToTranscript($UORFend);
+  $UORFend=$uORF->mapToTranscript($UORFend-1)+1;
   $DORFbegin=$downstreamORF->mapToTranscript($DORFbegin);
-  $DORFend=$downstreamORF->mapToTranscript($UORFend);
+  $DORFend=$downstreamORF->mapToTranscript($DORFend-1)+1;
   my $splicedLength=$downstreamORF->getLength();
-  print "$indiv\t$hap\t$geneID\t$transcriptID\t$UORFbegin\T$UORFend\t$DORFbegin\t$DORFend\n";
+  print "$indiv\t$hap\t$geneID\t$transcriptID\t$UORFbegin\t$UORFend\t$DORFbegin\t$DORFend\n";
 }
