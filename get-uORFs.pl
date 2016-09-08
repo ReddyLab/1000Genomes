@@ -25,7 +25,7 @@ while(1) {
   my $uORF=new Transcript($transcriptNode);
   my $mappedTranscript=$elem->pathQuery("report/mapped-transcript");
   my $downstreamORF=new Transcript($mappedTranscript);
-  my $strand=$mappedTranscript->getStrand();
+  my $strand=$downstreamORF->getStrand();
   if($strand eq "-") {
     $uORF->reverseComplement();
     $downstreamORF->reverseComplement();
@@ -39,5 +39,5 @@ while(1) {
   $DORFbegin=$downstreamORF->mapToTranscript($DORFbegin);
   $DORFend=$downstreamORF->mapToTranscript($UORFend);
   my $splicedLength=$downstreamORF->getLength();
-  print "$indiv\t$hap\t$geneID\t$transcriptID\t";
+  print "$indiv\t$hap\t$geneID\t$transcriptID\t$UORFbegin\T$UORFend\t$DORFbegin\t$DORFend\n";
 }
