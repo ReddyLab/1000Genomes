@@ -12,9 +12,13 @@ my $D_BEGIN_FILE="$ASSEMBLY/dORF-begin.txt";
 my $U_END_FILE="$ASSEMBLY/uORF-end.txt";
 my $D_END_FILE="$ASSEMBLY/dORF-end.txt";
 my $DIST_FILE="$ASSEMBLY/uORF-vs-dORF-end.txt";
+my $U_LENGTH_FILE="$ASSEMBLY/uORF-lengths.txt";
+my $D_LENGTH_FILE="$ASSEMBLY/dORF-lengths.txt";
 
 my (%seen,$nonoverlapping,$partiallyOverlapping,$fullyOverlapping);
 
+open(ULENGTH,">$U_LENGTH_FILE") || die $U_LENGTH_FILE;
+open(DLENGTH,">$D_LENGTH_FILE") || die $D_LENGTH_FILE;
 open(UBEGIN,">$U_BEGIN_FILE") || die $U_BEGIN_FILE;
 open(UEND,">$U_END_FILE") || die $U_END_FILE;
 open(DBEGIN,">$D_BEGIN_FILE") || die $D_BEGIN_FILE;
@@ -29,6 +33,7 @@ foreach my $indiv (@dirs) {
   process("$dir/2.uORFs");
 }
 close(UBEGIN); close(UEND); close(DBEGIN); close(DEND); close(DIST);
+close(ULENGTH); close(DLENGTH);
 
 my $total=$nonoverlapping+$partiallyOverlapping+$fullyOverlapping;
 my $nonPercent=$nonoverlapping/$total;
@@ -52,6 +57,10 @@ sub process {
     my $dEndDist=$L-$dORFend;
     my $dist=$uORFend-$dORFend;
     next if $dist==0;
+    my $uLen=$uORFend-$uORFbegin;
+    my $dLen=$dORFend-$dORFbegin;
+    print ULENGTH "$uLen\n";
+    print DLENGTH "$dLen\n";
     print DIST "$dist\n";
     print UBEGIN "$uORFbegin\n";
     print DBEGIN "$dORFbegin\n";

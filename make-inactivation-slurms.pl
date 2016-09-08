@@ -13,11 +13,13 @@ foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
-  $slurm->addCommand("$THOUSAND/src/essex-get-inactive.pl $dir/1-filtered.essex > $dir/1-inactivated-withsplicing2.txt");
-  $slurm->addCommand("$THOUSAND/src/essex-get-inactive.pl $dir/2-filtered.essex > $dir/2-inactivated-withsplicing2.txt");
+  $slurm->addCommand("$THOUSAND/src/essex-get-inactive.pl $dir/1-filtered.essex > $dir/1-uORF.txt");
+  $slurm->addCommand("$THOUSAND/src/essex-get-inactive.pl $dir/2-filtered.essex > $dir/2-uORF.txt");
+  #$slurm->addCommand("$THOUSAND/src/essex-get-inactive.pl $dir/1-filtered.essex > $dir/1-inactivated.txt");
+  #$slurm->addCommand("$THOUSAND/src/essex-get-inactive.pl $dir/2-filtered.essex > $dir/2-inactivated.txt");
 }
 $slurm->setQueue("new,all");
 $slurm->nice(500);
-$slurm->writeArrayScript($SLURM_DIR,"LOF",$SLURM_DIR,800);
+$slurm->writeArrayScript($SLURM_DIR,"uORF",$SLURM_DIR,800);
 
 
