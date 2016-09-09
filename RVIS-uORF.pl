@@ -40,7 +40,8 @@ while(<IN>) {
   my ($indiv,$allele,$gene,$transcript,$uORFbegin,$uORFend,
       $dORFbegin,$dORFend,$L,$status,$reason)=@fields;
   #next if $chr eq "chrX" || $chr eq "chrY";
-  next unless $uORFend<$dORFend;
+  next unless $uORFend<$dORFbegin;
+  #next unless $uORFend<$dORFend;
   if($gene=~/(\S+)\./) { $gene=$1 }
   $alleles{$gene}->{$indiv}->{$allele}=1;
 }
