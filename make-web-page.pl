@@ -14,8 +14,8 @@ foreach my $indiv (@dirs) {
   chomp $indiv;
   next unless $indiv=~/^HG\d+$/ || $indiv=~/^NA\d+$/;
   my $dir="$COMBINED/$indiv";
-  print "<li>$url/$indiv-1.essex.gz\n";
-  print "<li>$url/$indiv-2.essex.gz\n";
+  print "<li><a href=\"$url/$indiv-1.essex.gz\>$indiv-1.essex.gz</a>\n";
+  print "<li><a href=\"$url/$indiv-2.essex.gz\>$indiv-2.essex.gz</a>\n";
 }
 
 print "</ul>\n";
