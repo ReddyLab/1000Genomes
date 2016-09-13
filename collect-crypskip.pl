@@ -10,6 +10,7 @@ foreach my $indiv (@dirs) {
   chomp $indiv;
   next unless $indiv=~/^HG\d+$/ || $indiv=~/^NA\d+$/;
   my $dir="$COMBINED/$indiv";
+  next unless -e "$dir/RNA/stringtie.gff";
   process("$COMBINED/$indiv/1.crypskip",$indiv,1);
   process("$COMBINED/$indiv/2.crypskip",$indiv,2);
 }
