@@ -21,8 +21,10 @@ while(<IN>) {
   next if $transcript eq ".";
   if($transcript=~/(ALT\d+_\S+)_\d+/) { $transcript=$1 }
 
-  next if $seen{$transcript}; ###
-  $seen{$transcript}=1; ###
+  my $baseID=$transcript;
+  if($transcript=~/ALT\d+_(\S+)/) { $baseID=$1 }
+  next if $seen{$baseID}>=100; ###
+  $seen{$baseID}++; ###
 
   $rna{$key}->{$transcript}=$FPKM;
 #  $rnaByTranscript{$transcript}+=$FPKM;
