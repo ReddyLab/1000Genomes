@@ -31,7 +31,7 @@ while(<IN>) {
   my ($geneID,$altID,$type,$L)=@fields;
   $altID=~/ALT\d_(\S+)/ || die $altID;
   my $transcriptID=$1;
-  my $rec={ type=>$type};
+  my $rec={ altID=>$altID, type=>$type};
   if($type eq "exon-skipping") { $rec->{length}=$L }
   else { $rec->{distance}=$L; $rec->{exonLen}=$fields[5] }
   $crypSkip{$transcriptID}->{$altID}=$rec;
@@ -41,7 +41,8 @@ close(IN);
 # Load blacklist (ALTs or SIMs that happen to match an existing isoform)
 my %blacklist;
 loadBlacklist($BLACKLIST,\%blacklist);
-loadNMD($NMD,\%blacklist,$PREFIX);
+my %NMD;
+loadNMD($NMD,\%NMD,$PREFIX);
 
 # Load the TopHat junctions file
 my $introns=parseTophat($junctionsFile);
@@ -100,16 +101,26 @@ for(my $i=0 ; $i<$numTranscripts ; ++$i) {
       if($rec->{found}) {
 	my $reads=$rec->{found};
 	my $dist=$rec->{distance};
-	print READS "$dist\t$reads\n";
+	#print READS "$dist\t$reads\n";
+	my $altID=$rec->{altID};
+	my $nmd=$NMD{$altID} ? "NMD" : "OK";
+	print "$indiv\t$allele\t$transcriptID\t$altID\t.\t$reads\t.\t$nmd\n";
 	++$crypticFound;
       }
     }
     else {
       ++$numSkipping;
-      if($rec->{found}) { ++$skippingFound }
+      if($rec->{found}) {
+	my $reads=$rec->{found};
+	#print READS "$dist\t$reads\n";
+	my $altID=$rec->{altID};
+	my $nmd=$NMD{$altID} ? "NMD" : "OK";
+	print "$indiv\t$allele\t$transcriptID\t$altID\t.\t$reads\t.\t$nmd\n";
+	++$skippingFound;
+      }
     }
   }
-  print "$numCryptic\t$numSkipping\t$crypticFound\t$skippingFound\n";
+  #print "$numCryptic\t$numSkipping\t$crypticFound\t$skippingFound\n";
 }
 close(READS);
 
@@ -269,6 +280,7 @@ sub loadNMD {
     my ($indiv,$allele,$chr,$gene,$transcript,$ALT,$status)=@fields;
     $ALT=~/\S\S\S(\d+_\S+)/ || die $ALT; # The prefix may be wrong...that's ok
     my $id="$prefix$1\_$allele";
+    #print "$id\n";
     if($status eq "NMD") { $hash->{$id}=1 }
   }
   close(IN);

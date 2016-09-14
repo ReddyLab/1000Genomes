@@ -6,17 +6,34 @@ my $MIN_SAMPLE_SIZE=30;
 my $BASE="/home/bmajoros/1000G/assembly";
 my $CRYPSKIP="$BASE/crypskip.txt";
 my $RNA="$BASE/rna.txt";
+#my $RNA="$BASE/crypskip-counts.txt";
 
 my (%rna,%rnaByTranscript,%sampleSize);
 open(IN,$RNA) || die $RNA;
-<IN>; # header
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
-  my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM)=@fields;
+  my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM,$nmd)=@fields;
+  next if $indiv eq "indiv"; # header
+  #next unless $nmd eq "OK";
   my $key="$indiv $allele";
   #if($transcript=~/ALT\d+_(\S+)/) { $transcript=$1 }
   #print "key=\"$key\" transcript=\"$transcript\" FPKM=\"$FPKM\"\n";
+  next if $transcript eq ".";
+  if($transcript=~/(ALT\d+_\S+)_\d+/) { $transcript=$1 }
   $rna{$key}->{$transcript}=$FPKM;
+#  $rnaByTranscript{$transcript}+=$FPKM;
+#  ++$sampleSize{$transcript};
+  #print "$key $transcript $FPKM\n";
+}
+close(IN);
+
+open(IN,"$BASE/rna.txt") || die;
+while(<IN>) {
+  chomp; my @fields=split; next unless @fields>=7;
+  my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM,$nmd)=@fields;
+  next if $indiv eq "indiv"; # header
+  my $key="$indiv $allele";
+  if($transcript=~/(ALT\d+_\S+)_\d+/) { $transcript=$1 }
   $rnaByTranscript{$transcript}+=$FPKM;
   ++$sampleSize{$transcript};
 }
@@ -33,6 +50,11 @@ while(<IN>) {
   if($transcript=~/ALT\d+_(\S+)/) { $baseID=$1 }
   $baseIDs{$baseID}=1;
   my $key="$indiv $hap";
+
+  #print "$key $transcript\n";
+  if($event eq "exon-skipping") {next unless $rna{$key}->{$transcript}>0} ###
+  #next unless $rna{$key}->{$transcript}>0; ###
+
   if($event eq "exon-skipping") { $exonSkipping{$key}->{$baseID}=$transcript }
   else { ++$crypticCounts{$key}->{$baseID} }
 }
