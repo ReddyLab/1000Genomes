@@ -5,10 +5,10 @@ my $MIN_FPKM=1;
 my $MIN_SAMPLE_SIZE=30;
 my $BASE="/home/bmajoros/1000G/assembly";
 my $CRYPSKIP="$BASE/crypskip.txt";
-my $RNA="$BASE/rna.txt";
-#my $RNA="$BASE/crypskip-counts.txt";
+#my $RNA="$BASE/rna.txt";
+my $RNA="$BASE/crypskip-counts.txt";
 
-my (%rna,%rnaByTranscript,%sampleSize);
+my (%rna,%rnaByTranscript,%sampleSize,%seen);
 open(IN,$RNA) || die $RNA;
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
@@ -20,6 +20,10 @@ while(<IN>) {
   #print "key=\"$key\" transcript=\"$transcript\" FPKM=\"$FPKM\"\n";
   next if $transcript eq ".";
   if($transcript=~/(ALT\d+_\S+)_\d+/) { $transcript=$1 }
+
+  next if $seen{$transcript}; ###
+  $seen{$transcript}=1; ###
+
   $rna{$key}->{$transcript}=$FPKM;
 #  $rnaByTranscript{$transcript}+=$FPKM;
 #  ++$sampleSize{$transcript};
@@ -85,6 +89,7 @@ for(my $i=0 ; $i<$numKeys ; ++$i) {
     my $fpkm=0+$rna{$key}->{$skippingID};
     my $mean=$meanFPKM{$baseID};
     next unless $mean>$MIN_FPKM;
+    next if $baseID=~/ENST00000421308.2/; # outlier: common allele
     #$fpkm/=$mean;
     print "$baseID\t$numCryptic\t$fpkm\n";
   }
