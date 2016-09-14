@@ -14,10 +14,7 @@ while(<IN>) {
   chomp; my @fields=split; next unless @fields>=7;
   my ($indiv,$allele,$gene,$transcript,$cov,$FPKM,$TPM,$nmd)=@fields;
   next if $indiv eq "indiv"; # header
-  #next unless $nmd eq "OK";
   my $key="$indiv $allele";
-  #if($transcript=~/ALT\d+_(\S+)/) { $transcript=$1 }
-  #print "key=\"$key\" transcript=\"$transcript\" FPKM=\"$FPKM\"\n";
   next if $transcript eq ".";
   if($transcript=~/(ALT\d+_\S+)_\d+/) { $transcript=$1 }
 
@@ -56,11 +53,7 @@ while(<IN>) {
   if($transcript=~/ALT\d+_(\S+)/) { $baseID=$1 }
   $baseIDs{$baseID}=1;
   my $key="$indiv $hap";
-
-  #print "$key $transcript\n";
   if($event eq "exon-skipping") {next unless $rna{$key}->{$transcript}>0} ###
-  #next unless $rna{$key}->{$transcript}>0; ###
-
   if($event eq "exon-skipping") { $exonSkipping{$key}->{$baseID}=$transcript }
   else { ++$crypticCounts{$key}->{$baseID} }
 }
@@ -91,14 +84,11 @@ for(my $i=0 ; $i<$numKeys ; ++$i) {
     my $fpkm=0+$rna{$key}->{$skippingID};
     my $mean=$meanFPKM{$baseID};
     next unless $mean>$MIN_FPKM;
-    #next if $baseID=~/ENST00000421308.2/; # outlier: common allele
+    next if $baseID=~/ENST00000421308.2/; # outlier: common allele
     #$fpkm/=$mean;
     print "$baseID\t$numCryptic\t$fpkm\n";
   }
 }
-
-#indiv   allele  gene    transcript      cov     FPKM    TPM
-#HG00096 1       ENSG00000042088.9       ALT1_ENST00000393452.3  2.948879        0.867289        1.876076
 
 
 
