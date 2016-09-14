@@ -11,7 +11,7 @@ my $READS=$type eq "FPKM" ? 0 : 1;
 
 my $MIN_FPKM=1;
 my $MIN_SAMPLE_SIZE=30;
-my $MAX_COPIES=10000000;
+my $MAX_COPIES=1000000;
 my $BASE="/home/bmajoros/1000G/assembly";
 my $CRYPSKIP="$BASE/crypskip.txt";
 my $RNA=$READS ? "$BASE/crypskip-counts.txt" : "$BASE/rna.txt";
@@ -29,7 +29,7 @@ while(<IN>) {
 #  else { next } 
   my $baseID=$transcript;
   if($transcript=~/ALT\d+_(\S+)/) { $baseID=$1 }
-  #$seen{$baseID}++;
+  if($transcript=~/(ALT\d+_\S+)_\d+/) { $seen{$baseID}++ }
   $rna{$key}->{$transcript}=$FPKM;
   if($READS) {
     $rnaByTranscript{$baseID}+=$FPKM;
@@ -65,8 +65,8 @@ while(<IN>) {
   my $key="$indiv $hap";
 
   #print "$key $transcript\n";
-  if($event eq "exon-skipping") {next unless $rna{$key}->{$transcript}>0} ###
-  #next unless $rna{$key}->{$transcript}>0; ###
+  #if($event eq "exon-skipping") {next unless $rna{$key}->{$transcript}>0} ###
+  next unless $rna{$key}->{$transcript}>0; ###
 
   if($event eq "exon-skipping") { $exonSkipping{$key}->{$baseID}=$transcript }
   else { ++$crypticCounts{$key}->{$baseID} }
@@ -99,7 +99,8 @@ for(my $i=0 ; $i<$numKeys ; ++$i) {
     my $mean=$meanFPKM{$baseID};
     #print "$baseID $fpkm / $mean $skippingID\n";
     next unless $mean>$MIN_FPKM;
-    next if $baseID=~/ENST00000421308.2/; # outlier: common allele
+    next if $baseID=~/ENST00000421308.2/; # outlier: reference has minor allele
+    next if $baseID=~/ENST00000458398.2/; # outlier: high FPKM for exon-skip
     #my $rep=$seen{$baseID}; print "$rep vs $MAX_COPIES\n";
     next if $seen{$baseID}>$MAX_COPIES;
     #print "dividing $fpkm by $mean\n";
