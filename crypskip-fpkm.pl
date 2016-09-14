@@ -1,11 +1,17 @@
 #!/usr/bin/perl
 use strict;
+use ProgramName;
 
-my $READS=0; # 1 = use spliced read counts (TopHat), 0 = use FPKM (StringTie)
+my $name=ProgramName::get();
+die "$name <FPKM|READS>\n" unless @ARGV==1;
+my ($type)=@ARGV;
+
+#my $READS=1; # 1 = use spliced read counts (TopHat), 0 = use FPKM (StringTie)
+my $READS=$type eq "FPKM" ? 0 : 1;
 
 my $MIN_FPKM=1;
 my $MIN_SAMPLE_SIZE=30;
-my $MAX_COPIES=100;
+my $MAX_COPIES=10000000;
 my $BASE="/home/bmajoros/1000G/assembly";
 my $CRYPSKIP="$BASE/crypskip.txt";
 my $RNA=$READS ? "$BASE/crypskip-counts.txt" : "$BASE/rna.txt";
@@ -20,9 +26,10 @@ while(<IN>) {
   my $key="$indiv $allele";
   next if $transcript eq ".";
   if($transcript=~/(ALT\d+_\S+)_\d+/) { $transcript=$1 }
+#  else { next } 
   my $baseID=$transcript;
   if($transcript=~/ALT\d+_(\S+)/) { $baseID=$1 }
-  $seen{$baseID}++;
+  #$seen{$baseID}++;
   $rna{$key}->{$transcript}=$FPKM;
   if($READS) {
     $rnaByTranscript{$baseID}+=$FPKM;
@@ -90,10 +97,12 @@ for(my $i=0 ; $i<$numKeys ; ++$i) {
     my $skippingID=$hash->{$baseID};
     my $fpkm=0+$rna{$key}->{$skippingID};
     my $mean=$meanFPKM{$baseID};
+    #print "$baseID $fpkm / $mean $skippingID\n";
     next unless $mean>$MIN_FPKM;
-    #next if $baseID=~/ENST00000421308.2/; # outlier: common allele
+    next if $baseID=~/ENST00000421308.2/; # outlier: common allele
+    #my $rep=$seen{$baseID}; print "$rep vs $MAX_COPIES\n";
     next if $seen{$baseID}>$MAX_COPIES;
-    print "dividing $fpkm by $mean\n";
+    #print "dividing $fpkm by $mean\n";
     $fpkm/=$mean;
     print "$baseID\t$numCryptic\t$fpkm\n";
   }
