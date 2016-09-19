@@ -5,12 +5,13 @@ use FastaReader;
 
 # Globals and constants
 my $MAX_GROUP_SIZE=10;
-my $SUBSTRATE="ENSG00000198947.10_1";
+my $SUBSTRATE="X";#"ENSG00000198947.10_1";
 my $BASE="/home/bmajoros/1000G/assembly/DMD";
 my $GFF="$BASE/ref-rev.gff";
 my $FASTA="$BASE/ref-rev.fasta";
 my $HEADER="$BASE/header.vcf";
-my $OUT_VCF="$BASE/sim.vcf";
+my $OUT_VCF="$BASE/vcf/chrX.vcf.gz";
+my $OUT_GENDER="$BASE/config/gender.txt";
 
 # Load GFF & FASTA
 my $reader=new GffTranscriptReader;
@@ -57,7 +58,7 @@ for(my $i=1 ; $i+1<$numExons ; ++$i) {
 }
 
 # Simulate splice-disrupting variants
-open(OUT,">$OUT_VCF") || die $OUT_VCF;
+open(OUT,"|bgzip>$OUT_VCF") || die $OUT_VCF;
 open(IN,$HEADER) || die $HEADER;
 while(<IN>) {
   if(/^#CHROM/)
@@ -66,13 +67,16 @@ while(<IN>) {
 }
 close(IN);
 my @indivs;
+open(GENDER,">$OUT_GENDER") || DIE $OUT_GENDER;
 for(my $i=0 ; $i<@spliceSites ; ++$i) {
   my $sites=$spliceSites[$i];
   my $exon=$i+2;
   my $donor=$sites->{donor}; my $acceptor=$sites->{acceptor};
-  my $indiv="\texon${exon}donor"; push @indivs,$indiv; print OUT "\t$indiv";
-  my $indiv="\texon${exon}acceptor"; push @indivs,$indiv; print OUT "\t$indiv";
+  my $indiv1="exon${exon}acceptor"; push @indivs,$indiv1; print OUT "\t$indiv1";
+  my $indiv2="exon${exon}donor"; push @indivs,$indiv2; print OUT "\t$indiv2";
+  print GENDER "$indiv1\tmale\n$indiv2\tmale\n";
 }
+close(GENDER);
 print OUT "\n";
 my $numIndivs=@indivs;
 my $indivIndex=0;
@@ -82,9 +86,9 @@ for(my $i=0 ; $i<@spliceSites ; ++$i) {
   my $donor=$sites->{donor}; my $acceptor=$sites->{acceptor};
   my $refDonor=substr($chrom,$donor-1,3);
   my $refAcceptor=substr($chrom,$acceptor-1,3);
-  simulate($donor,$refDonor,"exon${exon}donor",\*OUT,$indivIndex++,$numIndivs);
   simulate($acceptor,$refAcceptor,"exon${exon}acceptor",\*OUT,$indivIndex++,
 	  $numIndivs);
+  simulate($donor,$refDonor,"exon${exon}donor",\*OUT,$indivIndex++,$numIndivs);
 }
 close(OUT);
 
@@ -92,7 +96,7 @@ close(OUT);
 sub simulate {
   my ($pos,$ref,$indiv,$fh,$indivIndex,$numIndivs)=@_;
   my $alt=substr($ref,0,1);
-  --$pos;
+  $pos;
   print $fh "$SUBSTRATE\t$pos\t$indiv\t$ref\t$alt\t100\tPASS\tVT=DEL\tGT\t";
   for(my $i=0 ; $i<$numIndivs ; ++$i) {
     my $genotype=($i==$indivIndex ? 1 : 0);
