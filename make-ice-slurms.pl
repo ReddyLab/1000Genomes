@@ -2,6 +2,7 @@
 use strict;
 use SlurmWriter;
 
+my $MAX_ERRORS=0;
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
@@ -14,8 +15,8 @@ foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
-  $writer->addCommand("cd $dir ; /home/bmajoros/ICE/ice.pl /home/bmajoros/1000G/ICE/model $REF_FASTA $dir/1.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/1.essex");
-  $writer->addCommand("cd $dir ; /home/bmajoros/ICE/ice.pl /home/bmajoros/1000G/ICE/model $REF_FASTA $dir/2.fasta /home/bmajoros/1000G/assembly/local-genes.gff $dir/2.essex");
+  $writer->addCommand("cd $dir ; /home/bmajoros/ICE/ice.pl /home/bmajoros/1000G/ICE/model $REF_FASTA $dir/1.fasta /home/bmajoros/1000G/assembly/local-genes.gff $MAX_ERRORS $dir/1.essex");
+  $writer->addCommand("cd $dir ; /home/bmajoros/ICE/ice.pl /home/bmajoros/1000G/ICE/model $REF_FASTA $dir/2.fasta /home/bmajoros/1000G/assembly/local-genes.gff $MAX_ERRORS $dir/2.essex");
 }
 $writer->mem(5000);
 $writer->setQueue("new,all");
