@@ -35,7 +35,8 @@ for(my $i=0 ; $i<$numExons ; ++$i) {
 # Identify exons divisible by 3
 for(my $i=1 ; $i+1<$numExons ; ++$i) {
   my $L=$lengths[$i];
-  if($L%3==0) { print "exon $i is divisible by 3\n" }
+  my $index=$i+1;
+  if($L%3==0) { print "exon $index is divisible by 3 ($L)\n" }
 }
 
 # Identify groups of exons divisible by 3
@@ -46,10 +47,11 @@ for(my $i=1 ; $i+1<$numExons ; ++$i) {
     my $sum=0;
     for(my $k=$i ; $k<=$j ; ++$k) { $sum+=$lengths[$k] }
     if($sum%3==0) {
-      print "div by 3 group: ";
+      #print "div by 3 group: ";
       for(my $k=$i ; $k<=$j ; ++$k) {
 	my $residue=$lengths[$k]%3;
-	print "$k($residue) ";
+	my $exonNum=$k+1;
+	print "$exonNum($residue) ";
       }
       print "\n";
       last;
@@ -86,6 +88,8 @@ for(my $i=0 ; $i<@spliceSites ; ++$i) {
   my $donor=$sites->{donor}; my $acceptor=$sites->{acceptor};
   my $refDonor=substr($chrom,$donor-1,3);
   my $refAcceptor=substr($chrom,$acceptor-1,3);
+  #my $refDonor=substr($chrom,$donor-6,13);
+  #my $refAcceptor=substr($chrom,$acceptor-6,13);
   simulate($acceptor,$refAcceptor,"exon${exon}acceptor",\*OUT,$indivIndex++,
 	  $numIndivs);
   simulate($donor,$refDonor,"exon${exon}donor",\*OUT,$indivIndex++,$numIndivs);
@@ -96,7 +100,7 @@ close(OUT);
 sub simulate {
   my ($pos,$ref,$indiv,$fh,$indivIndex,$numIndivs)=@_;
   my $alt=substr($ref,0,1);
-  $pos;
+  $pos-=5;
   print $fh "$SUBSTRATE\t$pos\t$indiv\t$ref\t$alt\t100\tPASS\tVT=DEL\tGT\t";
   for(my $i=0 ; $i<$numIndivs ; ++$i) {
     my $genotype=($i==$indivIndex ? 1 : 0);

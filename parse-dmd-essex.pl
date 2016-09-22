@@ -6,6 +6,7 @@ $|=1;
 my $BASE="/home/bmajoros/1000G/assembly/DMD";
 my $INDIR="$BASE/out";
 
+my $noChange;
 my @files=`ls $INDIR/*.essex`;
 foreach my $file (@files) {
   chomp $file; $file=~/([^\/]+)\.essex/ || die $file;
@@ -16,7 +17,7 @@ foreach my $file (@files) {
   my $status=$root->pathQuery("report/status");
   die "no status" unless $status;
   my $splicingChanges=$status->hasDescendentOrDatum("splicing-changes");
-  if(!$splicingChanges) { next; } #print "no splicing changes\n"; next }
+  if(!$splicingChanges) { ++$noChange; next; }
   my $altStructs=$status->findChild("alternate-structures");
   die unless $altStructs;
   my $transcripts=$altStructs->findChildren("transcript");
@@ -26,8 +27,12 @@ foreach my $file (@files) {
     if($type eq "exon-skipping") { ++$exonSkipping }
     elsif($type eq "cryptic-site") { ++$crypticSites }
   }
-  die unless $exonSkipping>0;
+  #die unless $exonSkipping>0;
   $crypticSites+=0;
-  print "$id\t$crypticSites\n";
+  $exonSkipping+=0;
+  print "$id\t$exonSkipping\t$crypticSites\n";
 }
+print "$noChange had no splicing changes\n";
+
+
 

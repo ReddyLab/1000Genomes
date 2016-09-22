@@ -37,7 +37,7 @@ print "\n";
 sub done
 {
   my ($filename)=@_;
-  open(IN,"tail $filename|") || die $filename;
+  open(IN,"tail -n 200 $filename|") || die $filename;
   while(<IN>) {
     if(/\[done\]/) { close(IN); return 1 }
   }
