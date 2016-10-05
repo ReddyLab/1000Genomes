@@ -11,6 +11,17 @@ my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
 my $POP_FILE="$THOUSAND/assembly/populations.txt";
+my $GFF="$ASSEMBLY/local-genes.gff";
+
+my %geneID;
+open(IN,$GFF) || die $GFF;
+while(<IN>) {
+  if(/transcript_id=(\S+);gene_id=([^;]+);/) {
+    my ($trans,$gene)=($1,$2);
+    $geneID{$trans}=$gene;
+  }
+}
+close(IN);
 
 my %pop;
 open(IN,$POP_FILE) || die "can't open file: $POP_FILE\n";
@@ -31,7 +42,7 @@ foreach my $subdir (@dirs) {
   my $eth=$pop{$subdir};
   die unless $eth;
   #next if $eth eq "EUR";
-  #next unless $eth eq "AFR";
+  next unless $eth eq "AFR";
   next unless $keep{$eth};
   my $dir="$COMBINED/$subdir";
   next unless -e "$dir/1-substitutions.txt";
@@ -57,10 +68,14 @@ sub round
 sub process
 {
   my ($filename)=@_;
+  my %seen;
   open(IN,$filename) || die "can't open file: $filename\n";
   while(<IN>) {
     chomp; my @fields=split; next unless @fields>=5;
     my ($indiv,$transcriptID,$ref,$ethnic,$mapped)=@fields;
+    my $geneID=$geneID{$transcriptID};
+    next if $seen{$geneID};
+    $seen{$geneID}=1;
     my $refToMapped=$M->lookup($ref,$mapped);
     my $ethnicToMapped=$M->lookup($ethnic,$mapped);
     if($ethnicToMapped>$refToMapped) {

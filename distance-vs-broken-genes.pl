@@ -3,8 +3,8 @@ use strict;
 
 my $THOUSAND="/home/bmajoros/1000G/assembly";
 my $ALLELE_COUNTS="$THOUSAND/allele-counts";
-#my $BROKEN="$THOUSAND/inactivated3.txt";
-my $BROKEN="$THOUSAND/broken.txt";
+my $BROKEN="$THOUSAND/inactivated3.txt";
+#my $BROKEN="$THOUSAND/broken.txt";
 my $ETHNICITIES="$THOUSAND/populations.txt";
 
 my %ethnicity;

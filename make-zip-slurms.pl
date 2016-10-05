@@ -18,7 +18,7 @@ foreach my $indiv (@dirs) {
   $writer->addCommand("cd $dir ; cat 2.essex | gzip --best > $ASSEMBLY/upload/all/$indiv-2.essex.gz");
 }
 #$writer->mem(5000);
-$writer->setQueue("all");
+$writer->setQueue("new,all");
 $writer->writeArrayScript($SLURM_DIR,"ZIP",$SLURM_DIR,1200);
 
 
