@@ -4,6 +4,7 @@ use ProgramName;
 $|=1;
 
 # Globals
+my $PROB_KEEP_VARIANT=0.01; # thinning, for efficiency
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $VCF="$THOUSAND/vcf";
@@ -62,6 +63,7 @@ foreach my $file (@files) {
       if($chr=~/chr(\S+)/) { $chr=$1 }
       my $centimorgans=$interpolated->{$pos};
       next unless $centimorgans>0;
+      next unless rand(1)<=$PROB_KEEP_VARIANT;
       #print "$chr\t$pos\t$centimorgans\t$variant\t$ref\t$alt\n";
       print EURsnpfile "\t$variant\t$chr\t$centimorgans\t$pos\t$ref\t$alt\n";
       print AMRsnpfile "\t$variant\t$chr\t$centimorgans\t$pos\t$ref\t$alt\n";
