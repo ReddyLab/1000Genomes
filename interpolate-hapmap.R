@@ -11,8 +11,9 @@ for(chr in chroms) {
    thousandFile <- paste("centimorgans/",chr,".pos",sep="")
    thousand <- read.table(thousandFile,header=F)
    interpolated <- approx(x=hapmap[[2]],y=hapmap[[4]],xout=thousand[[1]])
+   interpolated$variant <- thousand[[2]]
    outputFile <- paste(chr,".interpolated",sep="")
-   write.table(interpolated,outputFile)
+   write.table(interpolated,outputFile,col.names=F,row.names=F)
 }
 
 
