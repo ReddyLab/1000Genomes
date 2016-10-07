@@ -1,6 +1,7 @@
 #!/bin/env perl
 use strict;
 use ProgramName;
+$|=1;
 
 # Globals
 my $THOUSAND="/home/bmajoros/1000G";
@@ -8,41 +9,35 @@ my $ASSEMBLY="$THOUSAND/assembly";
 my $VCF="$THOUSAND/vcf";
 my $HAPMIX="/home/bmajoros/hapmix";
 my $OUTDIR="$HAPMIX/data-prep/ref";
-my $INTERPOLATED="$HAPMIX/interpolated";
+my $INTERPOLATED="$HAPMIX/data-prep/interpolated";
+my $PRECISION=10**8;
 
 # Load ethnicities
+print "Loading ethnicities\n";
 my %ethnicity;
-open(IN,"$VCF/gender-and-ethnicity.txt") || die;
+open(IN,"$VCF/gender-and-ancestry.txt") || die;
 while(<IN>) {
   chomp; my @fields=split; next unless @fields>=4;
   my ($indiv,$sex,$subpop,$ethnicity)=@fields;
   $ethnicity{$indiv}=$ethnicity; }
 close(IN);
 
-# Load genetic positions (centimorgans)
-my %interpolated; # index by chr
-my @files=`ls $INTERPOLATED/*.interpolated`;
-foreach my $file (@files) {
-  chomp $file;
-  $file=~/chr(\S+)/ || die;
-  my $chr=$1; next if $chr eq "X" || $chr eq "Y";
-  open(IN,$file) || die $file;
-  while(<IN>) {
-    chomp; my @fields=split; next unless @fields>=3;
-    my ($pos,$centimorgans,$id)=@fields;
-    $interpolated{$chr}->{$pos}=$centimorgans;
-  }
-  close(IN);
-}
 
 # Process each VCF file in turn
 my @header;
-my @files=`ls $VCF/ALL.*.vcf/gz`;
+my @files=`ls $VCF/ALL.*.vcf.gz`;
 foreach my $file (@files) {
   chomp $file;
-  $file=~/^ALL\.chr([^\.]+)\./ || die $file;
+  print "Processing $file\n";
+  $file=~/\/ALL\.chr([^\.]+)\./ || die $file;
   my $chr=$1;
   next if $chr eq "X" || $chr eq "Y";
+
+  # Load genetic positions (centimorgans)
+  print "Loading genetic positions\n";
+  my $interpolated=loadGeneticPos($chr);
+
+  # Open output files
   open(EURsnpfile,">$OUTDIR/EURsnpfile.$chr") || die;
   open(AMRsnpfile,">$OUTDIR/AMRsnpfile.$chr") || die;
   open(AFRsnpfile,">$OUTDIR/AFRsnpfile.$chr") || die;
@@ -54,7 +49,7 @@ foreach my $file (@files) {
   open(EASgenofile,">$OUTDIR/EASgenofile.$chr") || die;
   open(SASgenofile, ">$OUTDIR/SASgenofile.$chr") || die;
   open(VCF,"cat $file | gunzip |") || die "can't open $file\n";
-  while(<IN>) {
+  while(<VCF>) {
     chomp; my @fields=split; next unless @fields>=9;
     if($fields[0] eq "#CHROM") {
       for(my $i=0;$i<9;++$i) { shift @fields }
@@ -62,10 +57,12 @@ foreach my $file (@files) {
     elsif(/#/) { next }
     else {
       my ($chr,$pos,$variant,$ref,$alt)=@fields;
+      if($variant eq ".") { $variant="chr$chr@$pos" }
       next unless length($ref)==1 && length($alt)==1;
       if($chr=~/chr(\S+)/) { $chr=$1 }
-      my $centimorgans=$interpolated{$chr}->{$pos};
+      my $centimorgans=$interpolated->{$pos};
       next unless $centimorgans>0;
+      #print "$chr\t$pos\t$centimorgans\t$variant\t$ref\t$alt\n";
       print EURsnpfile "\t$variant\t$chr\t$centimorgans\t$pos\t$ref\t$alt\n";
       print AMRsnpfile "\t$variant\t$chr\t$centimorgans\t$pos\t$ref\t$alt\n";
       print AFRsnpfile "\t$variant\t$chr\t$centimorgans\t$pos\t$ref\t$alt\n";
@@ -85,16 +82,35 @@ foreach my $file (@files) {
 	if($ethnicity eq "EAS") { print EASgenofile $genotype }
 	if($ethnicity eq "SAS") { print SASgenofile $genotype }
       }
+      print EURgenofile "\n"; print AFRgenofile "\n"; print AMRgenofile "\n";
+      print EASgenofile "\n"; print SASgenofile "\n";
     }
   }
   close(VCF);
-  print EURgenofile "\n"; print AFRgenofile "\n"; print AMRgenofile "\n";
-  print EASgenofile "\n"; print SASgenofile "\n";
   close(EURsnpfile); close(EURgenofile);
   close(AMRsnpfile); close(AMRgenofile);
   close(EASsnpfile); close(EASgenofile);
   close(SASsnpfile); close(SASgenofile);
   close(AFRsnpfile); close(AFRgenofile);
+  undef $interpolated;
 }
+
+
+sub loadGeneticPos {
+  my ($chr)=@_;
+  my $interpolated;
+  my $file="$INTERPOLATED/chr$chr.interpolated";
+  print "\tloading $file\n";
+  open(IN,$file) || die $file;
+  while(<IN>) {
+    chomp; my @fields=split; next unless @fields>=3;
+    my ($pos,$centimorgans,$id)=@fields;
+    $centimorgans=int($centimorgans*$PRECISION+5/9)/$PRECISION;
+    $interpolated->{$pos}=$centimorgans;
+  }
+  close(IN);
+  return $interpolated;
+}
+
 
 
