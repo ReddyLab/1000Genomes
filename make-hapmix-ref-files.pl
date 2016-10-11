@@ -4,6 +4,7 @@ use ProgramName;
 $|=1;
 
 # Globals
+my $MAX_INDIVIDUALS=100;
 my $PROB_KEEP_VARIANT=0.01; # thinning, for efficiency
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
@@ -72,6 +73,7 @@ foreach my $file (@files) {
       print SASsnpfile "\t$variant\t$chr\t$centimorgans\t$pos\t$ref\t$alt\n";
       for(my $i=0;$i<9;++$i) { shift @fields }
       my $numIndivs=@fields;
+      if($numIndivs>$MAX_INDIVIDUALS) { $numIndivs=$MAX_INDIVIDUALS }
       for(my $i=0 ; $i<$numIndivs ; ++$i) {
 	my $indiv=$header[$i];
 	my $genotype=$fields[$i];
