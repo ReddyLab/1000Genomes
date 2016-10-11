@@ -58,7 +58,7 @@ foreach my $file (@files) {
     elsif(/#/) { next }
     else {
       my ($chr,$pos,$variant,$ref,$alt)=@fields;
-      if($variant eq ".") { $variant="chr$chr@$pos" }
+      if($variant eq ".") { $variant="chr$chr\@$pos" }
       next unless length($ref)==1 && length($alt)==1;
       if($chr=~/chr(\S+)/) { $chr=$1 }
       my $centimorgans=$interpolated->{$pos};
