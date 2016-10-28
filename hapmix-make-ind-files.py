@@ -9,7 +9,10 @@ from __future__ import (absolute_import, division, print_function,
 from builtins import (bytes, dict, int, list, object, range, str, ascii,
    chr, hex, input, next, oct, open, pow, round, super, filter, map, zip)
 
-MAX_INDIV=30
+# This program makes the admix.* files (one per chromosome) that give
+# the unphased genotype info for the admixed individuals
+
+MAX_INDIV=1000 #30
 BASE="/home/bmajoros/hapmix"
 
 CHROMS=list(range(1,23))

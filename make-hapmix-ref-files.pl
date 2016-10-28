@@ -24,7 +24,6 @@ while(<IN>) {
   $ethnicity{$indiv}=$ethnicity; }
 close(IN);
 
-
 # Process each VCF file in turn
 my @header;
 my @files=`ls $VCF/ALL.*.vcf.gz`;
