@@ -25,22 +25,21 @@ for file in FILES:
         if(not root): break
         alts=root.pathQuery("report/status/alternate-structures")
         if(not alts): continue
-        #print("alt structs found",flush=True)
         transcripts=alts.findChildren("transcript")
-        #print(len(transcripts),"alt transcripts found",flush=True)
         scores={}
+        numCryptic=0
         for transcript in transcripts:
             change=transcript.getAttribute("structure-change")
             score=transcript.getAttribute("score")
             if(change not in scores): scores[change]=0.0
             scores[change]+=float(score)
+            numCryptic+=1
         if(len(scores)!=2): continue
         skippingScore=scores["exon-skipping"]
         crypticScore=scores["cryptic-site"]
         print(root.getAttribute("substrate"),
               root.getAttribute("transcript-ID"),
-              skippingScore,
-              crypticScore,flush=True)
+              skippingScore,crypticScore,numCryptic,flush=True)
     parser.close()
 
 
