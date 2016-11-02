@@ -13,20 +13,26 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 from FastaReader import FastaReader
 import random
 
-NUM_ORFS=1000
+NUM_ORFS=10000
 DATA="/data/reddylab/Reference_Data/Genomes/hg19"
 filename=DATA+"/chr1.fa"
 
 stops={"TAG":True, "TGA":True, "TAA":True}
 
 def sample(chr):
-    L=length(chr)
+    L=len(chr)
     pos=int(random.uniform(0,L-100000))
+    while(pos<L-3):
+        codon=chr[pos:pos+3]
+        if(codon=="ATG"): break
+    if(codon!="ATG"): return -1
     codons=0
     while(pos<L-3):
         codon=chr[pos:pos+3]
+        if(codon[0]=='N' or codon[1]=='N' or codon[2]=='N'): return -1
         if(stops.get(codon,False)): break
         codons+=1
+        pos+=3
     return codons
 
 #============================ main() ==============================
@@ -35,8 +41,9 @@ while(True):
     [defline,seq]=reader.nextSequence()
     if(not defline): break
     for i in range(NUM_ORFS):
-        len=sample(seq)
-        print(len,flush=True)
+        length=sample(seq)
+        if(length<0): continue
+        print(length,flush=True)
 reader.close()
 
 
