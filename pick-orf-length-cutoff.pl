@@ -18,7 +18,7 @@ my $n=@lengths;
 
 my $min=$lengths[0];
 print "min = $min AA\n";
-report(0.01);
+report(0.008);
 report(0.05);
 
 sub report
