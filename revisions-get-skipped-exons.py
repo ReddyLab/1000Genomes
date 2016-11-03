@@ -16,27 +16,26 @@ from Transcript import Transcript
 if(len(sys.argv)!=4): exit(sys.argv[0]+" <indiv> <hap> <in.essex>")
 (indiv,hap,infile)=sys.argv[1:]
 
-def hashExons(transcript):
-    hash={}
-    n=transcript.numExons()
-    for i in range(n):
-        exon=transcript.getIthExon(i)
-        key=str(exon.getBegin())+"-"+str(exon.getEnd())
-        hash[key]=i
-    return hash
+def printExons(exons):
+    for exon in exons:
+        print(exon.toGff())
 
-def findSkippedExon(transA,transB):
-    numA=transA.numExons()
-    numB=transB.numExons()
-    if(numA!=numB-1): 
-        print(transA.toGff(),"\n",transB.toGff())
-        exit("exon count mismatch")
+def findSkippedExon(exonsA,exonsB,transA,transB):
+    numA=len(exonsA)
+    numB=len(exonsB)
+    if(numA!=numB+1): 
+        return None
     for i in range(numA):
-        exonA=transA.getIthExon(i)
+        exonA=exonsA[i]
         if(i==numB): return i
-        exonB=transB.getIthExon(i)
+        exonB=exonsB[i]
         if(exonA.getBegin()!=exonB.getBegin()): return i
     exit("skipped exon not found")
+
+def getJunction(exons,strand,i):
+    if(strand=="+"):
+        return (exons[i-1].getEnd(),exons[i+1].getBegin())
+    return (exons[i+1].getEnd(),exons[i-1].getBegin())
 
 #============================= main() =================================
 parser=EssexParser(infile)
@@ -51,16 +50,21 @@ while(True):
     geneID=report.getAttribute("gene-ID")
     transID=report.getAttribute("transcript-ID")
     mappedNode=report.findChild("mapped-transcript")
+    strand=mappedNode.getAttribute("strand")
     mappedTranscript=Transcript(mappedNode)
     transcripts=altsNode.findChildren("transcript")
     numTrans=len(transcripts)
-    print(numTrans,"alt transcripts",flush=True)
     for transNode in transcripts:
         change=transNode.getAttribute("structure-change")
         if(change!="exon-skipping"): continue
         transcript=Transcript(transNode)
-        index=findSkippedExon(mappedTranscript,transcript)
-        exon=mappedTranscript.getIthExon(index)
-        print(indiv,hap,geneID,transID,index,exon.getBegin(),exon.getEnd(),
-              "skipped",sep="\t",flush=True)
+        mappedExons=mappedTranscript.getRawExons()
+        altExons=transcript.getRawExons()
+        index=findSkippedExon(mappedExons,altExons,mappedTranscript,transcript)
+        if(index is None): break
+        if(index>=len(mappedExons)-1): break
+        (begin,end)=getJunction(mappedExons,strand,index)
+        print(indiv,hap,geneID,transID,index,begin,end,"skipped",
+              sep="\t",flush=True)
+        break
 
