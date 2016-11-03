@@ -25,6 +25,7 @@ def sample(chr):
     while(pos<L-3):
         codon=chr[pos:pos+3]
         if(codon=="ATG"): break
+        pos+=3
     if(codon!="ATG"): return -1
     codons=0
     while(pos<L-3):
