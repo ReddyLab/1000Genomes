@@ -13,6 +13,7 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 import sys
 from EssexParser import EssexParser
 from Transcript import Transcript
+from Interval import Interval
 if(len(sys.argv)!=4): exit(sys.argv[0]+" <indiv> <hap> <in.essex>")
 (indiv,hap,infile)=sys.argv[1:]
 
@@ -20,53 +21,45 @@ def printExons(exons):
     for exon in exons:
         print(exon.toGff())
 
-def findSkippedExon(exonsA,exonsB,transA,transB):
-    numA=len(exonsA)
-    numB=len(exonsB)
-    if(numA!=numB+1): 
-        return None
-    for i in range(numA):
-        exonA=exonsA[i]
-        if(i==numB): return i
-        exonB=exonsB[i]
-        if(exonA.getBegin()!=exonB.getBegin()): return i
-    exit("skipped exon not found")
-
-def getJunction(exons,strand,i):
-    if(strand=="+"):
-        return (exons[i-1].getEnd(),exons[i+1].getBegin())
-    return (exons[i+1].getEnd(),exons[i-1].getBegin())
+def getInterval(pos,exons):
+    numExons=len(exons)
+    for i in range(numExons):
+        exon=exons[i]
+        interval=None
+        if(pos+2==exon.getBegin()):
+            interval=Interval(exons[i-1].end,exon.getEnd())
+        elif(pos==exon.getEnd()):
+            interval=Interval(exon.getBegin(),exons[i+1].getBegin())
+        if(interval): 
+            interval.exon=i
+            return interval
+    return None
 
 #============================= main() =================================
 parser=EssexParser(infile)
 while(True):
     report=parser.nextElem()
     if(not report): break
-    statusNode=report.findChild("status")
+    statusNode=report.findChild("status");
     if(not statusNode): continue
-    if(not statusNode.hasDescendentOrDatum("splicing-changes")): continue
-    altsNode=statusNode.findChild("alternate-structures")
-    if(not altsNode): continue
+    siteType="donor"
+    brokenNode=statusNode.findChild("broken-donor")
+    if(not brokenNode):
+        siteType="acceptor"
+        brokenNode=statusNode.findChild("broken-acceptor")
+    if(not brokenNode): continue
+    sitePos=int(brokenNode.getIthElem(0))
     geneID=report.getAttribute("gene-ID")
     transID=report.getAttribute("transcript-ID")
     mappedNode=report.findChild("mapped-transcript")
     strand=mappedNode.getAttribute("strand")
     mappedTranscript=Transcript(mappedNode)
-    transcripts=altsNode.findChildren("transcript")
-    numTrans=len(transcripts)
-    altID=0
-    for transNode in transcripts:
-        change=transNode.getAttribute("structure-change")
-        if(change!="exon-skipping"): altID+=1; continue
-        transcript=Transcript(transNode)
-        mappedExons=mappedTranscript.getRawExons()
-        altExons=transcript.getRawExons()
-        index=findSkippedExon(mappedExons,altExons,mappedTranscript,transcript)
-        if(index is None): break
-        if(index>=len(mappedExons)-1): break
-        (begin,end)=getJunction(mappedExons,strand,index)
-        id="ALT"+str(altID)+"_"+transID+"_"+hap
-        print(indiv,hap,geneID,transID,id,index,begin,end,strand,"skipped",
-              sep="\t",flush=True)
-        break
+    mappedExons=mappedTranscript.getRawExons()
+    mappedExons.sort(key=lambda exon: exon.begin)
+    interval=getInterval(sitePos,mappedExons)
+    #if(interval is None): print(mappedTranscript.toGff())
+    if(interval is None): continue
+    print(indiv,hap,geneID,transID,strand,interval.exon,siteType,
+          interval.begin,sitePos,interval.end,sep="\t",flush=True)
+
 
