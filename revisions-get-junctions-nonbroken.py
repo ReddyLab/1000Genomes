@@ -87,23 +87,44 @@ with open(junctionsFile,"rt") as IN:
         array.append([substrate,begin+left,end-right,count])
 
 # Process the master broken-sites file
+brokenSites=[]
 with open(masterFile,"rt") as IN:
     while(True):
         line=IN.readline()
         if(line==""): break
         fields=line.split()
         if(len(fields)!=3): continue
-        (gene,exonIndex,siteType)=fields
-        substrate=gene+"_"+hap
-        transcripts=gff.get(substrate,[])
-        
-
-exit
-
-for substrate in keys:
+        brokenSites.append(fields)
+for brokenSite in brokenSites:
+    (transID,exonIndex,siteType)=fields
+    transcript=gff.get(transID,None)
+    geneID=transcript.getGeneId()
+    strand=transcript.getStrand()
+    substrate=transcript.getSubstrate()
+    exons=transcript.getRawExons()
+    exons.sort(key=lambda exon: exon.begin)
+    exon=exons[exonIndex]
+    prevExon=exons[exonIndex-1]
+    nextExon=exons[exonIndex+1]
+    if(strand=="+"):
+        if(siteType=="donor"):
+            begin=exon.getBegin()
+            pos=exon.end()
+            end=nextExon.getBegin()
+        else:
+            begin=prevExon.getEnd()
+            pos=exon.getBegin()-2
+            end=exon.getEnd()
+    else:
+        if(siteType=="donor"):
+            begin=prevExon.getEnd()
+            pos=exon.getBegin()-2
+            end=exon.getEnd()
+        else:
+            begin=exon.getBegin()
+            pos=exon.end()
+            end=nextExon.getBegin()
     exclusions=exclude.get(substrate,{})
-    site=sites[substrate]
-    (indiv,hap,geneID,transID,strand,exonNum,siteType,begin,pos,end)=site
     begin=int(begin); pos=int(pos); end=int(end)
     interval=Interval(pos-70,pos+70)
     if(interval.begin<begin): interval.begin=begin
