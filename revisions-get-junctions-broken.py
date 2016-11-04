@@ -13,10 +13,49 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 import sys
 from Transcript import Transcript
 from Interval import Interval
-if(len(sys.argv)!=3): exit(sys.argv[0]+" <in.broken-sites> <junctions.bed>")
-(infile,junctionsFile)=sys.argv[1:]
+from GffTranscriptReader import GffTranscriptReader
+from Rex import Rex
+rex=Rex()
+
+if(len(sys.argv)!=5):
+    exit(sys.argv[0]+
+         " <in.broken-sites> <junctions.bed> <in.gff> <in.readcounts>")
+(infile,junctionsFile,gffFile,readCountsFile)=sys.argv[1:]
 
 #============================= main() =================================
+
+# Read the readcounts file
+totalMappedReads=None
+readCounts={}
+with open(readCountsFile,"rt") as IN:
+    while(True):
+        line=IN.readline()
+        if(line==""): break
+        if(rex.find("TOTAL MAPPED READS:\s*(\d+)",line)):
+            totalMappedReads=rex[1]
+        else:
+            fields=line.split()
+            (gene,count)=fields
+            readCounts[gene]=count
+
+# Read GFF file to find annotated sites to exclude
+exclude={}
+reader=GffTranscriptReader()
+transcripts=reader.loadGFF(gffFile)
+for transcript in transcripts:
+    if(transcript.getID()[0:3]=="ALT"): continue
+    substrate=transcript.getSubstrate()
+    exclusions=exclude.get(substrate,None)
+    if(exclusions is None): exclusions=exclude[substrate]={}
+    exons=transcript.getRawExons()
+    exons.sort(key=lambda exon:exon.begin)
+    numExons=len(exons)
+    for i in range(numExons-1):
+        key=str(exons[i].getEnd())+"-"+str(exons[i+1].getBegin())
+        exclusions[key]=True
+    #for exon in exons:
+        #exclusions[exon.getBegin()]=True
+        #exclusions[exon.getEnd()]=True
 
 # Read broken-sites file
 sites={}
@@ -29,10 +68,10 @@ with open(infile,"rt") as IN:
         (indiv,hap,geneID,transID,strand,exonNum,siteType,begin,pos,end)=fields
         substrate=geneID+"_"+hap
         sites[substrate]=fields
-junctions={}
-keys=sites.keys()
 
 # Read junctions file
+junctions={}
+keys=sites.keys()
 with open(junctionsFile,"rt") as IN:
     while(True):
         line=IN.readline()
@@ -50,6 +89,8 @@ with open(junctionsFile,"rt") as IN:
 
 # Process each site
 for substrate in keys:
+    exclusions=exclude.get(substrate,{})
+    #print(exclusions.keys())
     site=sites[substrate]
     (indiv,hap,geneID,transID,strand,exonNum,siteType,begin,pos,end)=site
     begin=int(begin); pos=int(pos); end=int(end)
@@ -60,8 +101,19 @@ for substrate in keys:
     sum=0
     for junc in juncs:
         (substrate,begin,end,count)=junc
-        if(interval.contains(begin) or interval.contains(end)): sum+=int(count)
-    print(indiv,hap,geneID,transID,strand,exonNum,siteType,begin,pos,end,
-          count,sep="\t",flush=True)
+        key=str(begin)+"-"+str(end)
+        if(exclusions.find(key,False)): 
+            print("excluding",key)
+            continue
+        if(interval.contains(begin)):
+            if(not exclusions.get(begin,False)): 
+                sum+=int(count)
+                continue
+        if(interval.contains(end)):
+            if(not exclusions.get(end,False)): 
+                sum+=int(count)
+    geneCount=readCounts.get(geneID+"_"+hap,0)
+    print(indiv,hap,geneID,transID,strand,exonNum,siteType,interval.begin,pos,
+          interval.end,sum,geneCount,totalMappedReads,sep="\t",flush=True)
 
 
