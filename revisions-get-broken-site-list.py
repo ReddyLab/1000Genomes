@@ -24,7 +24,7 @@ def readBrokenSitesFile(infile,hash):
             if(len(fields)<10): continue
             (indiv,hap,geneID,transID,strand,exonNum,siteType,begin,
              pos,end)=fields
-            hash[geneID]={"exon":exonNum,"type":siteType}
+            hash[transID]={"exon":exonNum,"type":siteType}
 
 #============================= main() =================================
 
