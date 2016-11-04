@@ -42,10 +42,10 @@ with open(readCountsFile,"rt") as IN:
 gff={}
 exclude={}
 reader=GffTranscriptReader()
-gff=reader.loadTranscriptIdHash(gffFile)
 transcripts=reader.loadGFF(gffFile)
 for transcript in transcripts:
     if(transcript.getID()[0:3]=="ALT"): continue
+    if(rex.find("(\S+)_\d",transcript.getID())): gff[rex[1]]=transcript
     substrate=transcript.getSubstrate()
     exclusions=exclude.get(substrate,None)
     if(exclusions is None): exclusions=exclude[substrate]={}
@@ -70,7 +70,6 @@ with open(infile,"rt") as IN:
 
 # Read junctions file
 junctions={}
-keys=sites.keys()
 with open(junctionsFile,"rt") as IN:
     while(True):
         line=IN.readline()
@@ -96,40 +95,44 @@ with open(masterFile,"rt") as IN:
         if(len(fields)!=3): continue
         brokenSites.append(fields)
 for brokenSite in brokenSites:
-    (transID,exonIndex,siteType)=fields
+    (transID,exonIndex,siteType)=brokenSite
+    exonIndex=int(exonIndex)
     transcript=gff.get(transID,None)
+    if(not transcript): exit(transID+" not found")
     geneID=transcript.getGeneId()
     strand=transcript.getStrand()
     substrate=transcript.getSubstrate()
     exons=transcript.getRawExons()
     exons.sort(key=lambda exon: exon.begin)
+    if(exonIndex>=len(exons)): 
+        print(exonIndex,">=",len(exons))
+        print(transcript.toGff())
     exon=exons[exonIndex]
-    prevExon=exons[exonIndex-1]
-    nextExon=exons[exonIndex+1]
     if(strand=="+"):
         if(siteType=="donor"):
             begin=exon.getBegin()
-            pos=exon.end()
-            end=nextExon.getBegin()
+            pos=exon.getEnd()
+            end=exons[exonIndex+1].getBegin()
         else:
-            begin=prevExon.getEnd()
+            begin=exons[exonIndex-1].getEnd()
             pos=exon.getBegin()-2
             end=exon.getEnd()
     else:
         if(siteType=="donor"):
-            begin=prevExon.getEnd()
+            begin=exons[exonIndex-1].getEnd()
             pos=exon.getBegin()-2
             end=exon.getEnd()
         else:
             begin=exon.getBegin()
-            pos=exon.end()
-            end=nextExon.getBegin()
+            pos=exon.getEnd()
+            end=exons[exonIndex+1].getBegin()
     exclusions=exclude.get(substrate,{})
     begin=int(begin); pos=int(pos); end=int(end)
     interval=Interval(pos-70,pos+70)
     if(interval.begin<begin): interval.begin=begin
     if(interval.end>end): interval.end=end
     juncs=junctions.get(substrate,[])
+    #print("substrate=",substrate)
     sum=0
     for junc in juncs:
         (substrate,begin,end,count)=junc
@@ -137,7 +140,9 @@ for brokenSite in brokenSites:
         if(exclusions.get(key,False)): 
             continue
         if(interval.contains(begin) or interval.contains(end)): sum+=int(count)
-    geneCount=readCounts.get(geneID+"_"+hap,0)
+    geneCount=readCounts.get(geneID,0)
+    #print("gene=",geneID)
+    if(rex.find("(\S+)_\d",geneID)): geneID=rex[1]
     print(indiv,hap,geneID,transID,strand,exonNum,siteType,interval.begin,pos,
           interval.end,sum,geneCount,totalMappedReads,sep="\t",flush=True)
 
