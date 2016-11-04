@@ -17,6 +17,8 @@ if(len(sys.argv)!=3): exit(sys.argv[0]+" <in.broken-sites> <junctions.bed>")
 (infile,junctionsFile)=sys.argv[1:]
 
 #============================= main() =================================
+
+# Read broken-sites file
 sites={}
 with open(infile,"rt") as IN:
     while(True):
@@ -26,11 +28,11 @@ with open(infile,"rt") as IN:
         if(len(fields)<10): continue
         (indiv,hap,geneID,transID,strand,exonNum,siteType,begin,pos,end)=fields
         substrate=geneID+"_"+hap
-        array=sites.get(substrate,None)
-        if(array is None): array=sites[substrate]=[]
-        array.append(fields)
+        sites[substrate]=fields
 junctions={}
 keys=sites.keys()
+
+# Read junctions file
 with open(junctionsFile,"rt") as IN:
     while(True):
         line=IN.readline()
@@ -45,7 +47,21 @@ with open(junctionsFile,"rt") as IN:
         (left,right)=offsets.split(",")
         left=int(left); right=int(right)
         array.append([substrate,begin+left,end-right,count])
+
+# Process each site
 for substrate in keys:
+    site=sites[substrate]
+    (indiv,hap,geneID,transID,strand,exonNum,siteType,begin,pos,end)=site
+    begin=int(begin); pos=int(pos); end=int(end)
+    interval=Interval(pos-70,pos+70)
+    if(interval.begin<begin): interval.begin=begin
+    if(interval.end>end): interval.end=end
     juncs=junctions.get(substrate,[])
-    numJuncs=len(juncs)
-    print(numJuncs)
+    sum=0
+    for junc in juncs:
+        (substrate,begin,end,count)=junc
+        if(interval.contains(begin) or interval.contains(end)): sum+=int(count)
+    print(indiv,hap,geneID,transID,strand,exonNum,siteType,begin,pos,end,
+          count,sep="\t",flush=True)
+
+
