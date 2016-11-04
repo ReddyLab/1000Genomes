@@ -53,9 +53,6 @@ for transcript in transcripts:
     for i in range(numExons-1):
         key=str(exons[i].getEnd())+"-"+str(exons[i+1].getBegin())
         exclusions[key]=True
-    #for exon in exons:
-        #exclusions[exon.getBegin()]=True
-        #exclusions[exon.getEnd()]=True
 
 # Read broken-sites file
 sites={}
@@ -90,7 +87,6 @@ with open(junctionsFile,"rt") as IN:
 # Process each site
 for substrate in keys:
     exclusions=exclude.get(substrate,{})
-    #print(exclusions.keys())
     site=sites[substrate]
     (indiv,hap,geneID,transID,strand,exonNum,siteType,begin,pos,end)=site
     begin=int(begin); pos=int(pos); end=int(end)
@@ -102,16 +98,9 @@ for substrate in keys:
     for junc in juncs:
         (substrate,begin,end,count)=junc
         key=str(begin)+"-"+str(end)
-        if(exclusions.find(key,False)): 
-            print("excluding",key)
+        if(exclusions.get(key,False)): 
             continue
-        if(interval.contains(begin)):
-            if(not exclusions.get(begin,False)): 
-                sum+=int(count)
-                continue
-        if(interval.contains(end)):
-            if(not exclusions.get(end,False)): 
-                sum+=int(count)
+        if(interval.contains(begin) or interval.contains(end)): sum+=int(count)
     geneCount=readCounts.get(geneID+"_"+hap,0)
     print(indiv,hap,geneID,transID,strand,exonNum,siteType,interval.begin,pos,
           interval.end,sum,geneCount,totalMappedReads,sep="\t",flush=True)
