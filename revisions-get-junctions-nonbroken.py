@@ -98,10 +98,11 @@ for brokenSite in brokenSites:
     (transID,exonIndex,siteType)=brokenSite
     exonIndex=int(exonIndex)
     transcript=gff.get(transID,None)
-    if(not transcript): exit(transID+" not found")
+    if(not transcript): continue
     geneID=transcript.getGeneId()
     strand=transcript.getStrand()
     substrate=transcript.getSubstrate()
+    if(brokenSubstrates.get(substrate,None)): continue
     exons=transcript.getRawExons()
     exons.sort(key=lambda exon: exon.begin)
     if(exonIndex>=len(exons)): 
