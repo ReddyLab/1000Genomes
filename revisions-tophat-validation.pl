@@ -71,7 +71,7 @@ for(my $i=0 ; $i<$n ; ++$i) {
   }
   if($found==-1) { ++$supported; ++$totalSampleSize; next }
   elsif($found==-2) { next }
-  else { print READS "$found\n" }
+  else { print READS "$id\t$found\n" }
   ++$sampleSize; ++$totalSampleSize;
   if($found>0) { ++$supported }
   $numFound+=$found;

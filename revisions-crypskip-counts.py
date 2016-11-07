@@ -14,7 +14,18 @@ import os
 from Rex import Rex
 rex=Rex()
 COMBINED="/home/bmajoros/1000G/assembly/combined"
-MIN_COUNT=2
+OUTDIR="/home/bmajoros/1000G/assembly/cryptic"
+MIN_COUNT=1
+EXPRESSED="/home/bmajoros/1000G/assembly/expressed.txt"
+
+def loadExpressed(filename):
+    hash={}
+    with open(filename,"rt") as fh:
+        for line in fh:
+            fields=line.split()
+            (gene,transcript,fpkm,SS)=fields
+            hash[transcript]=True
+    return hash
 
 def loadStruct(filename,hash):
     with open(filename,"rt") as fh:
@@ -30,19 +41,20 @@ def loadStructureChanges(dir):
     loadStruct(dir+"/2.structure-changes",hash)
     return hash
 
-def loadCounts(filename,changes,hash):
+def loadCounts(indiv,filename,changes,hash):
     transcripts=changes.keys()
     for transcript in transcripts:
         if(changes[transcript]=="cryptic-site"):
-            if(not rex.find("ALT\d+_(\S+)",transcript)):
+            if(not rex.find("ALT\d+_(\S+)_(\d+)",transcript)):
                 raise Exception(transcript)
-            baseTrans=rex[1]
-            rec=hash.get(baseTrans,None)
+            if(not expressed.get(rex[1],False)): continue
+            baseTrans=rex[1]+"_"+rex[2]
+            rec=hash.get(indiv+baseTrans,None)
             if(not rec): 
-                rec=hash[baseTrans]={}
-                rec["cryptic"]=0
+                rec=hash[indiv+baseTrans]={}
+                rec["numSites"]=0
                 rec["supported"]=0
-            rec["cryptic"]+=1
+            rec["numSites"]+=1
     with open(filename,"rt") as fh:
         for line in fh:
             fields=line.split()
@@ -50,15 +62,27 @@ def loadCounts(filename,changes,hash):
             (indiv,hap,baseTrans,trans,dot1,count,dot2,fate)=fields
             type=changes[trans]
             if(type!="cryptic-site"): continue
-            if(int(count)>=MIN_COUNT): hash[baseTrans]["supported"]+=1
+            if(int(count)>=MIN_COUNT):
+                hash[indiv+"_"+hap+baseTrans]["supported"]+=1
 
-def loadCrypskipCounts(dir,changes):
-    hash={}
-    loadCounts(dir+"/1.crypskip-counts",changes,hash)
-    loadCounts(dir+"/2.crypskip-counts",changes,hash)
-    return hash
+def loadCrypskipCounts(indiv,dir,changes,hash):
+    loadCounts(indiv+"_1",dir+"/1.crypskip-counts",changes,hash)
+    loadCounts(indiv+"_2",dir+"/2.crypskip-counts",changes,hash)
+
+def tabulate(hash):
+    tabulated={}
+    for transcript in hash.keys():
+        rec=hash[transcript]
+        numCryptic=rec["numSites"]
+        supported=rec["supported"]
+        array=tabulated.get(numCryptic,None)
+        if(array is None): array=tabulated[numCryptic]=[]
+        array.append(rec)
+    return tabulated
 
 #=============================== main() =================================
+expressed=loadExpressed(EXPRESSED)
+counts={}
 dirs=os.listdir(COMBINED)
 for indiv in dirs:
     indiv=indiv.rstrip()
@@ -68,7 +92,14 @@ for indiv in dirs:
         continue
     dir=COMBINED+"/"+indiv
     changes=loadStructureChanges(dir)
-    counts=loadCrypskipCounts(dir,changes)
-
-
-
+    loadCrypskipCounts(indiv,dir,changes,counts)
+tabulated=tabulate(counts)
+keys=tabulated.keys()
+for key in keys:
+    array=tabulated[key]
+    filename=OUTDIR+"/"+str(key)+".txt"
+    with open(filename,"wt") as fh:
+        for rec in array:
+            supported=rec["supported"]
+            fh.write(str(supported)+"\n")
+        
