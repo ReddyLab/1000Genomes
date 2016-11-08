@@ -1,25 +1,17 @@
 #!/usr/bin/perl
 use strict;
-use ProgramName;
-
-my $name=ProgramName::get();
-die "$name <no arguments>\n" unless @ARGV==0;
-#my ($NMD_TRANSCRIPTS)=@ARGV;
 
 # Globals
 my $MIN_SAMPLE_SIZE=30;
-my $MIN_FPKM=1; # was 1
+my $MIN_FPKM=3; # was 1
 my $SMALLEST_FPKM=0.000001; # detection limit
 my $PSEUDOCOUNT=$SMALLEST_FPKM/2; # avoid taking log of zero
 my $log2=log(2);
 my $THOUSAND="/home/bmajoros/1000G";
 my $ASSEMBLY="$THOUSAND/assembly";
 my $COMBINED="$ASSEMBLY/combined";
-#my $NMD_TRANSCRIPTS="$ASSEMBLY/nmd-transcripts.txt";
 my %xy; # genes on X/Y chromosomes
 my %expressed; # transcripts expressed in LCLs
-# my %nmdTranscripts; # transcripts having NMD in at least one individual
-# loadNMD($NMD_TRANSCRIPTS,\%nmdTranscripts);
 loadXY("$ASSEMBLY/xy.txt",\%xy);
 loadExpressed("$ASSEMBLY/expressed.txt",\%expressed);
 
@@ -33,39 +25,35 @@ foreach my $indiv (@indivs) {
   my $RNA_FILE="$dir/RNA/tab.txt";
   next unless -e $RNA_FILE;
   my %alleleCounts;
-#  updateAlleleCounts("$dir/1-inactivated.txt",\%alleleCounts);
-#  updateAlleleCounts("$dir/2-inactivated.txt",\%alleleCounts);
   updateAlleleCounts("$dir/1-inactivated.txt",\%alleleCounts);
   updateAlleleCounts("$dir/2-inactivated.txt",\%alleleCounts);
   processRNA($RNA_FILE,\%alleleCounts,\%xy,\%expressed);
 }
-
-my @transcripts=keys %FPKMnmd1; ###
-
-open(EFFECT,">effect-sizes.fpkm1") || die;
-open(EFFECT0,">effect-sizes-homo.fpkm1") || die;
-open(EFFECT1,">effect-sizes-het.fpkm1") || die;
-open(LOG,">effect-sizes-log.fpkm1") || die;
-open(LOG0,">effect-sizes-log-homo.fpkm1") || die;
-open(LOG1,">effect-sizes-log-het.fpkm1") || die;
+my @transcripts=keys %FPKMwild;
+open(EFFECT0,">effect-sizes-homo.fpkm3") || die;
+open(EFFECT1,">effect-sizes-het.fpkm3") || die;
+open(LOG0,">effect-sizes-log-homo.fpkm3") || die;
+open(LOG1,">effect-sizes-log-het.fpkm3") || die;
 foreach my $transcript (@transcripts) {
   my $nmd0=$FPKMnmd0{$transcript}; my $numNMD0=$Nnmd0{$transcript};
   my $nmd1=$FPKMnmd1{$transcript}; my $numNMD1=$Nnmd1{$transcript};
   my $wild=$FPKMwild{$transcript}; my $numWild=$Nwild{$transcript};
-  next unless $numWild>0 && $numNMD0>0 && $numNMD1>0;
-  #next unless $numWild>=10 && $numNMD>=10;
-  my $meanNMD=($nmd0+$nmd1)/($numNMD0+$numNMD1);
-  my $meanNMD0=$nmd0/$numNMD0; my $meanNMD1=$nmd1/$numNMD1;
+  next unless $numWild>0; # >10 ?
   my $meanWild=$wild/$numWild;
-  my $effect=$meanNMD/$meanWild;
-  my $effect0=$meanNMD0/$meanWild;
-  my $effect1=$meanNMD1/$meanWild;
-  my $log=log($effect+$PSEUDOCOUNT)/$log2;
-  my $log0=log($effect0+$PSEUDOCOUNT)/$log2;
-  my $log1=log($effect1+$PSEUDOCOUNT)/$log2;
-  print EFFECT "$effect\n"; print LOG "$log\n";
-  print EFFECT0 "$effect0\n"; print EFFECT1 "$effect1\n";
-  print LOG0 "$log0\n"; print LOG1 "$log1\n";
+  if($numNMD0>0) {
+    my $meanNMD=$nmd0/$numNMD0;
+    my $effect=$meanNMD/$meanWild;
+    my $log=log($effect+$PSEUDOCOUNT)/$log2;
+    print EFFECT0 "$effect\n";
+    print LOG0 "$log\n";
+  }
+  if($numNMD1>0) {
+    my $meanNMD=$nmd1/$numNMD1;
+    my $effect=$meanNMD/$meanWild;
+    my $log=log($effect+$PSEUDOCOUNT)/$log2;
+    print EFFECT1 "$effect\n";
+    print LOG1 "$log\n";
+  }
 }
 close(EFFECT0); close(EFFECT1);
 close(LOG0); close(LOG1);
@@ -84,7 +72,6 @@ sub processRNA
     next unless $mean>0;
     next if $transcript=~/ALT/;
     my $count=2-$alleleCounts->{$transcript};
-    #if($count<2) { $FPKMnmd{$transcript}+=$fpkm; ++$Nnmd{$transcript} }
     if($count==0) { $FPKMnmd0{$transcript}+=$fpkm; ++$Nnmd0{$transcript} }
     elsif($count==1) { $FPKMnmd1{$transcript}+=$fpkm; ++$Nnmd1{$transcript} }
     elsif($count==2) { $FPKMwild{$transcript}+=$fpkm; ++$Nwild{$transcript} }
@@ -134,16 +121,6 @@ sub loadExpressed
   close(IN);
 }
 #======================================================================
-sub loadNMD
-{
-  my ($filename,$hash)=@_;
-  open(IN,$filename) || die "can't open file: $filename\n";
-  while(<IN>) {
-    chomp;
-    $hash->{$_}=1;
-  }
-  close(IN);
-}
 #======================================================================
 #======================================================================
 #======================================================================
