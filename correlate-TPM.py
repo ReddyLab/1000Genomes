@@ -24,6 +24,7 @@ def loadSalmon(dir):
             fields=line.split()
             if(len(fields)<5): continue
             (transcript,length,effectiveLen,tpm,reads)=fields
+            if(transcript=="Name"): continue
             if(not rex.find("ALT",transcript)): continue
             hash[transcript]=tpm
     return hash
@@ -36,6 +37,7 @@ def loadKallisto(dir):
             fields=line.split()
             if(len(fields)<5): continue
             (transcript,length,effectiveLen,reads,tpm)=fields
+            if(transcript=="target_id"): continue
             if(not rex.find("ALT",transcript)): continue
             hash[transcript]=tpm
     return hash
@@ -58,6 +60,13 @@ def loadStringtie():
             updateStringtie(hash,indiv,hap,transcript,tpm)
     return hash
 
+def getKeys(hash1,hash2,hash3):
+    uniq=set()
+    for key in hash1.keys(): uniq.add(key)
+    for key in hash2.keys(): uniq.add(key)
+    for key in hash3.keys(): uniq.add(key)
+    return uniq
+
 #=============================== main() =================================
 allStringtie=loadStringtie()
 dirs=os.listdir(COMBINED)
@@ -71,7 +80,9 @@ for indiv in dirs:
     salmon=loadSalmon(dir)
     kallisto=loadKallisto(dir)
     stringtie=allStringtie[indiv]
-    for transcript in stringtie.keys():
+    keys=getKeys(stringtie,salmon,kallisto)
+    #for transcript in stringtie.keys():
+    for transcript in keys:
         salmonTPM=salmon.get(transcript,0)
         kallistoTPM=kallisto.get(transcript,0)
         stringtieTPM=stringtie.get(transcript,0)
