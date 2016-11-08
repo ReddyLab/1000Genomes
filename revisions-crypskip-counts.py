@@ -15,7 +15,7 @@ from Rex import Rex
 rex=Rex()
 COMBINED="/home/bmajoros/1000G/assembly/combined"
 OUTDIR="/home/bmajoros/1000G/assembly/cryptic"
-MIN_COUNT=1
+MIN_COUNT=5
 EXPRESSED="/home/bmajoros/1000G/assembly/expressed.txt"
 
 def loadExpressed(filename):
@@ -24,6 +24,8 @@ def loadExpressed(filename):
         for line in fh:
             fields=line.split()
             (gene,transcript,fpkm,SS)=fields
+            if(rex.find("ALT\d+_(\S+)",transcript)): ###
+                transcript=rex[1] ###
             hash[transcript]=True
     return hash
 
@@ -41,38 +43,44 @@ def loadStructureChanges(dir):
     loadStruct(dir+"/2.structure-changes",hash)
     return hash
 
-def loadCounts(indiv,filename,changes,hash):
+def loadCounts(indiv,hap,filename,changes,hash):
     transcripts=changes.keys()
     for transcript in transcripts:
         if(changes[transcript]=="cryptic-site"):
             if(not rex.find("ALT\d+_(\S+)_(\d+)",transcript)):
                 raise Exception(transcript)
-            if(not expressed.get(rex[1],False)): continue
+            if(int(rex[2])!=hap): continue
             baseTrans=rex[1]+"_"+rex[2]
+            if(not expressed.get(rex[1],False)): continue
             rec=hash.get(indiv+baseTrans,None)
             if(not rec): 
-                rec=hash[indiv+baseTrans]={}
-                rec["numSites"]=0
-                rec["supported"]=0
+                rec=hash[indiv+baseTrans]={"numSites":0}
             rec["numSites"]+=1
     with open(filename,"rt") as fh:
         for line in fh:
             fields=line.split()
-            if(len(fields)!=8): continue
-            (indiv,hap,baseTrans,trans,dot1,count,dot2,fate)=fields
-            type=changes[trans]
+            if(len(fields)!=2): continue
+            (altID,count)=fields
+            if(not changes.get(altID,None)): continue
+            type=changes[altID]
             if(type!="cryptic-site"): continue
+            if(not rex.find("ALT\d+_(\S+)_(\d+)",altID)):
+                raise Exception(baseTrans)
+            baseTrans=rex[1]+"_"+rex[2]
+            if(hash[indiv+baseTrans].get("supported",None) is None):
+                hash[indiv+baseTrans]["supported"]=0
             if(int(count)>=MIN_COUNT):
-                hash[indiv+"_"+hap+baseTrans]["supported"]+=1
+                hash[indiv+baseTrans]["supported"]+=1
 
 def loadCrypskipCounts(indiv,dir,changes,hash):
-    loadCounts(indiv+"_1",dir+"/1.crypskip-counts",changes,hash)
-    loadCounts(indiv+"_2",dir+"/2.crypskip-counts",changes,hash)
+    loadCounts(indiv+"_1",1,dir+"/1.readcounts-rev",changes,hash)
+    loadCounts(indiv+"_2",2,dir+"/2.readcounts-rev",changes,hash)
 
 def tabulate(hash):
     tabulated={}
     for transcript in hash.keys():
         rec=hash[transcript]
+        if(rec.get("supported",None) is None): continue
         numCryptic=rec["numSites"]
         supported=rec["supported"]
         array=tabulated.get(numCryptic,None)
@@ -103,3 +111,30 @@ for key in keys:
             supported=rec["supported"]
             fh.write(str(supported)+"\n")
         
+
+
+
+
+def loadCounts_old(indiv,filename,changes,hash):
+    transcripts=changes.keys()
+    for transcript in transcripts:
+        if(changes[transcript]=="cryptic-site"):
+            if(not rex.find("ALT\d+_(\S+)_(\d+)",transcript)):
+                raise Exception(transcript)
+            if(not expressed.get(rex[1],False)): continue
+            baseTrans=rex[1]+"_"+rex[2]
+            rec=hash.get(indiv+baseTrans,None)
+            if(not rec): 
+                rec=hash[indiv+baseTrans]={}
+                rec["numSites"]=0
+                rec["supported"]=0
+            rec["numSites"]+=1
+    with open(filename,"rt") as fh:
+        for line in fh:
+            fields=line.split()
+            if(len(fields)!=8): continue
+            (indiv,hap,baseTrans,trans,dot1,count,dot2,fate)=fields
+            type=changes[trans]
+            if(type!="cryptic-site"): continue
+            if(int(count)>=MIN_COUNT):
+                hash[indiv+"_"+hap+baseTrans]["supported"]+=1
