@@ -3,8 +3,8 @@ use strict;
 
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
-my $OUTFILE1="$THOUSAND/assembly/sensitivity-histogram-skipping.txt-rev";
-my $OUTFILE2="$THOUSAND/assembly/proposal-histogram-skipping.txt-rev";
+my $OUTFILE1="$THOUSAND/assembly/sensitivity-histogram-skipping.txt";
+my $OUTFILE2="$THOUSAND/assembly/proposal-histogram-skipping.txt";
 
 open(SENS,">$OUTFILE1") || die $OUTFILE1;
 open(PROP,">$OUTFILE2") || die $OUTFILE2;
@@ -16,7 +16,7 @@ foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
-  my $diffFile="$dir/diff-skipping.txt-rev";
+  my $diffFile="$dir/diff-skipping.txt";
   next unless -e $diffFile;
   process($diffFile);
 }

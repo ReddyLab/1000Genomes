@@ -16,7 +16,7 @@ foreach my $subdir (@dirs) {
   chomp $subdir;
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   my $dir="$COMBINED/$subdir";
-  my $diffFile="$dir/diff-cryptic.txt";
+  my $diffFile="$dir/diff-cryptic.txt-rev";
   next unless -e $diffFile;
   process($diffFile);
 }
