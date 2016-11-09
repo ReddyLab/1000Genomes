@@ -3,12 +3,12 @@ use strict;
 use ProgramName;
 use GffTranscriptReader;
 
-my $MIN_FPKM=1;
+#my $MIN_FPKM=1;
 my $EXPRESSED="/home/bmajoros/1000G/assembly/expressed.txt";
 
 my $name=ProgramName::get();
-die "$name <indiv> <in.gff> <allele> <junctions.bed> <prefix=ALT|SIM> <blacklist> <nmd-list> <out-readcounts>\n" unless @ARGV==8;
-my ($indiv,$gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLIST,$NMD,$READS_FILE)=@ARGV;
+die "$name <min-FPKM-expressed-genes> <min-reads> <indiv> <in.gff> <allele> <junctions.bed> <prefix=ALT|SIM> <blacklist> <nmd-list> <out-readcounts>\n" unless @ARGV==10;
+my ($MIN_FPKM,$MIN_READS,$indiv,$gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLIST,$NMD,$READS_FILE)=@ARGV;
 
 # Load list of transcripts expressed in this cell type
 my %expressed;
@@ -125,7 +125,7 @@ sub exonSkipping {
 	my $key="$geneID $begin $end";
 	if($seen{$key}) { return -1 }
 	$seen{$key}=1;
-	++$supportedSkipping;
+	if($reads>=$MIN_READS) { ++$supportedSkipping }
 	return $reads;
       }
     }
@@ -171,7 +171,7 @@ sub crypticSplicing {
 	my $key="$geneID $begin $end";
 	if($seen{$key}) { return -1 }
 	$seen{$key}=1;
-	++$supportedCryptic;
+	if($reads>=$MIN_READS) { ++$supportedCryptic }
 	return $reads;
       }
     }
@@ -197,6 +197,35 @@ sub hashTranscriptIDs {
 sub parseTophat {
   my ($filename)=@_;
   my $introns={};
+  my %counts;
+  open(IN,$filename) || die "Can't open $filename";
+  <IN>; # header
+  while(<IN>) {
+    chomp; my @fields=split; next unless @fields>=10;
+    my ($gene,$begin,$end,$junc,$reads,$strand,$b,$e,$color,$two,$overhangs)=
+      @fields;
+    $overhangs=~/(\d+),(\d+)/ || die $overhangs;
+    my $donor=$begin+$1; my $acceptor=$end-$2;
+    #my $record=[$donor,$acceptor,$reads];
+    #push @{$introns->{$gene}},$record;
+    $counts{"$gene $donor $acceptor"}+=$reads;
+  }
+  close(IN);
+  my @keys=keys %counts;
+  foreach my $key (@keys) {
+    my $reads=$counts{$key};
+    $key=~/(\S+) (\d+) (\d+)/ || die $key;
+    my ($gene,$donor,$acceptor)=($1,$2,$3);
+    my $record=[$donor,$acceptor,$reads];
+    push @{$introns->{$gene}},$record;
+  }
+  return $introns;
+}
+
+
+sub parseTophat_old {
+  my ($filename)=@_;
+  my $introns={};
   open(IN,$filename) || die "Can't open $filename";
   <IN>; # header
   while(<IN>) {
@@ -220,35 +249,6 @@ sub coalesceExons {
     my $transcript=$transcripts->[$i];
     $transcript->{exons}=$transcript->getRawExons();
     $transcript->{UTR}=[];
-  }
-  return;
-  ###
-
-  for(my $i=0 ; $i<$n ; ++$i) {
-    my $transcript=$transcripts->[$i];
-    my $strand=$transcript->getStrand();
-    my $exons=$transcript->{exons};
-    my $UTR=$transcript->{UTR};
-    die if @$UTR>0;
-    my $n=@$exons;
-    my $changes;
-    for(my $i=0 ; $i<$n-1 ; ++$i) {
-      my $this=$exons->[$i]; my $next=$exons->[$i+1];
-      if($strand eq "+" ) {
-	if($this->{end}==$next->{begin}) {
-	  $this->{end}=$next->{end};
-	  splice(@$exons,$i+1,1);
-	  --$n;
-	  $changes=1; }
-      } else {
-	if($this->{begin}==$next->{end}) {
-	  $this->{begin}=$next->{begin};
-	  splice(@$exons,$i+1,1);
-	  --$n;
-	  $changes=1; }
-      }
-    }
-    if($changes) {$transcript->{exons}=$exons}
   }
 }
 
