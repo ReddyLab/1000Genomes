@@ -38,7 +38,7 @@ open(READS,">$READS_FILE") || die $READS_FILE;
 # Load blacklist (ALTs or SIMs that happen to match an existing isoform)
 my %blacklist;
 loadBlacklist($BLACKLIST,\%blacklist);
-loadNMD($NMD,\%blacklist,$PREFIX);
+loadNMD($NMD,\%blacklist,$PREFIX); ###
 
 # Load the TopHat junctions file
 my $introns=parseTophat($junctionsFile);
@@ -87,7 +87,12 @@ for(my $i=0 ; $i<$n ; ++$i) {
     my $normalized="NA";
     my $Z=$normalization{$geneID};
     if($Z>0) { $normalized=$found/$Z }
-    print READS "$id\t$found\t$normalized\n";
+    my $score=$transcript->{score};
+    my $extraFields=$transcript->parseExtraFields();
+    my $extraHash=$transcript->hashExtraFields($extraFields);
+    my $change=$extraHash->{"structure-change"};
+    if(!defined($change)) { $change="UNDEFINED" }
+    print READS "$id\t$found\t$normalized\t$score\t$change\n";
   }
   ++$sampleSize; ++$totalSampleSize;
   if($found>0) { ++$supported }

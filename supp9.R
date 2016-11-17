@@ -1,9 +1,9 @@
-#!/usr/bin/Rscript --vanilla
+#!/usr/bin/env Rscript
 
 
 #====
 
-outfile <- "supp9.pdf"
+outfile <- "supp9-new.pdf"
 
 pdf(outfile);
 par(mfrow=c(2,1))
@@ -58,7 +58,7 @@ min2 <- min(data2$V1); max2 <- max(data2$V1);
 minX <- min(min1,min2); maxX <- max(max1,max2);
 plot(h1,col="blue",xlim=c(minX,maxX),xlab=x,ylab=y,main="",lwd=2);
 lines(h2,col="red",xlim=c(minX,maxX),lwd=2);
-legend("topright",legend=c("Simulated disrupted sites","True disrupted sites"),
+legend("topright",legend=c("Non-disrupted sites","Disrupted sites"),
        lty=c(1,1),lwd=c(2,2),col=c("blue","red"));
 
 #====

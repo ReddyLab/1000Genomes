@@ -15,7 +15,7 @@ from Rex import Rex
 rex=Rex()
 COMBINED="/home/bmajoros/1000G/assembly/combined"
 OUTDIR="/home/bmajoros/1000G/assembly/cryptic"
-MIN_COUNT=5
+MIN_COUNT=3
 EXPRESSED="/home/bmajoros/1000G/assembly/expressed.txt"
 
 def loadExpressed(filename):
