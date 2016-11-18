@@ -2,7 +2,7 @@
 use strict;
 use SlurmWriter;
 
-my $MIN_FPKM=1;
+my $MIN_FPKM=10;
 my $MIN_READS=3;
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
