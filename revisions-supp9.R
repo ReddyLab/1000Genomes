@@ -3,7 +3,8 @@
 
 #====
 
-outfile <- "supp9-rev.pdf"
+#outfile <- "supp9-rev.pdf"
+outfile <- "supp9-rev_unfiltered.pdf"
 
 pdf(outfile);
 par(mfrow=c(2,1))
@@ -65,8 +66,10 @@ legend("topright",legend=c("Non-disrupted sites","Disrupted sites"),
 
 #infile1 <- "random-readcounts.txt";
 #infile2 <- "readcounts.txt";
-infile1 <- "random-readcounts-pos.txt-rev3";
-infile2 <- "readcounts-pos.txt-rev3";
+#infile1 <- "random-readcounts-pos.txt-rev3";
+#infile2 <- "readcounts-pos.txt-rev3";
+infile1 <- "random-readcounts-pos.txt-rev3_unfiltered";
+infile2 <- "readcounts-pos.txt-rev3_unfiltered";
 #x <- "Log10(normalized reads per junction)";
 x <- "Normalized reads per junction";
 y <- "Density";
@@ -77,10 +80,10 @@ data2 <- read.table(infile2);
 min1 <- min(data1$V1); max1 <- max(data1$V1);
 min2 <- min(data2$V1); max2 <- max(data2$V1);
 minX <- min(min1,min2); maxX <- max(max1,max2);
-maxX<-0.5
+maxX<-0.2
 #h1 <- density(data1$V1);
 #h2 <- density(data2$V1);
-breaks=seq(0,2.1,0.005)
+breaks=seq(0,2.1,0.0025)
 #breaks=seq(minX,maxX,0.01)
 h1 <- hist(data1$V1,plot=F,breaks=breaks);
 h2 <- hist(data2$V1,plot=F,breaks=breaks);
@@ -89,6 +92,8 @@ plot(h2,col="lightgray",xlim=c(0,maxX),xlab=x,ylab=y,main="");
 #lines(h2,col="red",lwd=2);
 #legend("topright",legend=c("Non-disrupted sites","Disrupted sites"),
 #       lty=c(1,1),lwd=c(2,2),col=c("blue","red"));
+
+wilcox.test(data2$V1,data1$V1,alternative="greater")
 
 #===
 dev.off();

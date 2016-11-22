@@ -34,10 +34,13 @@ while(<STDIN>) {
      #$flag & 0x2 && # both ends aligned
      #$flag & 0x40 && # count only the first segment
      #!($flag & 0x4 && $flag & 0x8) && # neither end is unmapped
-     !($flag & 0x4) && # this read is mapped
-     !($flag & 0x100) && # not a secondary alignment
-     !($flag & 0x400) && # not a PCR or optical duplicate
-     !($flag & 0x800)) # not a supplementary alignment
+
+     !($flag & 0x4)) ###
+
+     #!($flag & 0x4) && # this read is mapped
+     #!($flag & 0x100) && # not a secondary alignment
+     #!($flag & 0x400) && # not a PCR or optical duplicate
+     #!($flag & 0x800)) # not a supplementary alignment
     { ++$kept; ++$counts{$rname} }
   else {
     if($VERBOSE) {

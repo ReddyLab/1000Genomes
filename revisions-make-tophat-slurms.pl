@@ -17,14 +17,14 @@ foreach my $subdir (@dirs) {
   my $dir="$COMBINED/$subdir";
   next unless -e "$dir/RNA/stringtie.gff";
 
-  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir 1.gff 1 RNA/junctions.bed ALT 1.blacklist 1.alts-with-nmd 1.readcounts-rev$MIN_READS > 1.tophat-validation-rev$MIN_READS");
-  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir 2.gff 2 RNA/junctions.bed ALT 2.blacklist 2.alts-with-nmd 2.readcounts-rev$MIN_READS > 2.tophat-validation-rev$MIN_READS");
+  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir 1.gff 1 RNA/junctions.bed ALT 1.blacklist 1.alts-with-nmd 1.readcounts-rev$MIN_READS\_unfiltered > 1.tophat-validation-rev$MIN_READS");
+  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir 2.gff 2 RNA/junctions.bed ALT 2.blacklist 2.alts-with-nmd 2.readcounts-rev$MIN_READS\_unfiltered > 2.tophat-validation-rev$MIN_READS");
 
-  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir 1.gff 1 RNA/blind/junctions.bed ALT 1.blacklist 1.alts-with-nmd blind-1.readcounts-rev$MIN_READS > blind-1.tophat-validation-rev$MIN_READS");
-  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir 2.gff 2 RNA/blind/junctions.bed ALT 2.blacklist 2.alts-with-nmd blind-2.readcounts-rev$MIN_READS > blind-2.tophat-validation-rev$MIN_READS");
+  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir 1.gff 1 RNA/blind/junctions.bed ALT 1.blacklist 1.alts-with-nmd blind-1.readcounts-rev$MIN_READS\_unfiltered > blind-1.tophat-validation-rev$MIN_READS");
+  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir 2.gff 2 RNA/blind/junctions.bed ALT 2.blacklist 2.alts-with-nmd blind-2.readcounts-rev$MIN_READS\_unfiltered > blind-2.tophat-validation-rev$MIN_READS");
 
-  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir random-1.gff 1 RNA/sim/junctions.bed SIM random-1.blacklist random-1.alts-with-nmd random-1.readcounts-rev$MIN_READS > random-1.tophat-validation-rev$MIN_READS");
-  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir random-2.gff 2 RNA/sim/junctions.bed SIM random-2.blacklist random-2.alts-with-nmd random-2.readcounts-rev$MIN_READS > random-2.tophat-validation-rev$MIN_READS");
+  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir random-1.gff 1 RNA/sim/junctions.bed SIM random-1.blacklist random-1.alts-with-nmd random-1.readcounts-rev$MIN_READS\_unfiltered > random-1.tophat-validation-rev$MIN_READS");
+  $slurm->addCommand("cd $dir; $PROGRAM $MIN_FPKM $MIN_READS $subdir random-2.gff 2 RNA/sim/junctions.bed SIM random-2.blacklist random-2.alts-with-nmd random-2.readcounts-rev$MIN_READS\_unfiltered > random-2.tophat-validation-rev$MIN_READS");
 }
 
 $slurm->nice(500);

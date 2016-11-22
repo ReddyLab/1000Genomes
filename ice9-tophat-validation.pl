@@ -104,6 +104,7 @@ close(READS);
 
 # Compute summary stats
 #my $readsPerJunction=$numFound/$sampleSize;
+exit unless $sampleSize>0;
 my $readsPerJunction=$normalized/$sampleSize;
 print "readsPerJunction=$readsPerJunction ($numFound / $sampleSize)\n";
 $supported=$supportedCryptic+$supportedSkipping;

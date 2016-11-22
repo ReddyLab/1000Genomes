@@ -144,7 +144,7 @@ for brokenSite in brokenSites:
     geneCount=readCounts.get(geneID,0)
     #print("gene=",geneID)
     if(rex.find("(\S+)_\d",geneID)): geneID=rex[1]
-    print(indiv,hap,geneID,transID,strand,exonNum,siteType,interval.begin,pos,
+    print(indiv,hap,geneID,transID,strand,exonIndex,siteType,interval.begin,pos,
           interval.end,sum,geneCount,totalMappedReads,sep="\t",flush=True)
 
 

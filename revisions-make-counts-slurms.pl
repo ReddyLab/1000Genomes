@@ -15,8 +15,10 @@ foreach my $subdir (@dirs) {
   next unless $subdir=~/^HG\d+$/ || $subdir=~/^NA\d+$/;
   next unless -e "$COMBINED/$subdir/RNA/stringtie.gff";
   my $dir="$COMBINED/$subdir";
-  $writer->addCommand("module load python/3.4.1-fasrc01 ; cd $dir ; $THOUSAND/src/revisions-get-junctions-broken.py 1.broken-sites RNA/junctions.bed 1.gff RNA/readcounts.txt > 1.broken-sites-counts");
-  $writer->addCommand("module load python/3.4.1-fasrc01 ; cd $dir ; $THOUSAND/src/revisions-get-junctions-broken.py 2.broken-sites RNA/junctions.bed 2.gff RNA/readcounts.txt > 2.broken-sites-counts");
+#  $writer->addCommand("module load python/3.4.1-fasrc01 ; cd $dir ; $THOUSAND/src/revisions-get-junctions-broken.py 1.broken-sites RNA/junctions.bed 1.gff RNA/readcounts.txt > 1.broken-sites-counts");
+#  $writer->addCommand("module load python/3.4.1-fasrc01 ; cd $dir ; $THOUSAND/src/revisions-get-junctions-broken.py 2.broken-sites RNA/junctions.bed 2.gff RNA/readcounts.txt > 2.broken-sites-counts");
+  $writer->addCommand("module load python/3.4.1-fasrc01 ; cd $dir ; $THOUSAND/src/revisions-get-junctions-broken.py 1.broken-sites RNA/junctions.bed 1.gff RNA2/readcounts-unfiltered.txt > 1.broken-sites-counts-unfiltered");
+  $writer->addCommand("module load python/3.4.1-fasrc01 ; cd $dir ; $THOUSAND/src/revisions-get-junctions-broken.py 2.broken-sites RNA/junctions.bed 2.gff RNA2/readcounts-unfiltered.txt > 2.broken-sites-counts-unfiltered");
 }
 $writer->mem(5000);
 $writer->setQueue("all,new");
