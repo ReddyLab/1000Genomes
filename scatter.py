@@ -11,6 +11,10 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 # The above imports should allow this program to run in both Python 2 and
 # Python 3.  You might need to update your version of module "future".
 import sys
+from Pipe import Pipe
+from Rex import Rex
+from SummaryStats import SummaryStats
+rex=Rex()
 
 BASE="/home/bmajoros/1000G/assembly"
 #BROKEN=BASE+"/broken-counts.txt"
@@ -18,9 +22,25 @@ BASE="/home/bmajoros/1000G/assembly"
 BROKEN=BASE+"/broken-counts-unfiltered.txt"
 UNBROKEN=BASE+"/unbroken-counts-unfiltered.txt"
 
+def save(set1,filename):
+    with open(filename,"wt") as fh:
+        for x in set1:
+            fh.write(str(x)+"\n")
+
+def wilcox(set1,set2):
+    save(set1,"w.1")
+    save(set2,"w.2")
+    pipe=Pipe("/home/bmajoros/1000G/src/wilcox.R w.1 w.2 two.sided")
+    p=None
+    while(True):
+        line=pipe.readline()
+        if(line is None): break
+        if(rex.find("p-value\s*=\s*(\S+)",line)): p=rex[1]
+        elif(rex.find("p-value\s*<\s*(\S+)",line)): p=rex[1]
+    return p
+
 def load(filename):
-    sum={}
-    sampleSizes={}
+    hash={}
     with open(filename,"rt") as fh:
         while(True):
             line=fh.readline()
@@ -29,19 +49,10 @@ def load(filename):
             if(len(fields)<13): continue
             (indiv,hap,gene,trans,strand,exon,siteType,begin,pos,end,reads,
              geneReads,TotalReads)=fields
-            #if(int(geneReads)<10 or int(reads)==0): continue
             if(int(geneReads)<10): continue
-            if(sum.get(gene,None)==None):
-                sum[gene]=0.0
-                sampleSizes[gene]=0
-            sum[gene]+=float(reads)/float(geneReads) # Normalized reads
-            #sum[gene]+=float(reads) # Raw reads
-            sampleSizes[gene]+=1
-    hash={}
-    keys=sum.keys()
-    for gene in keys:
-        p=sum[gene]/float(sampleSizes[gene])
-        hash[gene]=p
+            if(hash.get(gene,None) is None):
+                hash[gene]=[]
+            hash[gene].append(float(reads)/float(geneReads))
     return hash
 
 #================================= main() =================================
@@ -49,12 +60,18 @@ broken=load(BROKEN)
 unbroken=load(UNBROKEN)
 genes=broken.keys()
 for gene in genes:
-    #if(broken.get(gene,None) is None or unbroken.get(gene,None) is None):
-    if(broken.get(gene,0.0)==0.0 or unbroken.get(gene,0.0)==0.0):
+    if(broken.get(gene,None) is None or unbroken.get(gene,None) is None):
         continue
-    brokenValue=broken[gene]
-    unbrokenValue=unbroken[gene]
-    print(unbrokenValue,brokenValue,sep="\t")
+    N1=len(broken[gene])
+    N2=len(unbroken[gene])
+    #print("N",N1,N2)
+    P=wilcox(broken[gene],unbroken[gene])
+    if(P=="NA"): continue
+    (meanBroken,SDbroken,minBroken,maxBroken)= \
+        SummaryStats.summaryStats(broken[gene])
+    (meanUnbroken,SDunbroken,minUnbroken,maxUnbroken)= \
+        SummaryStats.summaryStats(unbroken[gene])
+    print(meanUnbroken,meanBroken,P,sep="\t")
 
 
 
