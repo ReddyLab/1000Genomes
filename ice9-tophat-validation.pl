@@ -12,7 +12,8 @@ my ($MIN_FPKM,$MIN_READS,$indiv,$gffFile,$allele,$junctionsFile,$PREFIX,$BLACKLI
 
 # Load normalization values
 my %normalization;
-open(IN,"/home/bmajoros/1000G/assembly/combined/$indiv/RNA/readcounts.txt")
+#open(IN,"/home/bmajoros/1000G/assembly/combined/$indiv/RNA/readcounts.txt")
+open(IN,"/home/bmajoros/1000G/assembly/combined/$indiv/RNA2/readcounts-unfiltered.txt")
   || die;
 while(<IN>) {
   chomp; my @fields=split; next unless @fields==2;

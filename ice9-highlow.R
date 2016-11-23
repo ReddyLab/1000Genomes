@@ -5,17 +5,18 @@ PSEUDOCOUNT=0.0001 # 0.0001
 BANDWIDTH=0.5  # 0.9
 MAXY<- 0.6 # 0.4
 #outfile <- "ice9-highlow-FPKM10.pdf"
-outfile <- "ice9-highlow-trimmed5.pdf"
+#outfile <- "ice9-highlow-trimmed5.pdf"
+outfile <- "ice9-highlow-trimmed6.pdf"
 
 pdf(outfile);
 par(mfrow=c(2,1))
 
 #infile1 <- "high-reads.txt";
 #infile2 <- "low-reads.txt";
-infile1 <- "high-reads-trimmed5.txt";
-infile2 <- "low-reads-trimmed5.txt";
+infile1 <- "high-reads-trimmed6.txt";
+infile2 <- "low-reads-trimmed6.txt";
 
-x <- "Normalized read counts";
+x <- "Log2(Normalized read counts)";
 y <- "Density";
 data1 <- read.table(infile1);
 data2 <- read.table(infile2);
