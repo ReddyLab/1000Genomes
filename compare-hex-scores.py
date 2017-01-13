@@ -24,7 +24,7 @@ if(len(sys.argv)!=4):
 
 def scoreHexamers(seq,hexHash):
     L=len(seq)
-    end=L-6
+    end=L-5
     total=0
     for i in range(end):
         hex=seq[i:i+6]
@@ -43,14 +43,16 @@ with open(hexFile,"rt") as IN:
 
 files=os.listdir(fastbDir)
 for file in files:
+    (defline,seq)=FastaReader.firstSequence(fastbDir+"/"+file)
+    length=len(seq)
+    if(length<6): continue
     cmd=MUMMIE+"/get-likelihood "+hmmFile+" "+fastbDir+"/"+file
     pipe=Pipe(cmd)
     line=pipe.readline();
     LL=float(line.rstrip())
-    (defline,seq)=FastaReader.firstSequence(fastbDir+"/"+file)
     #print(fastbDir+"/"+file,seq)
     hexScore=scoreHexamers(seq,hexHash)
-    length=len(seq)
-    LL=LL**1.0/float(length)
+    #LL=LL**1.0/float(length)
+    LL=LL/float(length)
     lik=math.exp(LL)
     print(hexScore,lik,sep="\t")
