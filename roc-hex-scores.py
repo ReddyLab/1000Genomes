@@ -38,7 +38,7 @@ def scoreHexamers(seq,hexHash):
     mean=float(total)/float(end)
     return mean
 
-def scoreHMM(filename,length,hmm):
+def scoreHMM(hmm,length,filename):
     cmd=MUMMIE+"/get-likelihood "+hmm+" "+filename
     pipe=Pipe(cmd)
     line=pipe.readline();
@@ -60,6 +60,7 @@ def scoreDirectory(directory,label):
         hmmNoncodingScore=scoreHMM(HMM_NONCODING,length,fullPath)
         hmmLLRScore=scoreHMM(HMM_LLR,length,fullPath)
         rec=[hexScore,hmmHexScore,hmmNoncodingScore,hmmLLRScore,label]
+        #print(hexScore,hmmHexScore,hmmNoncodingScore,hmmLLRScore,label)
         array.append(rec)
     return array
 

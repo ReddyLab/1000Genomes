@@ -20,7 +20,7 @@ if(len(sys.argv)!=2):
     exit(sys.argv[0]+" <dir>")
 directory=sys.argv[1]
 
-files=glob.glob(directory+"/*.fastb")
+files=glob.glob(directory+"/*.fast?")
 for file in files:
     with open("tmp.fastb","wt") as OUT:
         with open(file,"rt") as IN:
