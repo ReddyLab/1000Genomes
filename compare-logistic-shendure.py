@@ -12,41 +12,27 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 # Python 3.  You might need to update your version of module "future".
 import sys
 import ProgramName
-from Rex import Rex
-rex=Rex()
 
-if(len(sys.argv)!=4):
-    exit(ProgramName.get()+" <in.hmm> <hex-scores.txt> <out.hmm>\n")
-(inHMM,hexFile,outHMM)=sys.argv[1:]
+if(len(sys.argv)!=3):
+    exit(ProgramName.get()+" <logistic.txt> <shendure.txt>\n")
+(logisticFile,shendureFile)=sys.argv[1:]
 
-hexes={}
-with open(hexFile,"rt") as IN:
+shendure={}
+with open(shendureFile,"rt") as IN:
     for line in IN:
         fields=line.rstrip().split()
         if(len(fields)!=2): continue
-        (hex,score)=fields
-        hexes[hex]=score
+        (hexamer,score)=fields
+        shendure[hexamer]=score
 
-IN=open(inHMM,"rt")
-OUT=open(outHMM,"wt")
-substituting=False
-for line in IN:
-    line=line.rstrip()
-    if(rex.find("alphabet:",line)):
-        print(line,file=OUT) # alphabet:
-        print(IN.readline().rstrip(),file=OUT) # ACGT
-        substituting=True
-        continue
-    if(substituting):
-        fields=line.split()
+with open(logisticFile,"rt") as IN:
+    for i in range(3): IN.readline()
+    for line in IN:
+        fields=line.rstrip().split()
         if(len(fields)!=2): continue
-        LLR=0.0
-        if(len(fields[0])==6): LLR=hexes[fields[0]]
-        print(fields[0],LLR,sep="\t",file=OUT)
-    else:
-        print(line,file=OUT)
-IN.close()
-OUT.close()
-
+        (hexamer,score)=fields
+        if(score=="."): continue
+        shendureScore=shendure[hexamer]
+        print(shendureScore,score,sep="\t")
 
 
