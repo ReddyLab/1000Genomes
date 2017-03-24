@@ -37,18 +37,19 @@ cd $dir
 module load bowtie2/2.2.4-fasrc01
 module load tophat/2.0.13-gcb01
 
+rm -r RNA2
 mkdir -p RNA2
 cd RNA2
 
 cat ../1.fasta ../2.fasta > 1and2.fa
 
-cat ../1.gff ../2.gff > 1and2.gff
+cat ../1.aceplus.gff ../2.aceplus.gff > 1and2.gff
 
 bowtie2-build 1and2.fa 1and2
 
 tophat2 --output-dir $dir/RNA2 --min-intron-length 30 --num-threads $CPUs --GTF $dir/RNA2/1and2.gff 1and2 $FASTQ/$rnaID\_1.fastq.gz $FASTQ/$rnaID\_2.fastq.gz
 
-/data/reddylab/software/samtools/samtools-1.1/samtools view accepted_hits.bam | /home/bmajoros/1000G/src/count-mapped-reads.pl > readcounts-unfiltered.txt
+# /data/reddylab/software/samtools/samtools-1.1/samtools view accepted_hits.bam | /home/bmajoros/1000G/src/count-mapped-reads.pl > readcounts-unfiltered.txt
 
 # /data/reddylab/software/stringtie/stringtie-1.2.1.Linux_x86_64/stringtie accepted_hits.bam -G $dir/RNA2/1and2.gff -o stringtie.gff -p $CPUs
 
@@ -63,4 +64,4 @@ $slurm->nice(500);
 $slurm->mem($MEMORY);
 $slurm->threads($CPUs);
 $slurm->setQueue("new,all");
-$slurm->writeArrayScript($SLURMS,"RNA","",800);
+$slurm->writeArrayScript($SLURMS,"RNA","",1000);
