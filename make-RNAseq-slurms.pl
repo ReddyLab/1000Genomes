@@ -37,7 +37,7 @@ cd $dir
 module load bowtie2/2.2.4-fasrc01
 module load tophat/2.0.13-gcb01
 
-rm -r RNA2
+rm -rf RNA2
 mkdir -p RNA2
 cd RNA2
 
@@ -49,12 +49,20 @@ bowtie2-build 1and2.fa 1and2
 
 tophat2 --output-dir $dir/RNA2 --min-intron-length 30 --num-threads $CPUs --GTF $dir/RNA2/1and2.gff 1and2 $FASTQ/$rnaID\_1.fastq.gz $FASTQ/$rnaID\_2.fastq.gz
 
-# /data/reddylab/software/samtools/samtools-1.1/samtools view accepted_hits.bam | /home/bmajoros/1000G/src/count-mapped-reads.pl > readcounts-unfiltered.txt
-
-# /data/reddylab/software/stringtie/stringtie-1.2.1.Linux_x86_64/stringtie accepted_hits.bam -G $dir/RNA2/1and2.gff -o stringtie.gff -p $CPUs
-
-# rm *.bt2 accepted_hits.bam
+rm *.bt2
 rm 1and2.fa 1and2.gff
+
+/data/reddylab/software/samtools/samtools-1.1/samtools sort accepted_hits.bam sorted.bam
+
+rm accepted_hits.bam
+
+/data/reddylab/software/samtools/samtools-1.1/samtools mpileup sorted.bam -o pileup.txt
+
+rm sorted.bam
+
+cat pileup.txt | cut -f1,2,4 | gzip > pileup.txt.gz
+
+rm pileup.txt
 
 echo \\[done\\]
 ");
