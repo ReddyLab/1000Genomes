@@ -14,6 +14,7 @@ import sys
 import ProgramName
 import gzip
 from GffTranscriptReader import GffTranscriptReader
+from Interval import Interval
 
 MIN_READS=3
 MIN_COVERED=30
@@ -29,19 +30,39 @@ def loadGFF(filename,intoHash):
             to.append(transcript)
     reader=None
 
+def getExons(transcripts):
+    allExons=[]
+    seen=set()
+    for transcript in transcripts:
+        exons=transcript.getRawExons()
+        for exon in exons:
+            key=str(exon.getBegin())+" "+str(exon.getEnd())
+            if(key in seen): continue
+            allExons.append(Interval(exon.getBegin(),exon.getEnd()))
+            seen.add(key)
+    return allExons
+
+def overlapsExon(intron,exons):
+    for exon in exons:
+        if(exon.overlaps(intron)): return True
+    return False
+
 def getIntrons(transcriptHash):
     intronHash={}
     for substrate in transcriptHash.keys():
         transcripts=transcriptHash[substrate]
+        exons=getExons(transcripts)
         seen=set()
         for transcript in transcripts:
             introns=transcript.getIntrons()
+            #print("found",len(introns),"introns")
             for intron in introns:
                 key=str(intron.begin)+" "+str(intron.end)
                 if(key in seen): continue
                 seen.add(key)
-                array=intronHash.get(key,None)
-                if(array is None): array=intronHash[key]=[]
+                if(overlapsExon(intron,exons)): continue
+                array=intronHash.get(substrate,None)
+                if(array is None): array=intronHash[substrate]=[]
                 array.append(intron)
     return intronHash
 
@@ -54,21 +75,26 @@ def loadLengths(filename,hash):
             hash[substrate]=int(L)
 
 def processGene(chrom,intronHash,pileup):
-    introns=intronHash[chrom]
+    introns=intronHash.get(chrom,None)
+    if(introns is None): return
+    #print(chrom,"has",len(introns),"introns")
     for intron in introns:
         checkIntron(intron,pileup,chrom)
 
 def getCoverage(intron,pileup,minReads):
     covered=0
-    for i in range(N):
+    for i in range(intron.begin,intron.end):
         if(pileup[i]>=minReads): covered+=1
     return covered
 
 def checkIntron(intron,pileup,chrom):
+    if(intron.length()<20): return
     covered=getCoverage(intron,pileup,MIN_READS)
+    print(chrom,"intron("+str(intron.begin)+","+str(intron.end)+")",
+          covered,intron.length(),sep="\t")
     if(covered<MIN_COVERED): return
     cov=float(covered)/float(intron.length())
-    print(chrom,cov,sep="\t")
+    #print(chrom,cov,sep="\t")
     if(cov<MIN_COVERAGE): return
 
 #=========================================================================
@@ -95,8 +121,7 @@ print("hashing introns",file=sys.stderr)
 intronHash=getIntrons(transcriptHash)
 
 # Process pileup file
-print("processing pileup file")
-prevPos=-1
+print("processing pileup file",file=sys.stderr)
 chrom=None
 pileup=None
 with gzip.open(pileupFile,"rt") as IN:
@@ -104,11 +129,11 @@ with gzip.open(pileupFile,"rt") as IN:
         fields=line.split()
         if(len(fields)<3): continue
         (substrate,pos,reads)=fields[:3]
-        pos=int(pos); reads=int(reads)
+        pos=int(pos)-1; reads=int(reads)
         if(substrate!=chrom):
             if(chrom is not None): processGene(chrom,intronHash,pileup)
             chrom=substrate
             pileup=[0]*lengthHash[chrom]
-        prevPos=int(pos)
+        if(len(pileup)<=pos): raise Exception(str(len(pileup))+"<="+str(pos))
         pileup[pos]=reads
     processGene(chrom,intronHash,pileup)
