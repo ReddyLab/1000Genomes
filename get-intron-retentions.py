@@ -55,7 +55,6 @@ def getIntrons(transcriptHash):
         seen=set()
         for transcript in transcripts:
             introns=transcript.getIntrons()
-            #print("found",len(introns),"introns")
             for intron in introns:
                 key=str(intron.begin)+" "+str(intron.end)
                 if(key in seen): continue
@@ -64,6 +63,7 @@ def getIntrons(transcriptHash):
                 array=intronHash.get(substrate,None)
                 if(array is None): array=intronHash[substrate]=[]
                 array.append(intron)
+                intron.strand=transcript.strand ###
     return intronHash
 
 def loadLengths(filename,hash):
@@ -77,7 +77,6 @@ def loadLengths(filename,hash):
 def processGene(chrom,intronHash,pileup):
     introns=intronHash.get(chrom,None)
     if(introns is None): return
-    #print(chrom,"has",len(introns),"introns")
     for intron in introns:
         checkIntron(intron,pileup,chrom)
 
@@ -91,7 +90,7 @@ def checkIntron(intron,pileup,chrom):
     if(intron.length()<20): return
     covered=getCoverage(intron,pileup,MIN_READS)
     print(chrom,"intron("+str(intron.begin)+","+str(intron.end)+")",
-          covered,intron.length(),sep="\t")
+          covered,intron.length(),intron.strand,sep="\t")
     if(covered<MIN_COVERED): return
     cov=float(covered)/float(intron.length())
     #print(chrom,cov,sep="\t")
