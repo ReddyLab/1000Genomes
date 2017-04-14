@@ -15,7 +15,6 @@ BASE="/home/bmajoros/hapmix"
 CHROMS=range(1,23)
 slurmDir=BASE+"/slurm"
 jobName="HAPMIX"
-runDir=BASE
 maxParallel=100
 
 writer=SlurmWriter()
@@ -25,5 +24,5 @@ for chr in CHROMS:
     writer.addCommand(cmd)
 writer.mem(5000)
 writer.setQueue("new,all")
-writer.writeArrayScript(slurmDir,jobName,runDir,maxParallel)
+writer.writeArrayScript(slurmDir,jobName,maxParallel)
 
