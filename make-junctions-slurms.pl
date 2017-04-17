@@ -18,19 +18,14 @@ foreach my $ID (@IDs) {
   my $dir="$COMBINED/$ID";
   next unless -e "$dir/RNA/junctions.bed";
   $slurm->addCommand("
-cd $dir/RNA2
+cd $dir/RNA3
 
-$THOUSAND/src/gff-to-junctions.py ../1.aceplus.gff > 1.gff.junctions
+# $THOUSAND/src/gff-to-junctions.py ../1.aceplus.gff > 1.gff.junctions
+# $THOUSAND/src/gff-to-junctions.py ../2.aceplus.gff > 2.gff.junctions
+# cat 1.gff.junctions 2.gff.junctions > predicted.junctions
+# rm ?.gff.junctions
 
-$THOUSAND/src/gff-to-junctions.py ../2.aceplus.gff > 2.gff.junctions
-
-cat 1.gff.junctions 2.gff.junctions > predicted.junctions
-
-rm ?.gff.junctions
-
-$THOUSAND/src/tophat-to-junctions.py junctions.bed > observed.junctions
-
-/data/reddylab/software/samtools/samtools-1.1/samtools view accepted_hits.bam | /home/bmajoros/1000G/src/count-mapped-reads.pl > readcounts-unfiltered.txt
+$THOUSAND/src/tophat-to-junctions.py junctions.bed > junctions.txt
 
 echo \\[done\\]
 ");

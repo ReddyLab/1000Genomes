@@ -83,7 +83,8 @@ def getUniqueJunctions(transcript,annotatedIntrons,changes):
         key=str(intron.begin)+" "+str(intron.end)
         if(key not in annotatedIntrons):
             print(transcript.getGeneId(),transcript.getId(),"junction",
-                  str(intron.begin)+"-"+str(intron.end),transcript.getStrand(),
+                  str(intron.begin)+"-"+str(intron.end),
+                  transcript.getScore(),transcript.getStrand(),
                   changes,sep="\t")
             found=True
     return found
@@ -105,7 +106,8 @@ def getIntronRetentions(transcript,refTranscripts,changes):
                 print(transcript.getGeneId(),transcript.getId(),
                       "intron-retention",
                       str(refIntron.begin)+"-"+str(refIntron.end),
-                      transcript.getStrand(),changes,sep="\t")
+                      transcript.getScore(),transcript.getStrand(),
+                      changes,sep="\t")
                 found=True
     return found
 

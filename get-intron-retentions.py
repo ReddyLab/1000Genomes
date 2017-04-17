@@ -100,7 +100,7 @@ def checkIntron(intron,pileup,chrom):
 # main()
 #=========================================================================
 if(len(sys.argv)!=6):
-    exit(ProgramName.get()+" <1.gff> <2.gff> <1.lengths> <2.lengths> <pileup.gz>\n")
+    exit(ProgramName.get()+" <1.gff> <2.gff> <1.lengths> <2.lengths> <depth.gz>\n")
 (gffFile1,gffFile2,lengthFile1,lengthFile2,pileupFile)=sys.argv[1:]
 
 # Load lengths
@@ -136,3 +136,4 @@ with gzip.open(pileupFile,"rt") as IN:
         if(len(pileup)<=pos): raise Exception(str(len(pileup))+"<="+str(pos))
         pileup[pos]=reads
     processGene(chrom,intronHash,pileup)
+

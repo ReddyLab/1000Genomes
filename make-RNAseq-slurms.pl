@@ -55,7 +55,7 @@ tophat2 --output-dir $dir/$OUTDIR --min-intron-length 30 --num-threads $CPUs --G
 rm *.bt2
 rm 1and2.fa 1and2.gff
 
-samtools sort accepted_hits.bam sorted
+samtools sort accepted_hits.bam -o sorted.bam
 
 rm accepted_hits.bam unmapped.bam
 rm -r logs
