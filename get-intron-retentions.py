@@ -16,6 +16,7 @@ import gzip
 from GffTranscriptReader import GffTranscriptReader
 from Interval import Interval
 
+MARGIN_LENGTH=10 # length of region covering each splice site
 MIN_READS=3
 MIN_COVERED=30
 MIN_COVERAGE=0.1
@@ -86,15 +87,25 @@ def getCoverage(intron,pileup,minReads):
         if(pileup[i]>=minReads): covered+=1
     return covered
 
+def checkMargin(begin,end,pileup):
+    for i in range(begin,end):
+        if(pileup[i]<MIN_READS): return False
+    return True
+
+def spliceSitesCovered(intron,pileup):
+    return checkMargin(intron.begin,intron.begin+MARGIN_LENGTH,pileup) and\
+        checkMargin(intron.end-MARGIN_LENGTH,intron.end,pileup)
+
 def checkIntron(intron,pileup,chrom):
     if(intron.length()<20): return
+    if(not spliceSitesCovered(intron,pileup)): return
     covered=getCoverage(intron,pileup,MIN_READS)
-    print(chrom,"intron("+str(intron.begin)+","+str(intron.end)+")",
-          covered,intron.length(),intron.strand,sep="\t")
+    #print(chrom,"intron("+str(intron.begin)+","+str(intron.end)+")",
+    #      covered,intron.length(),intron.strand,sep="\t")
     if(covered<MIN_COVERED): return
     cov=float(covered)/float(intron.length())
-    #print(chrom,cov,sep="\t")
     if(cov<MIN_COVERAGE): return
+    print(chrom,intron.begin,intron.end,covered,intron.length(),cov,sep="\t")
 
 #=========================================================================
 # main()
