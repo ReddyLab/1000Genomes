@@ -42,10 +42,8 @@ def getAnnotatedIntrons(refTranscripts):
             allIntrons.add(key)
     return allIntrons
 
-def getStructureChanges(transcript):
-    pairs=transcript.parseExtraFields()
-    hash=transcript.hashExtraFields(pairs)
-    changeString=hash.get("structure_change","")
+def getStructureChanges(transcript,attributes):
+    changeString=attributes.get("structure_change","")
     fields=changeString.split(" ")
     changes=set()
     for field in fields: changes.add(field)
@@ -61,11 +59,14 @@ def processGene(transcripts):
         else: refTranscripts[id]=transcript
     annotatedIntrons=getAnnotatedIntrons(refTranscripts)
     for transcript in altTranscripts:
-        changes=getStructureChanges(transcript)
+        pairs=transcript.parseExtraFields()
+        attributes=transcript.hashExtraFields(pairs)
+        changes=getStructureChanges(transcript,attributes)
         if("mapped-transcript" in changes): continue
         changes=setToString(changes)
-        found1=getUniqueJunctions(transcript,annotatedIntrons,changes)
-        found2=getIntronRetentions(transcript,refTranscripts,changes)
+        found1=getUniqueJunctions(transcript,annotatedIntrons,changes,
+                                  attributes)
+        found2=getIntronRetentions(transcript,refTranscripts,changes,attributes)
         #if(not found1 and not found2):
         #   raise Exception("No unique features found for "+transcript.getID())
 
@@ -76,8 +77,11 @@ def setToString(s):
         r+=elem
     return r    
 
-def getUniqueJunctions(transcript,annotatedIntrons,changes):
+def getUniqueJunctions(transcript,annotatedIntrons,changes,attributes):
     introns=transcript.getIntrons()
+    fate=attributes.get("fate","none")
+    broken=attributes.get("broken-site")
+    if(broken is None or broken==""): broken="false"
     found=False
     for intron in introns:
         key=str(intron.begin)+" "+str(intron.end)
@@ -85,7 +89,7 @@ def getUniqueJunctions(transcript,annotatedIntrons,changes):
             print(transcript.getGeneId(),transcript.getId(),"junction",
                   str(intron.begin)+"-"+str(intron.end),
                   transcript.getScore(),transcript.getStrand(),
-                  changes,sep="\t")
+                  changes,fate,broken,sep="\t")
             found=True
     return found
 
@@ -93,11 +97,14 @@ def exonIsAnnotated(exon,annotatedExons):
     key=str(exon.begin)+" "+str(exon.end)
     return key in annotatedExons
 
-def getIntronRetentions(transcript,refTranscripts,changes):
+def getIntronRetentions(transcript,refTranscripts,changes,attributes):
     ref=refTranscripts[transcript.refID]
     refIntrons=ref.getIntrons()
     annotatedExons=getAnnotatedExons(refTranscripts)
     exons=transcript.getRawExons()
+    fate=attributes.get("fate","none")
+    broken=attributes.get("broken-site")
+    if(broken is None or broken==""): broken="false"
     found=False
     for exon in exons:
         for refIntron in refIntrons:
@@ -107,7 +114,7 @@ def getIntronRetentions(transcript,refTranscripts,changes):
                       "intron-retention",
                       str(refIntron.begin)+"-"+str(refIntron.end),
                       transcript.getScore(),transcript.getStrand(),
-                      changes,sep="\t")
+                      changes,fate,broken,sep="\t")
                 found=True
     return found
 

@@ -12,9 +12,13 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 # Python 3.  You might need to update your version of module "future".
 import sys
 import ProgramName
+from Rex import Rex
+rex=Rex()
 
 MIN_IR_COVERAGE=0.5
 MIN_READS=3
+MIN_FPKM=1
+seenPredictions=set()
 
 def setSupport(firstHash,substrate,key,support):
     secondHash=firstHash.get(substrate,None)
@@ -51,64 +55,77 @@ def loadPredictions(filename):
     with open(filename,"rt") as IN:
         for line in IN:
             fields=line.rstrip().split()
-            if(len(fields)<7): continue
-            (substrate,altID,featureType,interval,score,strand,essexFeatures)=\
-                fields
+            if(len(fields)<9): continue
+            (substrate,altID,featureType,interval,score,strand,essexFeatures,
+             fate,broken)=fields
             array=predictions.get(altID,None)
             if(array is None): array=predictions[altID]=[]
-            array.append([substrate,featureType,interval,score,essexFeatures])
+            array.append([substrate,featureType,interval,score,essexFeatures,
+                          fate,broken])
     return predictions
 
 def processPredictions(filename,junctions,IR):
     predictions=loadPredictions(filename)
-    numPred=0
-    numSupported=0
     for altID in predictions.keys():
-        numPred+=1
-        supported=True
+        if(not rex.find("ALT\d+_(\S+)_\d+",altID)): raise Exception(altID)
+        transID=rex[1]
+        if(transID not in expressed): continue
         features=predictions[altID]
         for feature in features:
-            (substrate,featureType,interval,score,essex)=feature
+            (substrate,featureType,interval,score,essex,fate,broken)=feature
+            if(BROKEN_ONLY and not broken): continue
+            if(fate=="NMD" or fate=="nonstop-decay"): continue
+            key=substrate+" "+interval
+            if(key in seenPredictions): continue
+            seenPredictions.add(key)
+            support=None
             if(featureType=="junction"):
-                supported=supported and checkJunction(feature,junctions)
+                support=checkJunction(feature,junctions)
             elif(featureType=="intron-retention"):
-                supported=supported and checkIR(feature,IR)
+                support=checkIR(feature,IR)
             else: raiseException(featureType)
-        supportFlag=1 if supported else 0
-        print(score,supportFlag,sep="\t")
-        if(supported): numSupported+=1
-    proportionSupported=float(numSupported)/float(numPred)
-    print(proportionSupported)
+            print(featureType,support,score,substrate,interval,sep="\t")
 
 def checkJunction(feature,junctions):
     (substrate,featureType,interval,score,essex)=feature
     secondHash=junctions.get(substrate,None)
-    if(secondHash is None): return False
+    if(secondHash is None): return 0
     support=secondHash.get(interval,None)
-    if(support is None): return False
-    return support>=MIN_READS
+    if(support is None): return 0
+    return support
 
 def checkIR(feature,IR):
     (substrate,featureType,interval,score,essex)=feature
     secondHash=IR.get(substrate,None)
-    if(secondHash is None): return False
+    if(secondHash is None): return 0
     support=secondHash.get(interval,None)
-    if(support is None): return False
-    return support>=MIN_IR_COVERAGE
+    if(support is None): return 0
+    return support
+
+def loadExpressed(filename):
+    expressed=set()
+    with open(filename,"rt") as IN:
+        for line in IN:
+            fields=line.rstrip().split()
+            (geneID,transcriptID,meanFPKM,sampleSize)=fields
+            if(float(meanFPKM)>=MIN_FPKM): expressed.add(transcriptID)
+    return expressed
 
 #=========================================================================
 # main()
 #=========================================================================
-if(len(sys.argv)!=3):
-    exit(ProgramName.get()+" </path/to/indiv> <RNA-subdir>\n")
-(baseDir,subdir)=sys.argv[1:]
+if(len(sys.argv)!=5):
+    exit(ProgramName.get()+" </path/to/indiv> <RNA-subdir> <expressed.txt> <broken-only:0|1>\n")
+(baseDir,subdir,expressedFile,brokenOnly)=sys.argv[1:]
+BROKEN_ONLY=int(brokenOnly)
 
 # Form paths to needed files
 RNA=baseDir+"/"+subdir
 IRfile=RNA+"/IR.txt"
 junctionsFile=RNA+"/junctions.txt"
 
-# Load RNA evidence
+# Load data
+expressed=loadExpressed(expressedFile)
 junctions=loadJunctions(junctionsFile)
 IR=loadIR(IRfile);
 
