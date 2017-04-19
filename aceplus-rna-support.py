@@ -73,7 +73,7 @@ def processPredictions(filename,junctions,IR):
         features=predictions[altID]
         for feature in features:
             (substrate,featureType,interval,score,essex,fate,broken)=feature
-            if(BROKEN_ONLY and not broken): continue
+            if(BROKEN_ONLY and broken=="false"): continue
             if(fate=="NMD" or fate=="nonstop-decay"): continue
             key=substrate+" "+interval
             if(key in seenPredictions): continue
@@ -84,10 +84,10 @@ def processPredictions(filename,junctions,IR):
             elif(featureType=="intron-retention"):
                 support=checkIR(feature,IR)
             else: raiseException(featureType)
-            print(featureType,support,score,substrate,interval,sep="\t")
+            print(featureType,support,score,substrate,interval,essex,fate,broken,sep="\t")
 
 def checkJunction(feature,junctions):
-    (substrate,featureType,interval,score,essex)=feature
+    (substrate,featureType,interval,score,essex,fate,broken)=feature
     secondHash=junctions.get(substrate,None)
     if(secondHash is None): return 0
     support=secondHash.get(interval,None)
@@ -95,7 +95,7 @@ def checkJunction(feature,junctions):
     return support
 
 def checkIR(feature,IR):
-    (substrate,featureType,interval,score,essex)=feature
+    (substrate,featureType,interval,score,essex,fate,broken)=feature
     secondHash=IR.get(substrate,None)
     if(secondHash is None): return 0
     support=secondHash.get(interval,None)
