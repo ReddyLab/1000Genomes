@@ -10,40 +10,33 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
    chr, hex, input, next, oct, open, pow, round, super, filter, map, zip)
 # The above imports should allow this program to run in both Python 2 and
 # Python 3.  You might need to update your version of module "future".
-from SlurmWriter import SlurmWriter
+import random
+import sys
+import ProgramName
+from GffTranscriptReader import GffTranscriptReader
+from Rex import Rex
+rex=Rex()
 
-OUTFILE="support10.txt" # "support.txt"
-BROKEN_ONLY=0
-THOUSAND="/home/bmajoros/1000G/assembly"
-EXPRESSED=THOUSAND+"/expressed.txt"
-GEUVADIS=THOUSAND+"/geuvadis.txt"
-SLURM_DIR=THOUSAND+"/support-slurms"
-JOB_NAME="SUPPORT"
-MAX_PARALLEL=1000
-NICE=0
-MEMORY=0
-THREADS=0
+RAND_OR_UNIFORM="random" # "random" or "uniform"
 
 #=========================================================================
 # main()
 #=========================================================================
+if(len(sys.argv)!=2):
+    exit(ProgramName.get()+" <in.gff>\n")
+(infile,)=sys.argv[1:]
 
-dirs=[]
-with open(GEUVADIS,"rt") as IN:
-    for line in IN:
-        id=line.rstrip()
-        dir=THOUSAND+"/combined/"+id
-        dirs.append(dir)
-
-writer=SlurmWriter()
-for dir in dirs:
-    cmd=THOUSAND+"/src/aceplus-rna-support.py "+dir+" RNA3 "+EXPRESSED+\
-        " "+str(BROKEN_ONLY)+" > RNA3/"+OUTFILE
-    writer.addCommand("cd "+dir+"\n"+cmd)
-writer.setQueue("new,all")
-writer.nice(NICE)
-if(MEMORY): writer.mem(MEMORY)
-if(THREADS): writer.threads(THREADS)
-writer.writeArrayScript(SLURM_DIR,JOB_NAME,MAX_PARALLEL)
-
-
+reader=GffTranscriptReader()
+transcripts=reader.loadGFF(infile)
+counts={}
+for transcript in transcripts:
+    id=transcript.getTranscriptId()
+    if(rex.find("ALT\d+_(\S+)",id)): baseID=rex[1]
+    else: baseID=id
+    transcript.baseID=baseID
+    counts[baseID]=counts.get(baseID,0)+1
+for transcript in transcripts:
+    n=counts[transcript.baseID]
+    if(RAND_OR_UNIFORM=="uniform"): transcript.score=1.0/float(n)
+    else: transcript.score=random.random()
+    print(transcript.toGff())

@@ -12,6 +12,7 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 # Python 3.  You might need to update your version of module "future".
 from SlurmWriter import SlurmWriter
 
+INFILE="support10.txt" # "support.txt"
 THOUSAND="/home/bmajoros/1000G/assembly"
 GEUVADIS=THOUSAND+"/geuvadis.txt"
 
@@ -42,7 +43,7 @@ with open(GEUVADIS,"rt") as IN:
 
 seen=set()
 for dir in dirs:
-    predictions=loadSupportFile(dir+"/RNA3/support.txt")
+    predictions=loadSupportFile(dir+"/RNA3/"+INFILE)
     seenLocal=set()
     for elem in predictions:
         (geneID,interval,support,score)=elem
