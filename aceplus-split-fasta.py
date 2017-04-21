@@ -46,7 +46,7 @@ if(len(sys.argv)!=7):
 
 # Load pooled GFF file
 reader=GffTranscriptReader()
-bySubstrate=reader.hashBySubstrate(inGff)
+bySubstrate=reader.loadGeneIdHash(inGff)
 
 # Count sequences in fasta file
 N=FastaReader.countEntries(inFasta)
