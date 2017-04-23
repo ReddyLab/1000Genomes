@@ -52,12 +52,16 @@ def loadIR(filename):
 
 def loadPredictions(filename):
     predictions={}
+    seen=set()
     with open(filename,"rt") as IN:
         for line in IN:
             fields=line.rstrip().split()
             if(len(fields)<9): continue
             (substrate,altID,featureType,interval,score,strand,essexFeatures,
              fate,broken)=fields
+            key=substrate+" "+interval
+            if(key in seen): continue
+            seen.add(key)
             array=predictions.get(altID,None)
             if(array is None): array=predictions[altID]=[]
             array.append([substrate,featureType,interval,score,essexFeatures,
