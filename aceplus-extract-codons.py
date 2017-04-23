@@ -13,11 +13,13 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 import sys
 import ProgramName
 from GffTranscriptReader import GffTranscriptReader
-from CodonIterator import CodonInterator
+from CodonIterator import CodonIterator
 from FastaReader import FastaReader
 from NgramIterator import NgramIterator
 from Rex import Rex
 rex=Rex()
+
+PSEUDOCOUNT=1
 
 def codonsFromCDS(transcript,seq):
     codons=[]
@@ -25,23 +27,35 @@ def codonsFromCDS(transcript,seq):
     while(True):
         codon=iterator.nextCodon()
         if(codon is None): break
-    codons.append(codon)
+        codons.append(codon.triplet)
     return codons
 
-def codonsFromIntrons(transcript,seq):
+def codonsFromIntrons(transcript):
     codons=[]
     introns=transcript.getIntrons()
     intronSeq=""
     for intron in introns:
         intronSeq+=seq[intron.begin:intron.end]
     L=int(len(intronSeq)/3)*3
-    for i in range(L):
+    for i in range(int(L/3)):
         codons.append(intronSeq[i*3:(i+1)*3])
+    return codons
+
+def codonsFromExons(transcript):
+    codons=[]
+    exonSeq=""
+    for exon in transcript.exons:
+        exonSeq+=exon.sequence
+    L=int(len(exonSeq)/3)*3
+    firstCodon=exonSeq[:3]
+    if(firstCodon!="ATG"): return None
+    for i in range(int(L/3)):
+        codons.append(exonSeq[i*3:(i+1)*3])
     return codons
 
 def getNgrams():
     ngrams=[]
-    ngramIterator=NgramIterator("ACGT",4)
+    ngramIterator=NgramIterator("ACGT",3)
     while(True):
         ngram=ngramIterator.nextString()
         if(ngram is None): break
@@ -53,13 +67,14 @@ def emit(codons,category):
     counts={}
     total=0.0
     for codon in codons:
-        counts[codon]=counts.get(codon,0)+1
-        total+=1
+        counts[codon]=counts.get(codon,PSEUDOCOUNT)+1
+        total+=1.0
     numCodons=len(allCodons)
     for i in range(numCodons):
         codon=allCodons[i]
         count=counts.get(codon,0)
-        freq=float(count)/total
+        freq=float(count)/float(total)
+        freq=round(freq,3)
         print(str(freq),end="")
         if(i+1<numCodons): print("\t",end="")
     print()
@@ -95,8 +110,11 @@ while(True):
     genes=genesBySubstrate.get(id,[])
     for gene in genes:
         transcript=gene.longestTranscript()
-        exonCodons=codonsFromCDS(transcript,seq)
-        intronCodons=codonsFromIntrons(transcript,seq)
+        if(len(transcript.getIntrons())==0): continue
+        transcript.loadExonSequences(seq,transcript.exons)
+        exonCodons=codonsFromExons(transcript)
+        if(exonCodons is None): continue
+        intronCodons=codonsFromIntrons(transcript)
         emit(exonCodons,1)
         emit(intronCodons,0)
         cases+=1
