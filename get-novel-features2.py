@@ -16,6 +16,28 @@ from GffTranscriptReader import GffTranscriptReader
 from Rex import Rex
 rex=Rex()
 
+def addToHash(key,substrate,hash,record):
+    hash2=hash.get(substrate,None)
+    if(hash2 is None): hash2=hash[substrate]={}
+    hash2[key]=record
+
+def loadStandard(filename):
+    with open(filename,"rt") as IN:
+        for line in IN:
+            fields=line.rstrip().split()
+            if(len(fields)!=9): continue
+            (substrate,transcriptID,featureType,interval,score,strand,
+             essex,NMD,broken)=fields
+            if(not rex.find("(\d+)-(\d+)",interval)): raise Exception(interval)
+            key=rex[1]+" "+rex[2]
+            rec=substrate+"\t"+transcriptID+"\t"+featureType+"\t"+interval+\
+                "\t"+"0.0"+"\t"+strand+"\t"+essex+"\t"+NMD+"\t"+broken
+            if(featureType=="junction"):
+                addToHash(key,substrate,allNovelJunctions,rec)
+            elif(featureType=="intron-retention"):
+                addToHash(key,substrate,allRetentions,rec)
+            else: raise Exception(featureType)
+
 def processGFF(filename):
     reader=GffTranscriptReader()
     hashTable=reader.hashBySubstrate(filename)
@@ -84,14 +106,19 @@ def getUniqueJunctions(transcript,annotatedIntrons,changes,attributes):
     broken=attributes.get("broken-site")
     if(broken is None or broken==""): broken="false"
     found=False
+    seen=set()
     for intron in introns:
         key=str(intron.begin)+" "+str(intron.end)
+        seen.add(key)
         if(key not in annotatedIntrons):
             print(transcript.getGeneId(),transcript.getId(),"junction",
                   str(intron.begin)+"-"+str(intron.end),
                   transcript.getScore(),transcript.getStrand(),
                   changes,fate,broken,sep="\t")
             found=True
+    hash2=allNovelJunctions.get(transcript.getSubstrate(),{})
+    for key in hash2.keys():
+        if(key not in seen): print(hash2[key])
     return found
 
 def exonIsAnnotated(exon,annotatedExons):
@@ -122,10 +149,13 @@ def getIntronRetentions(transcript,refTranscripts,changes,attributes):
 #=========================================================================
 # main()
 #=========================================================================
-if(len(sys.argv)!=2):
-    exit(ProgramName.get()+" <in.gff>")
-(gffFile,)=sys.argv[1:]
+if(len(sys.argv)!=3):
+    exit(ProgramName.get()+" <standard-novel.txt> <in.gff>")
+(novelFile,gffFile,)=sys.argv[1:]
 
+allNovelJunctions={} # hash by substrate
+allRetentions={} # hash by substrate
+loadStandard(novelFile)
 processGFF(gffFile)
 
 

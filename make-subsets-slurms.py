@@ -16,11 +16,12 @@ from Rex import Rex
 rex=Rex()
 
 NICE=500
-MEMORY=5000
+MEMORY=50000 # 5000
 QUEUE="new,all"
 JOB="ACE+"
 MAX_PARALLEL=1000
 PROGRAM="/home/bmajoros/ACEPLUS/aceplus.pl"
+GFF_PROGRAM="/home/bmajoros/ACEPLUS/essex-to-gff-AS2.pl"
 THOUSAND="/home/bmajoros/1000G/assembly"
 SLURM_DIR=THOUSAND+"/subsets-slurms"
 INDIV=THOUSAND+"/combined/HG00096"
@@ -34,13 +35,17 @@ files=os.listdir(INPUTS)
 for file in files:
     if(not rex.find("([^/]+).gff",file)): continue
     filestem=rex[1]
+    if(not rex.find("(\d).subset-\d+",filestem)): raise Exception(filestem)
+    hap=rex[1]
     refFasta="inputs/"+filestem+".ref.fasta"
     altFasta="inputs/"+filestem+".fasta"
     gff="inputs/"+filestem+".gff"
-    outfile="outputs/"+filestem+".essex"
+    essex="outputs/"+filestem+".essex"
+    outGFF="outputs/"+filestem+".gff"
     cmd="\ncd "+SUBSETS+"\n\n"+\
-        "rm -f "+outfile+"\n\n"+\
-        PROGRAM+"  "+MODEL+"  "+refFasta+"  "+altFasta+"  "+gff+"  0  "+outfile
+        "rm -f "+essex+"\n\n"+\
+        PROGRAM+" "+MODEL+" "+refFasta+" "+altFasta+" "+gff+" 0 "+essex+"\n\n"+\
+        GFF_PROGRAM+" "+essex+" "+outGFF+" "+hap
     slurm.addCommand(cmd)
 slurm.nice(NICE)
 slurm.mem(MEMORY)
