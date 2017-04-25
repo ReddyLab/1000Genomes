@@ -13,7 +13,6 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 import sys
 import ProgramName
 from GffTranscriptReader import GffTranscriptReader
-from CodonIterator import CodonIterator
 from FastaReader import FastaReader
 from NgramIterator import NgramIterator
 from Rex import Rex
@@ -21,41 +20,44 @@ rex=Rex()
 
 PSEUDOCOUNT=1
 
-def codonsFromCDS(transcript,seq):
-    codons=[]
-    iterator=CodonIterator(transcript,seq,stops)
-    while(True):
-        codon=iterator.nextCodon()
-        if(codon is None): break
-        codons.append(codon.triplet)
-    return codons
-
 def codonsFromIntrons(transcript):
     codons=[]
     introns=transcript.getIntrons()
     intronSeq=""
     for intron in introns:
         intronSeq+=seq[intron.begin:intron.end]
-    L=int(len(intronSeq)/3)*3
-    for i in range(int(L/3)):
-        codons.append(intronSeq[i*3:(i+1)*3])
+    L=int(len(intronSeq)/N)*N
+    for i in range(int(L/N)):
+        codons.append(intronSeq[i*N:(i+1)*N])
     return codons
 
-def codonsFromExons(transcript):
+def codonsFromExons_nonphased(transcript):
     codons=[]
     exonSeq=""
     for exon in transcript.exons:
         exonSeq+=exon.sequence
-    L=int(len(exonSeq)/3)*3
-    firstCodon=exonSeq[:3]
-    if(firstCodon!="ATG"): return None
-    for i in range(int(L/3)):
-        codons.append(exonSeq[i*3:(i+1)*3])
+    L=len(exonSeq)
+    for i in range(L-(N-1)):
+        codons.append(exonSeq[i:i+N])
+    return codons
+
+def codonsFromExons(transcript,phased):
+    if(not phased): return codonsFromExons_nonphased(transcript)
+    codons=[]
+    exonSeq=""
+    for exon in transcript.exons:
+        exonSeq+=exon.sequence
+    L=int(len(exonSeq)/N)*N
+    if(N==3):
+        firstCodon=exonSeq[:N]
+        if(firstCodon!="ATG"): return None
+    for i in range(int(L/N)):
+        codons.append(exonSeq[i*N:(i+1)*N])
     return codons
 
 def getNgrams():
     ngrams=[]
-    ngramIterator=NgramIterator("ACGT",3)
+    ngramIterator=NgramIterator("ACGT",N)
     while(True):
         ngram=ngramIterator.nextString()
         if(ngram is None): break
@@ -74,7 +76,7 @@ def emit(codons,category):
         codon=allCodons[i]
         count=counts.get(codon,0)
         freq=float(count)/float(total)
-        freq=round(freq,3)
+        freq=round(freq,N)
         print(str(freq),end="")
         if(i+1<numCodons): print("\t",end="")
     print()
@@ -91,10 +93,15 @@ def printHeader():
 #=========================================================================
 # main()
 #=========================================================================
-if(len(sys.argv)!=4):
-    exit(ProgramName.get()+" <in.gff> <in.fasta> <max-cases>\n")
-(gffFile,fastaFile,maxCases)=sys.argv[1:]
-maxCases=int(maxCases)
+if(len(sys.argv)!=6):
+    exit(ProgramName.get()+
+         " <in.gff> <in.fasta> <max-cases> <phased:YES|NO> <N>\n")
+(gffFile,fastaFile,maxCases,wantPhased,N)=sys.argv[1:]
+maxCases=int(maxCases); N=int(N)
+phased=None
+if(wantPhased=="YES"): phased=True
+elif(wantPhased=="NO"): phased=False
+else: exit("phased must be YES or NO")
 
 allCodons=getNgrams()
 printHeader()
@@ -112,7 +119,7 @@ while(True):
         transcript=gene.longestTranscript()
         if(len(transcript.getIntrons())==0): continue
         transcript.loadExonSequences(seq,transcript.exons)
-        exonCodons=codonsFromExons(transcript)
+        exonCodons=codonsFromExons(transcript,phased)
         if(exonCodons is None): continue
         intronCodons=codonsFromIntrons(transcript)
         emit(exonCodons,1)
