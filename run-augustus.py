@@ -16,7 +16,11 @@ import ProgramName
 import TempFilename
 from GffTranscriptReader import GffTranscriptReader
 from FastaReader import FastaReader
-from FastaWRiter import FastaWriter
+from FastaWriter import FastaWriter
+
+AUGUSTUS_DIR="/home/bmajoros/splicing/augustus"
+AUGUSTUS=AUGUSTUS_DIR+"/bin/augustus"
+EXTRINSIC=AUGUSTUS_DIR+"/config/extrinsic/extrinsic.cfg"
 
 def writeHints(id,transcript,L,hintsFile):
     OUT=open(hintsFile,"wt")
@@ -44,7 +48,8 @@ def writeHints(id,transcript,L,hintsFile):
     OUT.close()
 
 def runAugustus(fastaFile,hintsFile):
-    pass
+    cmd=AUGUSTUS+" --species=human --hintsfile="+hintsFile+" --extrinsicCfgFile="+EXTRINSIC+" "+fastaFile+" --alternatives-from-sampling=true --sample=100 --UTR=on"
+    system(cmd)
 
 #=========================================================================
 # main()
@@ -72,6 +77,7 @@ while(True):
     writer.writeFasta(defline,seq,tempFasta)
     transcripts=bySubstrate.get(id,[])
     for transcript in transcripts:
+        if(transcript.getID()[:3]=="ALT"): continue
         writeHints(id,transcript,len(seq),hintsFile)
         runAugustus(tempFasta,hintsFile)
 
