@@ -32,6 +32,7 @@ with open(logisticFile,"rt") as IN:
         if(len(fields)!=2): continue
         (hexamer,score)=fields
         if(score=="."): continue
+        #if(score=="."): score="0"
         shendureScore=shendure[hexamer]
         print(shendureScore,score,sep="\t")
 

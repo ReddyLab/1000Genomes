@@ -20,7 +20,8 @@ from FastaWriter import FastaWriter
 
 AUGUSTUS_DIR="/home/bmajoros/splicing/augustus"
 AUGUSTUS=AUGUSTUS_DIR+"/bin/augustus"
-EXTRINSIC=AUGUSTUS_DIR+"/config/extrinsic/extrinsic.cfg"
+#EXTRINSIC=AUGUSTUS_DIR+"/config/extrinsic/extrinsic.cfg"
+EXTRINSIC=AUGUSTUS_DIR+"/config/extrinsic/extrinsic.MPE.cfg"
 
 def writeHints(id,transcript,L,hintsFile):
     OUT=open(hintsFile,"wt")
@@ -29,17 +30,17 @@ def writeHints(id,transcript,L,hintsFile):
     numExons=transcript.numExons()
     for i in range(numExons):
         exon=transcript.getIthExon(i)
-        print(substrate,"annotation","exon",exon.getBegin()+1,
+        print(substrate,"annotation","CDSpart",exon.getBegin()+1,
               exon.getEnd(),".",strand,exon.getFrame(),"source=P",
               sep="\t",file=OUT)
     numUTR=transcript.numUTR()
     for i in range(numUTR):
         utr=transcript.getIthUTR(i)
-        print(substrate,"annotation","UTR",utr.getBegin()+1,utr.getEnd(),
+        print(substrate,"annotation","UTRpart",utr.getBegin()+1,utr.getEnd(),
               ".",strand,".","source=E",sep="\t",file=OUT)
     introns=transcript.getIntrons()
     for intron in introns:
-        print(substrate,"annotation","intron",intron.getBegin()+1,
+        print(substrate,"annotation","intronpart",intron.getBegin()+1,
               intron.getEnd(),".",strand,".","source=E",sep="\t",file=OUT)
     print(substrate,"annotation","irpart",1,transcript.getBegin(),
           ".",strand,".","source=E",sep="\t",file=OUT)
@@ -48,8 +49,10 @@ def writeHints(id,transcript,L,hintsFile):
     OUT.close()
 
 def runAugustus(fastaFile,hintsFile):
-    cmd=AUGUSTUS+" --species=human --hintsfile="+hintsFile+" --extrinsicCfgFile="+EXTRINSIC+" "+fastaFile+" --alternatives-from-sampling=true --sample=100 --UTR=on"
-    system(cmd)
+    cmd=AUGUSTUS+" --species=human --hintsfile="+hintsFile+\
+        " --extrinsicCfgFile="+EXTRINSIC+" "+fastaFile+\
+        " --alternatives-from-sampling=true --sample=100 --UTR=on"
+    os.system(cmd)
 
 #=========================================================================
 # main()
@@ -59,9 +62,8 @@ if(len(sys.argv)!=3):
 (gffFile,fastaFile)=sys.argv[1:]
 
 # Create temp files
-hintsFile=TempFilename.generate("hints")
-tempFasta=TempFilename.generate("fasta")
-predictionFile=TempFilename.generate("predictions")
+hintsFile=TempFilename.generate(".hints")
+tempFasta=TempFilename.generate(".fasta")
 
 # Load GFF
 reader=GffTranscriptReader()
@@ -84,5 +86,4 @@ while(True):
 # Clean up
 os.remove(hintsFile)
 os.remove(tempFasta)
-os.remove(predictionFile)
 

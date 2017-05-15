@@ -19,6 +19,7 @@ rex=Rex()
 def processGFF(filename):
     reader=GffTranscriptReader()
     hashTable=reader.hashBySubstrate(filename)
+    print("done reading gff",flush=True,file=sys.stderr)
     chroms=hashTable.keys()
     for chrom in chroms:
         transcripts=hashTable[chrom]
