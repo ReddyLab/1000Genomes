@@ -15,6 +15,8 @@ import math
 import ProgramName
 from FastaReader import FastaReader
 
+LENGTH_NORMALIZE=False
+
 def loadWeights(filename):
     hash={}
     largestAbs=0
@@ -53,7 +55,7 @@ while(True):
     if(not defline): break
     L=len(seq)
     sum=scoreSequence(seq,model)
-    #sum/=float(L-5)
+    if(LENGTH_NORMALIZE): sum/=float(L-5)
     print(sum,category,sep="\t")
 
 

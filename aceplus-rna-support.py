@@ -55,14 +55,21 @@ def loadPredictions(filename):
     with open(filename,"rt") as IN:
         for line in IN:
             fields=line.rstrip().split()
-            if(len(fields)<9): continue
+            if(len(fields)!=9): exit(line)
+            fields[4]=float(fields[4])
             (substrate,altID,featureType,interval,score,strand,essexFeatures,
              fate,broken)=fields
+            if(BROKEN_ONLY and broken=="false"): continue
+            if(fate=="NMD" or fate=="nonstop-decay"): continue
+            if(not rex.find("ALT\d+_(\S+)_\d+",altID)): raise Exception(altID)
+            transID=rex[1]
+            if(transID not in expressed): continue
             key=substrate+" "+interval
             oldRec=seen.get(key,None)
             if(oldRec is not None and oldRec[4]>score): continue
             seen[key]=fields
     predictions={}
+
     for rec in seen.values():
         (substrate,altID,featureType,interval,score,strand,essexFeatures,
          fate,broken)=rec
@@ -71,24 +78,6 @@ def loadPredictions(filename):
         array.append([substrate,featureType,interval,score,essexFeatures,
                       fate,broken])
     return predictions
-
-#def loadPredictions_old(filename):
-#    predictions={}
-#    seen=set()
-#    with open(filename,"rt") as IN:
-#        for line in IN:
-#            fields=line.rstrip().split()
-#            if(len(fields)<9): continue
-#            (substrate,altID,featureType,interval,score,strand,essexFeatures,
-#             fate,broken)=fields
-#            key=substrate+" "+interval
-#            if(key in seen): continue
-#            seen.add(key)
-#            array=predictions.get(altID,None)
-#            if(array is None): array=predictions[altID]=[]
-#            array.append([substrate,featureType,interval,score,essexFeatures,
-#                          fate,broken])
-#    return predictions
 
 def processPredictions(filename,junctions,IR):
     predictions=loadPredictions(filename)
@@ -99,8 +88,6 @@ def processPredictions(filename,junctions,IR):
         features=predictions[altID]
         for feature in features:
             (substrate,featureType,interval,score,essex,fate,broken)=feature
-            if(BROKEN_ONLY and broken=="false"): continue
-            if(fate=="NMD" or fate=="nonstop-decay"): continue
             key=substrate+" "+interval
             if(key in seenPredictions): continue
             seenPredictions.add(key)
