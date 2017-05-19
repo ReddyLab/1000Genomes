@@ -66,10 +66,8 @@ def processGene(transcripts):
         changes=setToString(changes)
         found1=getUniqueJunctions(transcript,annotatedIntrons,changes,
                                   attributes)
-        found2=getIntronRetentions(transcript,refTranscripts,changes,
-                                   attributes)
-        #if(not found1 and not found2):
-        #   raise Exception("No unique features found for "+transcript.getID())
+        #found2=getIntronRetentions(transcript,refTranscripts,changes,
+        #                           attributes)
 
 def setToString(s):
     r=""
