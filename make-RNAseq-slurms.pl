@@ -2,14 +2,14 @@
 use strict;
 use SlurmWriter;
 
-my $CPUs=8;
+my $CPUs=32;
 my $MEMORY=40000;
 my $THOUSAND="/home/bmajoros/1000G";
 my $COMBINED="$THOUSAND/assembly/combined";
 my $RNA_LIST="$THOUSAND/assembly/id-map-parsed.txt";
 my $SLURMS="$THOUSAND/assembly/RNA-slurms";
 my $FASTQ="$THOUSAND/trim/output";
-my $OUTDIR="RNA3";
+my $OUTDIR="RNA4";
 
 my @IDs;
 my @dirs=`ls $COMBINED`;
@@ -46,7 +46,7 @@ cd $OUTDIR
 
 cat ../1.fasta ../2.fasta > 1and2.fa
 
-cat ../1.aceplus.gff ../2.aceplus.gff > 1and2.gff
+cat ../1.aceplus.logreg.gff ../2.aceplus.logreg.gff > 1and2.gff
 
 bowtie2-build 1and2.fa 1and2
 

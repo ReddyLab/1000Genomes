@@ -17,7 +17,7 @@ rex=Rex()
 
 MIN_IR_COVERAGE=0.5
 MIN_READS=3 # 3
-MIN_FPKM=3 # 1
+MIN_FPKM=3 #3 # 1
 seenPredictions=set()
 
 def setSupport(firstHash,substrate,key,support):
@@ -54,7 +54,7 @@ def loadPredictions(filename):
     seen={}
     with open(filename,"rt") as IN:
         for line in IN:
-            fields=line.rstrip().split()
+            fields=line.rstrip().split("\t")
             if(len(fields)!=9): exit(line)
             fields[4]=float(fields[4])
             (substrate,altID,featureType,interval,score,strand,essexFeatures,
@@ -94,8 +94,8 @@ def processPredictions(filename,junctions,IR):
             support=None
             if(featureType=="junction"):
                 support=checkJunction(feature,junctions)
-            elif(featureType=="intron-retention"):
-                support=checkIR(feature,IR)
+            #elif(featureType=="intron-retention"):
+            #    support=checkIR(feature,IR)
             else: raiseException(featureType)
             print(featureType,support,score,substrate,interval,essex,fate,
                   broken,sep="\t")
@@ -141,7 +141,7 @@ junctionsFile=RNA+"/junctions.txt"
 # Load data
 expressed=loadExpressed(expressedFile)
 junctions=loadJunctions(junctionsFile)
-IR=loadIR(IRfile);
+IR=None #loadIR(IRfile);
 
 # Score predictions by evidence
 #processPredictions(baseDir+"/1.novel-features",junctions,IR)

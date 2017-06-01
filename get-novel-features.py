@@ -52,8 +52,12 @@ def getStructureChanges(transcript,attributes):
 def processGene(transcripts):
     refTranscripts={}; altTranscripts=[]
     for transcript in transcripts:
+        pairs=transcript.parseExtraFields()
+        attributes=transcript.hashExtraFields(pairs)
+        changes=getStructureChanges(transcript,attributes)
+        mapped="mapped-transcript" in changes
         id=transcript.getID()
-        if(rex.find("ALT\d+_(\S+)",id)):
+        if(not mapped and rex.find("ALT\d+_(\S+)",id)):
             transcript.refID=rex[1]
             altTranscripts.append(transcript)
         else: refTranscripts[id]=transcript
