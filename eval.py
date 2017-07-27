@@ -13,20 +13,36 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 import os
 import sys
 import ProgramName
+from Rex import Rex
+rex=Rex()
 
 PREDICTORS=("logreg","shendure","MC","splice-only","arab")
 BASE="/home/bmajoros/1000G/assembly/combined/"
 SRC="/home/bmajoros/1000G/src/"
-SUBDIR="/RNA6"
+SUBDIR="RNA6"
+EXPRESSED="/home/bmajoros/1000G/assembly/expressed.txt"
 
 def System(cmd):
     print("COMMAND: "+cmd)
     os.system(cmd)
 
 def getNovel(predictor,hap):
-    print("Processing",predictor,hap)
-    #System("grep ALT ../../"+hap+"."+predictor+".gff > "+hap+".tmp ; cat "+hap+".anno.gff "+hap+".tmp > "+hap+"."+predictor+".gff ; rm "+hap+".tmp")
+    System("grep ALT ../../"+hap+"."+predictor+".gff > "+hap+".tmp")
+    removeDuplicateALT(hap+".tmp",hap+".tmp2")
+    System("mv "+hap+".tmp2 "+hap+".tmp")
+    System("cat "+hap+".anno.gff "+hap+".tmp > "+hap+"."+predictor+".gff")
+    System("rm "+hap+".tmp")
     System(SRC+"get-novel-features.py "+hap+"."+predictor+".gff"+" | grep -v intron-retention > "+hap+"."+predictor+".novel.tmp")
+    #System("rm "+hap+"."+predictor+".gff")
+
+def removeDuplicateALT(infile,outfile):
+    IN=open(infile,"rt")
+    OUT=open(outfile,"wt")
+    for line in IN:
+        if(rex.find("(.*)ALT\d+_(ALT.*)",line)):
+            print(rex[1]+rex[2],file=OUT)
+    OUT.close()
+    IN.close()
 
 def makeNovelZero(hap):
     outfile=hap+".novel.zero"
@@ -41,11 +57,15 @@ def makeNovelZero(hap):
                 print(line,file=OUT)
     OUT.close()
 
-def rnaSupport(predictor):
-        #System("cat "+hap+".novel.tmp novel-zero.txt > novel.txt")
-    #System("~/1000G/src/aceplus-rna-support.py ~/1000G/assembly/combined/HG00096 RNA6 ~/1000G/assembly/expressed.txt 0 > support.txt")
-    #System(cat support.txt | cut -f2,3 | perl -ne 'chomp;@f=split;($sup,$score)=@f;$cat=$sup>0 ? 1 : 0;print "$score\t$cat\n"' > roc.tmp ; roc.pl roc.tmp > tmp.roc ; area-under-ROC.pl tmp.roc ")
-    #System("~/1000G/src/aceplus-roc-distribution.py support.txt 1000 > scores.txt")
+def rnaSupport(predictor,hap,indiv):
+    System("cat "+hap+"."+predictor+".novel.tmp "+hap+".novel.zero > "+hap+"."+predictor+".novel")
+    System("rm "+hap+"."+predictor+".novel.tmp")
+    System(SRC+"aceplus-rna-support.py "+BASE+"/"+indiv+" "+SUBDIR+" "+EXPRESSED+" 0 "+hap+"."+predictor+".novel > "+hap+"."+predictor+".support")
+
+def ROC(predictor,hap):
+    print(predictor,hap)
+    System("cat "+hap+"."+predictor+".support | cut -f2,3 | perl -ne 'chomp;@f=split;($sup,$score)=@f;$cat=$sup>0 ? 1 : 0;print \"$score\t$cat\n\"' > roc.tmp ; roc.pl roc.tmp > tmp.roc ; area-under-ROC.pl tmp.roc ")
+    #System(SRC+"aceplus-roc-distribution.py "+hap+"."+predictor+".support 1000 > scores.txt")
     #System("cat scores.txt | summary-stats")
 
 
@@ -56,14 +76,17 @@ if(len(sys.argv)!=3):
     exit(ProgramName.get()+" <individual> <haplotype>\n")
 (indiv,HAP)=sys.argv[1:]
 
-RNA=BASE+indiv+SUBDIR
+RNA=BASE+indiv+"/"+SUBDIR
 os.chdir(RNA)
+#System(SRC+"tophat-to-junctions.py junctions.bed > junctions.txt")
 if(not os.path.exists("temp")): System("mkdir temp")
-System("grep -v ALT ../"+HAP+".aceplus.gff > temp/"+HAP+".anno.gff")
+#System("grep -v ALT ../"+HAP+".aceplus.gff > temp/"+HAP+".anno.gff")
 os.chdir("temp")
+#for predictor in PREDICTORS:
+    #getNovel(predictor,HAP)
+#makeNovelZero(HAP)
 for predictor in PREDICTORS:
-    getNovel(predictor,HAP)
-makeNovelZero(HAP)
-
+    #rnaSupport(predictor,HAP,indiv)
+    ROC(predictor,HAP)
 
 

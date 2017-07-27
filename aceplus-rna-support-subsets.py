@@ -132,9 +132,9 @@ def loadExpressed(filename):
 #=========================================================================
 # main()
 #=========================================================================
-if(len(sys.argv)!=6):
-    exit(ProgramName.get()+" </path/to/indiv> <RNA-subdir> <expressed.txt> <broken-only:0|1> <predictor>\n")
-(baseDir,subdir,expressedFile,brokenOnly,novelFile)=sys.argv[1:]
+if(len(sys.argv)!=5):
+    exit(ProgramName.get()+" </path/to/indiv> <RNA-subdir> <expressed.txt> <broken-only:0|1>\n")
+(baseDir,subdir,expressedFile,brokenOnly)=sys.argv[1:]
 BROKEN_ONLY=int(brokenOnly)
 
 # Form paths to needed files
@@ -148,7 +148,11 @@ junctions=loadJunctions(junctionsFile)
 IR=None #loadIR(IRfile);
 
 # Score predictions by evidence
-processPredictions(RNA+"/temp/"+novelFile,junctions,IR)
+#processPredictions(baseDir+"/1.novel-features",junctions,IR)
+#processPredictions(baseDir+"/2.novel-features",junctions,IR)
+#processPredictions(baseDir+"/1.uniform.novel",junctions,IR)
+#processPredictions(baseDir+"/2.uniform.novel",junctions,IR)
+processPredictions(baseDir+"/subsets/novel.txt",junctions,IR)
 
 
 
