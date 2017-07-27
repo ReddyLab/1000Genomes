@@ -33,7 +33,7 @@ def getNovel(predictor,hap):
     System("cat "+hap+".anno.gff "+hap+".tmp > "+hap+"."+predictor+".gff")
     System("rm "+hap+".tmp")
     System(SRC+"get-novel-features.py "+hap+"."+predictor+".gff"+" | grep -v intron-retention > "+hap+"."+predictor+".novel.tmp")
-    #System("rm "+hap+"."+predictor+".gff")
+    System("rm "+hap+"."+predictor+".gff")
 
 def removeDuplicateALT(infile,outfile):
     IN=open(infile,"rt")
@@ -64,29 +64,32 @@ def rnaSupport(predictor,hap,indiv):
 
 def ROC(predictor,hap):
     print(predictor,hap)
-    System("cat "+hap+"."+predictor+".support | cut -f2,3 | perl -ne 'chomp;@f=split;($sup,$score)=@f;$cat=$sup>0 ? 1 : 0;print \"$score\t$cat\n\"' > roc.tmp ; roc.pl roc.tmp > tmp.roc ; area-under-ROC.pl tmp.roc ")
-    #System(SRC+"aceplus-roc-distribution.py "+hap+"."+predictor+".support 1000 > scores.txt")
-    #System("cat scores.txt | summary-stats")
-
+    System("cat "+hap+"."+predictor+".support | cut -f2,3 | perl -ne 'chomp;@f=split;($sup,$score)=@f;$cat=$sup>0 ? 1 : 0;print \"$score\t$cat\n\"' > roc.tmp ; roc.pl roc.tmp > tmp.roc ; rm roc.tmp ; area-under-ROC.pl tmp.roc ; mv tmp.roc "+hap+"."+predictor+".roc")
+    System(SRC+"aceplus-roc-distribution.py "+hap+"."+predictor+".support 1000 > "+hap+"."+predictor+".auc")
+    System("cat "+hap+"."+predictor+".auc | summary-stats > "+hap+".tmp")
+    with open(hap+".tmp","rt") as IN:
+        line=IN.readline()
+        print("AUC_DISTRIBUTION",predictor,hap,line,sep="\t")
 
 #=========================================================================
 # main()
 #=========================================================================
-if(len(sys.argv)!=3):
-    exit(ProgramName.get()+" <individual> <haplotype>\n")
-(indiv,HAP)=sys.argv[1:]
+if(len(sys.argv)!=2):
+    exit(ProgramName.get()+" <individual>\n")
+(indiv,)=sys.argv[1:]
 
 RNA=BASE+indiv+"/"+SUBDIR
 os.chdir(RNA)
-#System(SRC+"tophat-to-junctions.py junctions.bed > junctions.txt")
+System(SRC+"tophat-to-junctions.py junctions.bed > junctions.txt")
 if(not os.path.exists("temp")): System("mkdir temp")
-#System("grep -v ALT ../"+HAP+".aceplus.gff > temp/"+HAP+".anno.gff")
-os.chdir("temp")
-#for predictor in PREDICTORS:
-    #getNovel(predictor,HAP)
-#makeNovelZero(HAP)
-for predictor in PREDICTORS:
-    #rnaSupport(predictor,HAP,indiv)
-    ROC(predictor,HAP)
+for hap in (1,2):
+    HAP=str(hap)
+    System("grep -v ALT ../"+HAP+".aceplus.gff > temp/"+HAP+".anno.gff")
+    os.chdir("temp")
+    for predictor in PREDICTORS: getNovel(predictor,HAP)
+    makeNovelZero(HAP)
+    for predictor in PREDICTORS:
+        rnaSupport(predictor,HAP,indiv)
+        ROC(predictor,HAP)
 
 
