@@ -15,8 +15,8 @@ from SlurmWriter import SlurmWriter
 from Rex import Rex
 rex=Rex()
 
-NICE=500
-MEMORY=50000 # 5000
+NICE=0
+MEMORY=50000 # 5000 or 50000
 QUEUE="new,all"
 JOB="ACE+"
 MAX_PARALLEL=1000
@@ -28,7 +28,8 @@ INDIV=THOUSAND+"/combined/HG00096"
 SUBSETS=INDIV+"/subsets"
 INPUTS=SUBSETS+"/inputs"
 OUTPUTS=SUBSETS+"/outputs"
-MODEL="/home/bmajoros/1000G/ACEPLUS/model"
+#MODEL="/home/bmajoros/1000G/ACEPLUS/model"
+MODEL="/home/bmajoros/1000G/ACEPLUS/model/aceplus.config"
 
 slurm=SlurmWriter()
 files=os.listdir(INPUTS)
@@ -50,5 +51,5 @@ for file in files:
 slurm.nice(NICE)
 slurm.mem(MEMORY)
 slurm.setQueue(QUEUE)
-slurm.writeArrayScript(SLURM_DIR,JOB,MAX_PARALLEL)
+slurm.writeArrayScript(SLURM_DIR,JOB,MAX_PARALLEL)#,"#SBATCH --spread-job\n")
 

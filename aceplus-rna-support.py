@@ -61,7 +61,9 @@ def loadPredictions(filename):
              fate,broken)=fields
             if(BROKEN_ONLY and broken=="false"): continue
             if(fate=="NMD" or fate=="nonstop-decay"): continue
-            if(not rex.find("ALT\d+_(\S+)_\d+",altID)): raise Exception(altID)
+            if(not rex.find("ALT\d+_(\S+)_\d+",altID)): 
+                #raise Exception(altID)
+                rex.find("(\S+)_\d+",altID)
             transID=rex[1]
             if(transID not in expressed): continue
             key=substrate+" "+interval
@@ -82,7 +84,9 @@ def loadPredictions(filename):
 def processPredictions(filename,junctions,IR):
     predictions=loadPredictions(filename)
     for altID in predictions.keys():
-        if(not rex.find("ALT\d+_(\S+)_\d+",altID)): raise Exception(altID)
+        if(not rex.find("ALT\d+_(\S+)_\d+",altID)):
+            #raise Exception(altID)
+            rex.find("(\S+)_\d+",altID)
         transID=rex[1]
         if(transID not in expressed): continue
         features=predictions[altID]

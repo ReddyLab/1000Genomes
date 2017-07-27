@@ -37,6 +37,8 @@ def process(bySubstrate):
         for transcript in array:
             if(isMapped(transcript)): continue
             id=transcript.getID()
+            if(rex.find("ALT\d+_(ALT\d+\S+)",id)):
+                id=rex[1]
             if(rex.find("ALT\d+_(\S+)",id)):
                 id="ALT"+str(nextAlt)+"_"+rex[1]
                 transcript.setTranscriptId(id)
@@ -51,9 +53,10 @@ if(len(sys.argv)<2):
     exit(ProgramName.get()+" <in1.gff> <in2.gff> ...  >  out.gff\n")
 filenames=sys.argv[1:]
 
-reader=GffTranscriptReader()
 bySubstrate={}
 for filename in filenames:
+    reader=GffTranscriptReader()
+    reader.exonsAreCDS=True
     reader.hashBySubstrateInto(filename,bySubstrate)
 process(bySubstrate)
 

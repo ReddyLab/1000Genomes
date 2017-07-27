@@ -15,7 +15,8 @@ import ProgramName
 from GffTranscriptReader import GffTranscriptReader
 
 def getKey(transcript):
-    key=""
+    #key=""
+    key=transcript.substrate+" "
     exons=transcript.getRawExons()
     for exon in exons:
         key+=str(exon.begin)+"-"+str(exon.end)+" "
@@ -31,6 +32,7 @@ if(len(sys.argv)!=2):
 totalDup=0
 totalDedup=0
 reader=GffTranscriptReader()
+reader.exonsAreCDS=True
 bySubstrate=reader.hashBySubstrate(infile)
 chroms=bySubstrate.keys()
 for chrom in chroms:
@@ -54,7 +56,7 @@ for chrom in chroms:
         gff=transcript.toGff()
         print(gff)
         totalDedup+=1
-print(totalDup,"with duplicates,\t",totalDedup,"without duplicates",
-      file=sys.stderr)
+#print(totalDup,"with duplicates,\t",totalDedup,"without duplicates",
+#      file=sys.stderr)
 
 

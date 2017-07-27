@@ -9,7 +9,7 @@ my $COMBINED="$THOUSAND/assembly/combined";
 my $RNA_LIST="$THOUSAND/assembly/id-map-parsed.txt";
 my $SLURMS="$THOUSAND/assembly/RNA-slurms";
 my $FASTQ="$THOUSAND/trim/output";
-my $OUTDIR="RNA4";
+my $OUTDIR="RNA6";
 
 my @IDs;
 my @dirs=`ls $COMBINED`;
@@ -46,7 +46,7 @@ cd $OUTDIR
 
 cat ../1.fasta ../2.fasta > 1and2.fa
 
-cat ../1.aceplus.logreg.gff ../2.aceplus.logreg.gff > 1and2.gff
+cat ../1.all-predictors.gff ../2.all-predictors.gff > 1and2.gff
 
 bowtie2-build 1and2.fa 1and2
 
@@ -72,4 +72,5 @@ $slurm->nice(500);
 $slurm->mem($MEMORY);
 $slurm->threads($CPUs);
 $slurm->setQueue("new,all");
-$slurm->writeArrayScript($SLURMS,"RNA","",1000);
+$slurm->writeArrayScript($SLURMS,"RNA","",1000,
+			"#SBATCH --exclude=x2-01-1,x2-01-2,x2-01-3,x2-01-4,x2-02-1,x2-02-2,x2-02-3,x2-02-4,x2-03-1\n");
