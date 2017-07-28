@@ -70,6 +70,7 @@ def ROC(predictor,hap):
     with open(hap+".tmp","rt") as IN:
         line=IN.readline()
         print("AUC_DISTRIBUTION",predictor,hap,line,sep="\t")
+    System("rm "+hap+".tmp")
 
 #=========================================================================
 # main()
@@ -81,15 +82,19 @@ if(len(sys.argv)!=2):
 RNA=BASE+indiv+"/"+SUBDIR
 os.chdir(RNA)
 System(SRC+"tophat-to-junctions.py junctions.bed > junctions.txt")
-if(not os.path.exists("temp")): System("mkdir temp")
+if(os.path.exists("temp")): System("rm -r temp")
+System("mkdir temp")
 for hap in (1,2):
     HAP=str(hap)
+    os.chdir(RNA)
     System("grep -v ALT ../"+HAP+".aceplus.gff > temp/"+HAP+".anno.gff")
-    os.chdir("temp")
+    os.chdir(RNA+"/temp")
     for predictor in PREDICTORS: getNovel(predictor,HAP)
     makeNovelZero(HAP)
     for predictor in PREDICTORS:
         rnaSupport(predictor,HAP,indiv)
         ROC(predictor,HAP)
+System("gzip *.novel *.support")
+System("rm *.gff")
 
 
