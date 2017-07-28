@@ -87,7 +87,7 @@ def averageRocs(rocs,Xs):
         x=Xs[i]
         Ys=getYs(rocs,i)
         (mean,SD,min,max)=SummaryStats.summaryStats(Ys)
-        print(x,mean,SD,sep="\t")
+        print(x,mean,mean-SD,mean+SD,sep="\t")
 
 #=========================================================================
 # main()
