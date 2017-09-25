@@ -63,14 +63,15 @@ def rnaSupport(predictor,hap,indiv):
     System(SRC+"aceplus-rna-support.py "+BASE+"/"+indiv+" "+SUBDIR+" "+EXPRESSED+" 0 "+hap+"."+predictor+".novel > "+hap+"."+predictor+".support")
 
 def ROC(predictor,hap):
-    print(predictor,hap)
-    System("cat "+hap+"."+predictor+".support | cut -f2,3 | perl -ne 'chomp;@f=split;($sup,$score)=@f;$cat=$sup>0 ? 1 : 0;print \"$score\t$cat\n\"' > roc.tmp ; roc.pl roc.tmp > tmp.roc ; rm roc.tmp ; area-under-ROC.pl tmp.roc ; mv tmp.roc "+hap+"."+predictor+".roc")
-    System(SRC+"aceplus-roc-distribution.py "+hap+"."+predictor+".support 1000 > "+hap+"."+predictor+".auc")
-    System("cat "+hap+"."+predictor+".auc | summary-stats > "+hap+".tmp")
-    with open(hap+".tmp","rt") as IN:
-        line=IN.readline()
-        print("AUC_DISTRIBUTION",predictor,hap,line,sep="\t")
-    System("rm "+hap+".tmp")
+    #print(predictor,hap)
+    #System("cat "+hap+"."+predictor+".support | cut -f2,3 | perl -ne 'chomp;@f=split;($sup,$score)=@f;$cat=$sup>0 ? 1 : 0;print \"$score\t$cat\n\"' > roc.tmp ; roc.pl roc.tmp > tmp.roc ; rm roc.tmp ; area-under-ROC.pl tmp.roc ; mv tmp.roc "+hap+"."+predictor+".roc")
+    System("cat "+hap+"."+predictor+".support.gz | gunzip | cut -f2,3 | perl -ne 'chomp;@f=split;($sup,$score)=@f;$cat=$sup>0 ? 1 : 0;print \"$score\t$cat\n\"' > roc.tmp ; roc.pl roc.tmp > tmp.roc ; rm roc.tmp ; area-under-ROC.pl tmp.roc ; mv tmp.roc "+hap+"."+predictor+".roc2")
+    #System(SRC+"aceplus-roc-distribution.py "+hap+"."+predictor+".support 1000 > "+hap+"."+predictor+".auc")
+    #System("cat "+hap+"."+predictor+".auc | summary-stats > "+hap+".tmp")
+    #with open(hap+".tmp","rt") as IN:
+    #    line=IN.readline()
+    #    print("AUC_DISTRIBUTION",predictor,hap,line,sep="\t")
+    #System("rm "+hap+".tmp")
 
 #=========================================================================
 # main()
@@ -80,21 +81,21 @@ if(len(sys.argv)!=2):
 (indiv,)=sys.argv[1:]
 
 RNA=BASE+indiv+"/"+SUBDIR
-os.chdir(RNA)
-System(SRC+"tophat-to-junctions.py junctions.bed > junctions.txt")
-if(os.path.exists("temp")): System("rm -r temp")
-System("mkdir temp")
+#os.chdir(RNA)
+#System(SRC+"tophat-to-junctions.py junctions.bed > junctions.txt")
+#if(os.path.exists("temp")): System("rm -r temp")
+#System("mkdir temp")
 for hap in (1,2):
     HAP=str(hap)
-    os.chdir(RNA)
-    System("grep -v ALT ../"+HAP+".aceplus.gff > temp/"+HAP+".anno.gff")
+    #os.chdir(RNA)
+    #System("grep -v ALT ../"+HAP+".aceplus.gff > temp/"+HAP+".anno.gff")
     os.chdir(RNA+"/temp")
-    for predictor in PREDICTORS: getNovel(predictor,HAP)
-    makeNovelZero(HAP)
+    #for predictor in PREDICTORS: getNovel(predictor,HAP)
+    #makeNovelZero(HAP)
     for predictor in PREDICTORS:
-        rnaSupport(predictor,HAP,indiv)
+        #rnaSupport(predictor,HAP,indiv)
         ROC(predictor,HAP)
-System("gzip *.novel *.support")
-System("rm *.gff")
+#System("gzip *.novel *.support")
+#System("rm *.gff")
 
 

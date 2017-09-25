@@ -29,7 +29,8 @@ SUBSETS=INDIV+"/subsets"
 INPUTS=SUBSETS+"/inputs"
 OUTPUTS=SUBSETS+"/outputs"
 #MODEL="/home/bmajoros/1000G/ACEPLUS/model"
-MODEL="/home/bmajoros/1000G/ACEPLUS/model/aceplus.config"
+#MODEL="/home/bmajoros/1000G/ACEPLUS/model/aceplus.config"
+MODEL="/home/bmajoros/1000G/ACEPLUS/model/shendure.config"
 
 slurm=SlurmWriter()
 files=os.listdir(INPUTS)
@@ -51,5 +52,8 @@ for file in files:
 slurm.nice(NICE)
 slurm.mem(MEMORY)
 slurm.setQueue(QUEUE)
-slurm.writeArrayScript(SLURM_DIR,JOB,MAX_PARALLEL)#,"#SBATCH --spread-job\n")
+slurm.writeArrayScript(SLURM_DIR,JOB,MAX_PARALLEL,
+                       "#SBATCH --exclude=x2-01-1,x2-01-2,x2-01-3,x2-01-4,x2-02-1,x2-02-2,x2-02-3,x2-02-4,x2-03-1")
+
+#,"#SBATCH --spread-job\n")
 

@@ -59,6 +59,8 @@ def loadPredictions(filename):
             fields[4]=float(fields[4])
             (substrate,altID,featureType,interval,score,strand,essexFeatures,
              fate,broken)=fields
+            score=float(score)
+            fields[4]=score
             if(BROKEN_ONLY and broken=="false"): continue
             if(fate=="NMD" or fate=="nonstop-decay"): continue
             if(not rex.find("ALT\d+_(\S+)_\d+",altID)): 
@@ -68,7 +70,8 @@ def loadPredictions(filename):
             if(transID not in expressed): continue
             key=substrate+" "+interval
             oldRec=seen.get(key,None)
-            if(oldRec is not None and oldRec[4]>score): continue
+            if(oldRec is not None and float(oldRec[4])>float(score)): ###
+                continue
             seen[key]=fields
     predictions={}
 

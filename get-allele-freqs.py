@@ -30,16 +30,23 @@ for file in files:
         for line in IN:
             fields=line.rstrip().split()
             if(len(fields)!=2): continue
-            if(fields[0] not in keep): continue
+            #if(fields[0] not in keep): continue
             if(not rex.find("AF=([^;]+)",fields[1])): exit(fields[1])
             AF=None
             subfields=rex[1].split(",")
             if(len(subfields)>1):
-                AF=float(subfields[0])
-                for f in subfields:
-                    if(abs(float(f)-0.5)<abs(AF-0.5)): AF=float(f)
+                #print("XXX",line)
+                #AF=float(subfields[0])
+                #for f in subfields:
+                #    if(abs(float(f)-0.5)<abs(AF-0.5)): AF=float(f)
+                continue
             else: AF=float(rex[1])
-            print(fields[0],AF,sep="\t")
+            specific=""
+            if(rex.find("(EAS_AF=.*SAS_AF=[^;]+)",fields[1])):
+                specific=rex[1]
+                subfields=specific.split(";")
+                specific="\t".join(subfields)
+            print(fields[0],AF,specific,sep="\t")
 
 
 

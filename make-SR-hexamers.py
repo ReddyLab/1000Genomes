@@ -12,7 +12,7 @@ from builtins import (bytes, dict, int, list, object, range, str, ascii,
 # Python 3.  You might need to update your version of module "future".
 import sys
 import ProgramName
-from Shuffler import Shuffler
+from NgramIterator import NgramIterator
 
 def loadBetas(filename):
     sums={}
@@ -95,24 +95,28 @@ def loadMotifs(filename):
     with open(filename,"rt") as IN:
         for line in IN:
             motif=line.rstrip()
-            if(wantShuffle): motif=Shuffler.shuffleString(motif)
             if(len(motif)>0): motifs.append(motif)
     return motifs
 
 #=========================================================================
 # main()
 #=========================================================================
-if(len(sys.argv)!=4):
-    exit(ProgramName.get()+" <betas.txt> <motifs.txt> <shuffle:0|1>\n")
-(betaFile,motifFile,wantShuffle)=sys.argv[1:]
-wantShuffle=int(wantShuffle)
+if(len(sys.argv)!=2):
+    exit(ProgramName.get()+" <motifs.txt>\n")
+(motifFile,)=sys.argv[1:]
 
-betas=loadBetas(betaFile)
 motifs=loadMotifs(motifFile)
 motifs=trimMotifs(motifs,6)
 motifs=IUPAC(motifs)
-for motif in motifs:
-    score=betas[motif]
-    print(score,motif,sep="\t")
+print("\n\n")
+keep=set()
+for motif in motifs: keep.add(motif)
+ngramIterator=NgramIterator("ATCG",6)
+while(True):
+    string=ngramIterator.nextString()
+    if(string is None): break
+    #score=1.0 if string in keep else -1.0
+    score=1.0 if string in keep else 0.0
+    print(string,score,sep="\t")
 
 

@@ -17,8 +17,10 @@ for(my $i=1 ; $i<=$N ; ++$i) {
   my $file="$dir/$i.output";
   if(-e $file && done($file)) { $done[$i]=1 }
 }
+
 my $first=1;
 my $ok=1;
+print "#SBATCH --array=";
 for(my $i=1 ; $i<=$N ; ++$i) {
   next if $done[$i];
   $ok=0;
@@ -31,6 +33,25 @@ for(my $i=1 ; $i<=$N ; ++$i) {
   $first=0;
 }
 if($ok) { print "all jobs finished successfully" }
+else {
+  my $totalDone=0;
+  print "\n\nTHESE ARE DONE:\t";
+  my $first=1;
+  my $ok=1;
+  for(my $i=1 ; $i<=$N ; ++$i) {
+    next unless $done[$i];
+    $ok=0;
+    my $j; for($j=$i+1 ; $j<=$N && $done[$j]; ++$j) {}
+    if(!$first) { print "," }
+    $totalDone+=$j-$i;
+    my $end=$j-1;
+    if($i==$end) { print "$i" }
+    else { print "$i\-$end" }
+    $i=$j;
+    $first=0;
+  }
+  print "\t(total $totalDone)\n"
+}
 print "\n";
 
 

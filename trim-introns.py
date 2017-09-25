@@ -14,6 +14,7 @@ import sys
 import ProgramName
 from FastaReader import FastaReader
 from FastaWriter import FastaWriter
+import random
 
 #=========================================================================
 # main()
@@ -41,9 +42,16 @@ while(True):
         #seq=seq[:newL]
         diff=L-newL
         begin=int(diff/2)
+        begin=random.randint(0,begin)
         end=begin+newL
+        if(begin<5): begin=5
+        if(end>L-5): end=L-5
+        seq=seq[begin:end]
+    else:
+        begin=5
+        end=L-5
         seq=seq[begin:end]
     writer.addToFasta(defline,seq,OUT)
     nextIndex+=1
-    if(nextIndex>=len(lengths)): break
+    if(nextIndex>=len(lengths)): nextIndex=0
 OUT.close()

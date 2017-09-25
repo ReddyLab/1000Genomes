@@ -15,7 +15,7 @@ import math
 import ProgramName
 from FastaReader import FastaReader
 
-LENGTH_NORMALIZE=False
+#LENGTH_NORMALIZE=False
 
 def loadWeights(filename):
     hash={}
@@ -29,8 +29,7 @@ def loadWeights(filename):
             weight=float(fields[1])
             hash[fields[0]]=weight
             if(abs(weight)>largestAbs): largestAbs=abs(weight)
-    for key in hash.keys():
-        hash[key]=hash[key]/largestAbs
+    #for key in hash.keys(): hash[key]=hash[key]/largestAbs
     return hash
 
 def scoreSequence(seq,model):
@@ -44,9 +43,10 @@ def scoreSequence(seq,model):
 #=========================================================================
 # main()
 #=========================================================================
-if(len(sys.argv)!=4):
-    exit(ProgramName.get()+" <hexamer-weights.txt> <in.fasta> <class>\n")
-(weightsFile,fastaFile,category)=sys.argv[1:]
+if(len(sys.argv)!=5):
+    exit(ProgramName.get()+" <hexamer-weights.txt> <in.fasta> <class> <length-normalize:0|1>\n")
+(weightsFile,fastaFile,category,LENGTH_NORMALIZE)=sys.argv[1:]
+LENGTH_NORMALIZE=int(LENGTH_NORMALIZE)
 
 model=loadWeights(weightsFile)
 reader=FastaReader(fastaFile)
