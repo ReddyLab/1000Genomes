@@ -16,7 +16,7 @@ from Rex import Rex
 rex=Rex()
 
 NICE=0
-MEMORY=50000 # 5000 or 50000
+MEMORY=5000 # 5000 or 50000
 QUEUE="new,all"
 JOB="ACE+"
 MAX_PARALLEL=1000
